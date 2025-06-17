@@ -15,9 +15,14 @@ bot = Bot('токен')
 dp = Dispatcher()
 
 # Отвечает только на текст "Привет"
-@dp.message_created(F.message.body.text == 'Привет')
+@dp.message_created(F.message.body.text == 'q')
 async def hello(obj: MessageCreated):
-    await obj.message.answer('Привет 👋')
+    msg = await obj.message.answer('Привет 👋')
+
+    a = await obj.bot.get_video('f9LHodD0cOJ5BfLGZ81uXgypU1z7PNhJMkmIe_dtEcxfC3V8vxWk65mRJX8MFQ5F9OAs3yDgbUv6DS6X1p7P')
+
+    ...
+
 
 # Отвечает только на текст "Клавиатура"
 @dp.message_created(F.message.body.text == 'Клавиатура')
@@ -34,7 +39,8 @@ async def hello(obj: MessageCreated):
 # Ответчает на коллбек с начинкой "1"
 @dp.message_callback(F.callback.payload == '1')
 async def _(obj: MessageCallback):
-    await obj.message.answer('Вы нажали на кнопку 1 🤩')
+    a = await obj.answer('test')
+    ...
 
 # Ответчает на коллбек с начинкой "2"
 @dp.message_callback(F.callback.payload == '2')
@@ -45,6 +51,12 @@ async def _(obj: MessageCallback):
 @dp.message_created(F.message.body.text)
 async def hello(obj: MessageCreated):
     await obj.message.answer(f'Повторяю за вами: {obj.message.body.text}')
+
+
+@dp.message_created()
+async def hello(obj: MessageCreated):
+    # await obj.message.answer(f'Повторяю за вами: {obj.message.body.text}')
+    pass
 
 
 dp.handle_webhook(bot)

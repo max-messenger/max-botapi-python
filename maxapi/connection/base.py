@@ -10,6 +10,9 @@ class BaseConnection:
 
     API_URL = 'https://botapi.max.ru'
 
+    def __init__(self):
+        self.bot = None
+
     async def request(
             self,
             method: HTTPMethod,
@@ -21,7 +24,7 @@ class BaseConnection:
         async with aiohttp.ClientSession(self.API_URL) as s:
             r = await s.request(
                 method=method.value, 
-                url=path.value, 
+                url=path.value if isinstance(path, ApiPath) else path, 
                 **kwargs
             )
 
@@ -33,4 +36,14 @@ class BaseConnection:
 
             if is_return_raw: return raw
 
-            return model(**raw)
+            model = model(**raw)
+            
+            if hasattr(model, 'message'):
+                attr = getattr(model, 'message')
+                if hasattr(attr, 'bot'):
+                    attr.bot = self.bot
+            
+            if hasattr(model, 'bot'):
+                model.bot = self.bot
+
+            return model

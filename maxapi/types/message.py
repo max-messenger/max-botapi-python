@@ -87,7 +87,10 @@ class Message(BaseModel):
     body: Optional[MessageBody] = None
     stat: Optional[MessageStat] = None
     url: Optional[str] = None
-    bot: Optional[Any] = None
+    bot: Optional[Any] = Field(default=None, exclude=True)
+    
+    if TYPE_CHECKING:
+        bot: Optional[Bot]
 
     async def answer(self,
             text: str = None,
@@ -97,8 +100,7 @@ class Message(BaseModel):
             notify: bool = True,
             parse_mode: ParseMode = None
         ):
-        bot: Bot = self.bot
-        return await bot.send_message(
+        return await self.bot.send_message(
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
             text=text,
@@ -108,10 +110,36 @@ class Message(BaseModel):
             notify=notify,
             parse_mode=parse_mode
         )
+    
+    async def edit(
+            self,
+            text: str = None,
+            attachments: List[Attachment] = None,
+            link: NewMessageLink = None,
+            notify: bool = True,
+            parse_mode: ParseMode = None
+        ):
+        return await self.bot.edit_message(
+            message_id=self.body.mid,
+            text=text,
+            attachments=attachments,
+            link=link,
+            notify=notify,
+            parse_mode=parse_mode
+        )
+    
+    async def delete(self):
+        return await self.bot.delete_message(
+            message_id=self.body.mid,
+        )
 
 
 class Messages(BaseModel):
     messages: List[Message]
+    bot: Optional[Any] = Field(default=None, exclude=True)
+    
+    if TYPE_CHECKING:
+        bot: Optional[Bot]
 
 
 class NewMessageLink(BaseModel):

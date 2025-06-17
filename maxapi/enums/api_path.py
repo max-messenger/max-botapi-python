@@ -5,3 +5,5 @@ class ApiPath(str, Enum):
     CHATS = '/chats'
     MESSAGES = '/messages'
     UPDATES = '/updates'
+    VIDEOS = '/videos'
+    ANSWERS = '/answers'

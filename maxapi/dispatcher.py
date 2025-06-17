@@ -67,7 +67,7 @@ class Dispatcher:
             for event in router.event_handlers:
                 self.event_handlers.append(event)
 
-    def handle_webhook(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080):
+    def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080):
         self.bot = bot
 
         app = FastAPI()
@@ -91,11 +91,13 @@ class Dispatcher:
                     case UpdateType.MESSAGE_CALLBACK:
                         event_object = MessageCallback(**event_json)
                         event_object.message.bot = self.bot
+                        event_object.bot = self.bot
                     case UpdateType.MESSAGE_CHAT_CREATED:
                         event_object = MessageChatCreated(**event_json)
                     case UpdateType.MESSAGE_CREATED:
                         event_object = MessageCreated(**event_json)
                         event_object.message.bot = self.bot
+                        event_object.bot = self.bot
                     case UpdateType.MESSAGE_EDITED:
                         event_object = MessageEdited(**event_json)
                     case UpdateType.MESSAGE_REMOVED:

@@ -6,3 +6,4 @@ class HTTPMethod(str, Enum):
     GET = 'GET'
     PATCH = 'PATCH'
     PUT = 'PUT'
+    DELETE = 'DELETE'

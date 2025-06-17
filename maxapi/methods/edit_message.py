@@ -1,15 +1,11 @@
-
-
 from typing import List, TYPE_CHECKING
 
-from aiomax.enums.parse_mode import ParseMode
-
+from .types.edited_message import EditedMessage
+from ..types.message import NewMessageLink
 from ..types.attachments.attachment import Attachment
-
+from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
-from ..types.message import NewMessageLink
-from .types.edited_message import EditedMessage
 from ..connection.base import BaseConnection
 
 
@@ -23,8 +19,8 @@ class EditMessage(BaseConnection):
             bot: 'Bot',
             message_id: str,
             text: str = None,
-            attachments: List[Attachment] = None,
-            link: NewMessageLink = None,
+            attachments: List['Attachment'] = None,
+            link: 'NewMessageLink' = None,
             notify: bool = True,
             parse_mode: ParseMode = None
         ):
@@ -36,7 +32,7 @@ class EditMessage(BaseConnection):
             self.notify = notify
             self.parse_mode = parse_mode
 
-    async def request(self) -> 'EditedMessage':
+    async def request(self) -> EditedMessage:
         params = self.bot.params.copy()
 
         json = {}

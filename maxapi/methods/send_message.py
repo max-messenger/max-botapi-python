@@ -2,15 +2,12 @@
 
 from typing import List, TYPE_CHECKING
 
-from ..enums.parse_mode import ParseMode
-
+from .types.sended_message import SendedMessage
 from ..types.message import NewMessageLink
-
 from ..types.attachments.attachment import Attachment
-
+from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
-from .types.sended_message import SendedMessage
 from ..connection.base import BaseConnection
 
 
@@ -41,28 +38,32 @@ class SendMessage(BaseConnection):
             self.notify = notify
             self.parse_mode = parse_mode
 
-    async def request(self) -> 'SendedMessage':
-        params = self.bot.params.copy()
+    async def request(self) -> SendedMessage:
+        try:
+            params = self.bot.params.copy()
 
-        json = {}
+            json = {}
 
-        if self.chat_id: params['chat_id'] = self.chat_id
-        elif self.user_id: params['user_id'] = self.user_id
+            if self.chat_id: params['chat_id'] = self.chat_id
+            elif self.user_id: params['user_id'] = self.user_id
 
-        json['text'] = self.text
-        json['disable_link_preview'] = str(self.disable_link_preview).lower()
-        
-        if self.attachments: json['attachments'] = \
-          [att.model_dump() for att in self.attachments]
-        
-        if not self.link is None: json['link'] = self.link.model_dump()
-        if not self.notify is None: json['notify'] = self.notify
-        if not self.parse_mode is None: json['format'] = self.parse_mode.value
+            json['text'] = self.text
+            json['disable_link_preview'] = str(self.disable_link_preview).lower()
+            
+            if self.attachments: json['attachments'] = \
+            [att.model_dump() for att in self.attachments]
+            
+            if not self.link is None: json['link'] = self.link.model_dump()
+            if not self.notify is None: json['notify'] = self.notify
+            if not self.parse_mode is None: json['format'] = self.parse_mode.value
 
-        return await super().request(
-            method=HTTPMethod.POST, 
-            path=ApiPath.MESSAGES,
-            model=SendedMessage,
-            params=params,
-            json=json
-        )
+            return await super().request(
+                method=HTTPMethod.POST, 
+                path=ApiPath.MESSAGES,
+                model=SendedMessage,
+                params=params,
+                json=json
+            )
+        except Exception as e:
+            print(e)
+            ...
