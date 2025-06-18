@@ -3,7 +3,7 @@
 from re import findall
 from typing import TYPE_CHECKING
 
-from maxapi.methods.types.getted_list_admin_chat import GettedListAdminChat
+from ..methods.types.getted_list_admin_chat import GettedListAdminChat
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath

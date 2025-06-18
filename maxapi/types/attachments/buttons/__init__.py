@@ -1,12 +1,15 @@
-from typing import Literal
-from pydantic import BaseModel
+from typing import Union
 
-from ....enums.button_type import ButtonType
+from .callback_button import CallbackButton
+from .chat_button import ChatButton
+from .link_button import LinkButton
+from .request_contact import RequestContact
+from .request_geo_location_button import RequestGeoLocationButton
 
-
-class Button(BaseModel):
-    type: ButtonType
-    text: str
-
-    class Config:
-        use_enum_values = True
+InlineButtonUnion = Union[
+    CallbackButton,
+    ChatButton,
+    LinkButton,
+    RequestContact,
+    RequestGeoLocationButton
+]

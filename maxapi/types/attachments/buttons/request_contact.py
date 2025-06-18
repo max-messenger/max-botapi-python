@@ -1,4 +1,4 @@
-from ....types.attachments.buttons import Button
+from .button import Button
 
 
 class RequestContact(Button):

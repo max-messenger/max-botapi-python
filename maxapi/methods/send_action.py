@@ -2,8 +2,8 @@
 
 from typing import List, TYPE_CHECKING
 
-from maxapi.enums.sender_action import SenderAction
-from maxapi.methods.types.sended_action import SendedAction
+from ..enums.sender_action import SenderAction
+from ..methods.types.sended_action import SendedAction
 
 from .types.sended_message import SendedMessage
 from ..types.message import NewMessageLink

@@ -1,9 +1,22 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from . import Update
+from pydantic import Field
+
+from .update import Update
 from ...types.users import User
+
+if TYPE_CHECKING:
+    from ...bot import Bot
+    
 
 class ChatTitleChanged(Update):
     chat_id: Optional[int] = None
     user: User
     title: Optional[str] = None
+    bot: Optional[Any] = Field(default=None, exclude=True)
+    
+    if TYPE_CHECKING:
+        bot: Optional[Bot]
+
+    def get_ids(self):
+        return (self.chat_id, self.user.user_id)

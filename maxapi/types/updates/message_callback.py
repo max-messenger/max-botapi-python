@@ -2,7 +2,7 @@ from typing import Any, List, Optional, TYPE_CHECKING, Union
 
 from pydantic import BaseModel, Field
 
-from . import Update
+from .update import Update
 from ...types.callback import Callback
 from ...types.message import Message
 
@@ -49,6 +49,9 @@ class MessageCallback(Update):
 
     if TYPE_CHECKING:
         bot: Optional[Bot]
+
+    def get_ids(self):
+        return (self.message.recipient.chat_id, self.message.recipient.user_id)
     
     async def answer(
             self,

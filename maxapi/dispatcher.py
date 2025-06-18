@@ -1,61 +1,33 @@
 from typing import Callable, List
 
-import aiohttp
-from fastapi.responses import JSONResponse
-import uvicorn
-
 from fastapi import FastAPI, Request
-from magic_filter import MagicFilter
+from fastapi.responses import JSONResponse
+from uvicorn import Config, Server
+
+from .filters.handler import Handler
+
+from .context import MemoryContext
+from .types.updates import UpdateUnion
+from .types.errors import Error
 
 from .methods.types.getted_updates import process_update_webhook, process_update_request
 
-from .filters import filter_m
-from .types.updates import Update
+from .filters import filter_attrs
 
 from .bot import Bot
 from .enums.update import UpdateType
-from .types.updates.bot_added import BotAdded
-from .types.updates.bot_removed import BotRemoved
-from .types.updates.bot_started import BotStarted
-from .types.updates.chat_title_changed import ChatTitleChanged
-from .types.updates.message_callback import MessageCallback
-from .types.updates.message_chat_created import MessageChatCreated
-from .types.updates.message_created import MessageCreated
-from .types.updates.message_edited import MessageEdited
-from .types.updates.message_removed import MessageRemoved
-from .types.updates.user_added import UserAdded
-from .types.updates.user_removed import UserRemoved
-from .loggers import logger
+from .loggers import logger_dp
 
 
 app = FastAPI()
 
 
-class Handler:
-
-    def __init__(
-            self,
-            *args,
-            func_event: Callable,
-            update_type: UpdateType,
-            **kwargs
-        ):
-        
-        self.func_event = func_event
-        self.update_type = update_type
-        self.filters = []
-
-        for arg in args:
-            if isinstance(arg, MagicFilter):
-                arg: MagicFilter = arg
-
-                self.filters.append(arg)
-
-
 class Dispatcher:
     def __init__(self):
-        self.event_handlers = []
+        self.event_handlers: List[Handler] = []
+        self.contexts: List[MemoryContext] = []
         self.bot = None
+        self.on_started_func = None
 
         self.message_created = Event(update_type=UpdateType.MESSAGE_CREATED, router=self)
         self.bot_added = Event(update_type=UpdateType.BOT_ADDED, router=self)
@@ -68,44 +40,94 @@ class Dispatcher:
         self.message_removed = Event(update_type=UpdateType.MESSAGE_REMOVED, router=self)
         self.user_added = Event(update_type=UpdateType.USER_ADDED, router=self)
         self.user_removed = Event(update_type=UpdateType.USER_REMOVED, router=self)
+        self.on_started = Event(update_type=UpdateType.ON_STARTED, router=self)
 
     def include_routers(self, *routers: 'Router'):
         for router in routers:
             for event in router.event_handlers:
                 self.event_handlers.append(event)
 
+    def get_memory_context(self, chat_id: int, user_id: int):
+        for ctx in self.contexts:
+            if ctx.chat_id == chat_id and ctx.user_id == user_id:
+                return ctx
+            
+        new_ctx = MemoryContext(chat_id, user_id)
+        self.contexts.append(new_ctx)
+        return new_ctx
+
+    async def handle(self, event_object: UpdateUnion):
+        for handler in self.event_handlers:
+
+            if not handler.update_type == event_object.update_type:
+                continue
+
+            if handler.filters:
+                if not filter_attrs(event_object, *handler.filters):
+                    continue
+
+            memory_context = self.get_memory_context(
+                *event_object.get_ids()
+            )
+            
+            if not handler.state == await memory_context.get_state() \
+                and handler.state:
+                continue
+            
+            func_args = handler.func_event.__annotations__.keys()
+
+            kwargs = {'context': memory_context}
+
+            for key in kwargs.copy().keys():
+                if not key in func_args:
+                    del kwargs[key]
+
+            if kwargs:
+                await handler.func_event(event_object, **kwargs)
+            else:
+                await handler.func_event(event_object, **kwargs)
+
+            logger_dp.info(f'Обработано: {event_object.update_type}')
+            break
+
     async def start_polling(self, bot: Bot):
         self.bot = bot
-        self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
+
+        logger_dp.info(f'{len(self.event_handlers)} event handlers started')
+
+        if self.on_started_func:
+            await self.on_started_func()
 
         while True:
             try:
                 events = await self.bot.get_updates()
+
+                if isinstance(events, Error):
+                    logger_dp.info(f'Ошибка при получении обновлений: {events}')
+                    continue
+
+                self.bot.marker_updates = events.get('marker')
+
+                processed_events = await process_update_request(
+                    events=events,
+                    bot=self.bot
+                )
                 
-                for event in events:
-                    handlers: List[Handler] = self.event_handlers
-                    for handler in handlers:
-
-                        if not handler.update_type == event.update_type:
-                            continue
-
-                        if handler.filters:
-                            if not filter_m(event, *handler.filters):
-                                continue
-
-                        await handler.func_event(event)
-                        break
+                for event in processed_events:
+                    try:
+                        await self.handle(event)
+                    except Exception as e:
+                        logger_dp.error(f"Ошибка при обработке события: {events['update_type']}: {e}")
             except Exception as e:
-                print(e)
-                ...
+                logger_dp.error(f'Общая ошибка при обработке событий: {e}')
 
-        logger.info(f'{len(self.event_handlers)} event handlers started')
-
-    def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080):
+    async def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080):
         self.bot = bot
-        self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
 
-        @app.post("/")
+        if self.on_started_func:
+            await self.on_started_func()
+
+        @app.post('/')
         async def _(request: Request):
             try:
                 event_json = await request.json()
@@ -115,26 +137,17 @@ class Dispatcher:
                     bot=self.bot
                 )
 
-                handlers: List[Handler] = self.event_handlers
-                for handler in handlers:
-
-                    if not handler.update_type == event_object.update_type:
-                        continue
-
-                    if handler.filters:
-                        if not filter_m(event_object, *handler.filters):
-                            continue
-
-                    await handler.func_event(event_object)
-                    break
+                await self.handle(event_object)
                 
                 return JSONResponse(content={'ok': True}, status_code=200)
             except Exception as e:
-                print(e)
-                ...
+                logger_dp.error(f"Ошибка при обработке события: {event_json['update_type']}: {e}")
 
-        logger.info(f'{len(self.event_handlers)} event handlers started')
-        uvicorn.run(app, host=host, port=port, log_level='critical')
+        logger_dp.info(f'{len(self.event_handlers)} событий на обработку')
+        config = Config(app=app, host=host, port=port, log_level="critical")
+        server = Server(config)
+
+        await server.serve()
 
 
 class Router(Dispatcher):
@@ -149,13 +162,16 @@ class Event:
 
     def __call__(self, *args, **kwargs):
         def decorator(func_event: Callable):
-            self.router.event_handlers.append(
-                Handler(
-                    func_event=func_event, 
-                    update_type=self.update_type,
-                    *args, **kwargs
+            if self.update_type == UpdateType.ON_STARTED:
+                self.router.on_started_func = func_event
+            else:
+                self.router.event_handlers.append(
+                    Handler(
+                        func_event=func_event, 
+                        update_type=self.update_type,
+                        *args, **kwargs
+                    )
                 )
-            )
             return func_event
             
         return decorator

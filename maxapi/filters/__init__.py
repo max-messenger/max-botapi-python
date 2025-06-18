@@ -6,7 +6,7 @@ from magic_filter.operations.comparator import ComparatorOperation as mf_compara
 F = MagicFilter()
 
 
-def filter_m(obj, *magic_args):
+def filter_attrs(obj, *magic_args):
     try:
         for arg in magic_args:
                 

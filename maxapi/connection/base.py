@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from ..types.errors import Error
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
+from ..loggers import logger_bot
 
 
 class BaseConnection:
@@ -22,8 +23,11 @@ class BaseConnection:
             is_return_raw: bool = False,
             **kwargs
         ):
-        s = self.bot.session
-        r = await s.request(
+        
+        if not self.bot.session:
+            self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
+
+        r = await self.bot.session.request(
             method=method.value, 
             url=path.value if isinstance(path, ApiPath) else path, 
             **kwargs
@@ -31,7 +35,9 @@ class BaseConnection:
 
         if not r.ok:
             raw = await r.text()
-            return Error(code=r.status, text=raw)
+            error = Error(code=r.status, text=raw)
+            logger_bot.error(error)
+            return error
         
         raw = await r.json()
 

@@ -12,3 +12,5 @@ class UpdateType(str, Enum):
     MESSAGE_REMOVED = 'message_removed'
     USER_ADDED = 'user_added'
     USER_REMOVED = 'user_removed'
+
+    ON_STARTED = 'on_started'

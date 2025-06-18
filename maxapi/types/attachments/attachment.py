@@ -1,13 +1,9 @@
 from typing import List, Optional, Union
 from pydantic import BaseModel
 
-from ...types.attachments.buttons.chat_button import ChatButton
-from ...types.attachments.buttons.request_contact import RequestContact
-from ...types.attachments.buttons.request_geo_location_button import RequestGeoLocationButton
-from ...types.attachments.buttons.link_button import LinkButton
+from ...types.attachments.buttons import InlineButtonUnion
 from ...types.users import User
 from ...enums.attachment import AttachmentType
-from .buttons.callback_button import CallbackButton
 
 AttachmentUnion = []
 
@@ -34,15 +30,7 @@ class ContactAttachmentPayload(BaseModel):
 
 
 class ButtonsPayload(BaseModel):
-    buttons: List[List[
-        Union[
-            LinkButton,
-            CallbackButton,
-            RequestGeoLocationButton,
-            RequestContact,
-            ChatButton
-        ]
-    ]]
+    buttons: List[List[InlineButtonUnion]]
 
 
 class Attachment(BaseModel):

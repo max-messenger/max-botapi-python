@@ -3,7 +3,7 @@ from typing import Any, Optional, TYPE_CHECKING, ForwardRef
 
 from pydantic import Field
 
-from . import Update
+from .update import Update
 from ...types.message import Message
 
 if TYPE_CHECKING:
@@ -17,3 +17,6 @@ class MessageCreated(Update):
     
     if TYPE_CHECKING:
         bot: Optional[Bot]
+
+    def get_ids(self):
+        return (self.message.recipient.chat_id, self.message.recipient.user_id)
