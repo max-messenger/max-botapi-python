@@ -132,6 +132,13 @@ class Message(BaseModel):
         return await self.bot.delete_message(
             message_id=self.body.mid,
         )
+    
+    async def pin(self, notify: bool = True):
+        return await self.bot.pin_message(
+            chat_id=self.recipient.chat_id,
+            message_id=self.body.mid,
+            notify=notify
+        )
 
 
 class Messages(BaseModel):

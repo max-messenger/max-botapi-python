@@ -17,13 +17,27 @@ if TYPE_CHECKING:
 
 
 class GetChats(BaseConnection):
-    def __init__(self, bot: 'Bot'):
+    def __init__(
+            self, 
+            bot: 'Bot',
+            count: int = 50,
+            marker: int = None
+        ):
         self.bot = bot
+        self.count = count
+        self.marker = marker
 
     async def request(self) -> Chats:
+        params = self.bot.params.copy()
+
+        params['count'] = self.count
+
+        if self.marker: 
+            params['marker'] = self.marker
+
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS,
             model=Chats,
-            params=self.bot.params
+            params=params
         )

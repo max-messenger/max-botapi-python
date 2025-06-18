@@ -51,16 +51,16 @@ class MessageCallback(Update):
         bot: Optional[Bot]
     
     async def answer(
-            self, 
-            text: str,
+            self,
+            notification: str,
+            new_text: str = None,
             link: NewMessageLink = None,
             notify: bool = True,
             format: ParseMode = None,
-            notification: str = None
         ):
         message = MessageForCallback()
 
-        message.text = text
+        message.text = new_text
         message.attachments = self.message.body.attachments
         message.link = link
         message.notify = notify

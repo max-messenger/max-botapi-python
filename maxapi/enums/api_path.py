@@ -7,3 +7,7 @@ class ApiPath(str, Enum):
     UPDATES = '/updates'
     VIDEOS = '/videos'
     ANSWERS = '/answers'
+    ACTIONS = '/actions'
+    PIN = '/pin'
+    MEMBERS = '/members'
+    ADMINS = '/admins'

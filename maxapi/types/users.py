@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+from ..enums.chat_permission import ChatPermission
+
 
 class BotCommand(BaseModel):
     name: str
@@ -22,5 +24,10 @@ class User(BaseModel):
 
     class Config:
         json_encoders = {
-            datetime: lambda v: int(v.timestamp() * 1000)  # Конвертация datetime в Unix-время (ms)
+            datetime: lambda v: int(v.timestamp() * 1000)
         }
+
+
+class ChatAdmin(BaseModel):
+    user_id: int
+    permissions: List[ChatPermission]

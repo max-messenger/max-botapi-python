@@ -1,9 +1,13 @@
 from typing import Callable, List
 
+import aiohttp
+from fastapi.responses import JSONResponse
 import uvicorn
 
 from fastapi import FastAPI, Request
 from magic_filter import MagicFilter
+
+from .methods.types.getted_updates import process_update_webhook, process_update_request
 
 from .filters import filter_m
 from .types.updates import Update
@@ -22,6 +26,9 @@ from .types.updates.message_removed import MessageRemoved
 from .types.updates.user_added import UserAdded
 from .types.updates.user_removed import UserRemoved
 from .loggers import logger
+
+
+app = FastAPI()
 
 
 class Handler:
@@ -67,50 +74,51 @@ class Dispatcher:
             for event in router.event_handlers:
                 self.event_handlers.append(event)
 
+    async def start_polling(self, bot: Bot):
+        self.bot = bot
+        self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
+
+        while True:
+            try:
+                events = await self.bot.get_updates()
+                
+                for event in events:
+                    handlers: List[Handler] = self.event_handlers
+                    for handler in handlers:
+
+                        if not handler.update_type == event.update_type:
+                            continue
+
+                        if handler.filters:
+                            if not filter_m(event, *handler.filters):
+                                continue
+
+                        await handler.func_event(event)
+                        break
+            except Exception as e:
+                print(e)
+                ...
+
+        logger.info(f'{len(self.event_handlers)} event handlers started')
+
     def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080):
         self.bot = bot
-
-        app = FastAPI()
+        self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
 
         @app.post("/")
         async def _(request: Request):
             try:
                 event_json = await request.json()
-                event = Update(**event_json)
 
-                event_object = None
-                match event.update_type:
-                    case UpdateType.BOT_ADDED:
-                        event_object = BotAdded(**event_json)
-                    case UpdateType.BOT_REMOVED:
-                        event_object = BotRemoved(**event_json)
-                    case UpdateType.BOT_STARTED:
-                        event_object = BotStarted(**event_json)
-                    case UpdateType.CHAT_TITLE_CHANGED:
-                        event_object = ChatTitleChanged(**event_json)
-                    case UpdateType.MESSAGE_CALLBACK:
-                        event_object = MessageCallback(**event_json)
-                        event_object.message.bot = self.bot
-                        event_object.bot = self.bot
-                    case UpdateType.MESSAGE_CHAT_CREATED:
-                        event_object = MessageChatCreated(**event_json)
-                    case UpdateType.MESSAGE_CREATED:
-                        event_object = MessageCreated(**event_json)
-                        event_object.message.bot = self.bot
-                        event_object.bot = self.bot
-                    case UpdateType.MESSAGE_EDITED:
-                        event_object = MessageEdited(**event_json)
-                    case UpdateType.MESSAGE_REMOVED:
-                        event_object = MessageRemoved(**event_json)
-                    case UpdateType.USER_ADDED:
-                        event_object = UserAdded(**event_json)
-                    case UpdateType.USER_REMOVED:
-                        event_object = UserRemoved(**event_json)
+                event_object = await process_update_webhook(
+                    event_json=event_json,
+                    bot=self.bot
+                )
 
                 handlers: List[Handler] = self.event_handlers
                 for handler in handlers:
 
-                    if not handler.update_type == event.update_type:
+                    if not handler.update_type == event_object.update_type:
                         continue
 
                     if handler.filters:
@@ -120,7 +128,7 @@ class Dispatcher:
                     await handler.func_event(event_object)
                     break
                 
-                return True
+                return JSONResponse(content={'ok': True}, status_code=200)
             except Exception as e:
                 print(e)
                 ...

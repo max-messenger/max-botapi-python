@@ -12,6 +12,7 @@ class BaseConnection:
 
     def __init__(self):
         self.bot = None
+        self.session = None
 
     async def request(
             self,
@@ -21,29 +22,29 @@ class BaseConnection:
             is_return_raw: bool = False,
             **kwargs
         ):
-        async with aiohttp.ClientSession(self.API_URL) as s:
-            r = await s.request(
-                method=method.value, 
-                url=path.value if isinstance(path, ApiPath) else path, 
-                **kwargs
-            )
+        s = self.bot.session
+        r = await s.request(
+            method=method.value, 
+            url=path.value if isinstance(path, ApiPath) else path, 
+            **kwargs
+        )
 
-            if not r.ok:
-                raw = await r.text()
-                return Error(code=r.status, text=raw)
-            
-            raw = await r.json()
+        if not r.ok:
+            raw = await r.text()
+            return Error(code=r.status, text=raw)
+        
+        raw = await r.json()
 
-            if is_return_raw: return raw
+        if is_return_raw: return raw
 
-            model = model(**raw)
-            
-            if hasattr(model, 'message'):
-                attr = getattr(model, 'message')
-                if hasattr(attr, 'bot'):
-                    attr.bot = self.bot
-            
-            if hasattr(model, 'bot'):
-                model.bot = self.bot
+        model = model(**raw)
+        
+        if hasattr(model, 'message'):
+            attr = getattr(model, 'message')
+            if hasattr(attr, 'bot'):
+                attr.bot = self.bot
+        
+        if hasattr(model, 'bot'):
+            model.bot = self.bot
 
-            return model
+        return model
