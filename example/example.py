@@ -4,14 +4,13 @@ import logging
 from maxapi import Bot, Dispatcher, F
 from maxapi.context import MemoryContext, State, StatesGroup
 from maxapi.types import BotStarted, Command, MessageCreated, CallbackButton, MessageCallback, BotCommand
-from maxapi.types.input_media import InputMedia
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
-from for_example import router
+from example.router_for_example import router
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot('f9LHodD0cOL5NY7All_9xJRh5ZhPw6bRvq_0Adm8-1bZZEHdRy6_ZHDMNVPejUYNZg7Zhty-wKHNv2X2WJBQ')
+bot = Bot('тут_ваш_токен')
 dp = Dispatcher()
 dp.include_routers(router)
 
