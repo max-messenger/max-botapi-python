@@ -1,6 +1,6 @@
 from typing import Optional
 
-from maxapi.enums.button_type import ButtonType
+from ....enums.button_type import ButtonType
 
 from ....enums.intent import Intent
 from .button import Button
