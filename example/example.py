@@ -3,19 +3,22 @@ import logging
 
 from maxapi import Bot, Dispatcher, F
 from maxapi.context import MemoryContext, State, StatesGroup
-from maxapi.types import Command, MessageCreated, CallbackButton, MessageCallback
+from maxapi.types import Command, MessageCreated, CallbackButton, MessageCallback, BotCommand
+from maxapi.types.input_media import InputMedia
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
-from example.for_example import router
+from for_example import router
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot('токен')
+bot = Bot('f9LHodD0cOL5NY7All_9xJRh5ZhPw6bRvq_0Adm8-1bZZEHdRy6_ZHDMNVPejUYNZg7Zhty-wKHNv2X2WJBQ')
 dp = Dispatcher()
 dp.include_routers(router)
 
 
-start_text = '''Мои команды:
+start_text = '''Пример чат-бота для MAX 💙
+
+Мои команды:
 
 /clear очищает ваш контекст
 /state или /context показывают ваше контекстное состояние
@@ -34,26 +37,26 @@ async def _():
 
 
 @dp.message_created(Command('clear'))
-async def hello(obj: MessageCreated, context: MemoryContext):
+async def hello(event: MessageCreated, context: MemoryContext):
     await context.clear()
-    await obj.message.answer(f"Ваш контекст был очищен!")
+    await event.message.answer(f"Ваш контекст был очищен!")
 
 
 @dp.message_created(Command('data'))
-async def hello(obj: MessageCreated, context: MemoryContext):
+async def hello(event: MessageCreated, context: MemoryContext):
     data = await context.get_data()
-    await obj.message.answer(f"Ваша контекстная память: {str(data)}")
+    await event.message.answer(f"Ваша контекстная память: {str(data)}")
 
 
 @dp.message_created(Command('context'))
 @dp.message_created(Command('state'))
-async def hello(obj: MessageCreated, context: MemoryContext):
+async def hello(event: MessageCreated, context: MemoryContext):
     data = await context.get_state()
-    await obj.message.answer(f"Ваше контекстное состояние: {str(data)}")
+    await event.message.answer(f"Ваше контекстное состояние: {str(data)}")
 
 
 @dp.message_created(Command('start'))
-async def hello(obj: MessageCreated):
+async def hello(event: MessageCreated):
     builder = InlineKeyboardBuilder()
 
     builder.row(
@@ -73,49 +76,73 @@ async def hello(obj: MessageCreated):
         )
     )
 
-    await obj.message.answer(
+    await event.message.answer(
         text=start_text, 
-        attachments=[builder.as_markup()] #  Для MAX клавиатура это вложение, 
-    )                                    # поэтому она в списке вложений
+        attachments=[
+            builder.as_markup(),
+        ]                               # Для MAX клавиатура это вложение, 
+    )                                       # поэтому она в списке вложений
     
 
 @dp.message_callback(F.callback.payload == 'btn_1')
-async def hello(obj: MessageCallback, context: MemoryContext):
+async def hello(event: MessageCallback, context: MemoryContext):
     await context.set_state(Form.name)
-    await obj.message.delete()
-    await obj.message.answer(f'Отправьте свое имя:')
+    await event.message.delete()
+    await event.message.answer(f'Отправьте свое имя:')
 
 
 @dp.message_callback(F.callback.payload == 'btn_2')
-async def hello(obj: MessageCallback, context: MemoryContext):
+async def hello(event: MessageCallback, context: MemoryContext):
     await context.set_state(Form.age)
-    await obj.message.delete()
-    await obj.message.answer(f'Отправьте ваш возраст:')
+    await event.message.delete()
+    await event.message.answer(f'Отправьте ваш возраст:')
 
 
 @dp.message_callback(F.callback.payload == 'btn_3')
-async def hello(obj: MessageCallback, context: MemoryContext):
-    await obj.message.delete()
-    await obj.message.answer(f'Ну ладно 🥲')
+async def hello(event: MessageCallback, context: MemoryContext):
+    await event.message.delete()
+    await event.message.answer(f'Ну ладно 🥲')
 
 
 @dp.message_created(F.message.body.text, Form.name)
-async def hello(obj: MessageCreated, context: MemoryContext):
-    await context.update_data(name=obj.message.body.text)
+async def hello(event: MessageCreated, context: MemoryContext):
+    await context.update_data(name=event.message.body.text)
 
     data = await context.get_data()
 
-    await obj.message.answer(f"Приятно познакомиться, {data['name'].title()}!")
+    await event.message.answer(f"Приятно познакомиться, {data['name'].title()}!")
     
 
 @dp.message_created(F.message.body.text, Form.age)
-async def hello(obj: MessageCreated, context: MemoryContext):
-    await context.update_data(age=obj.message.body.text)
+async def hello(event: MessageCreated, context: MemoryContext):
+    await context.update_data(age=event.message.body.text)
 
-    await obj.message.answer(f"Ого! А мне всего пару недель 😁")
+    await event.message.answer(f"Ого! А мне всего пару недель 😁")
 
 
 async def main():
+    await bot.set_my_commands(
+        BotCommand(
+            name='/start',
+            description='Перезапустить бота'
+        ),
+        BotCommand(
+            name='/clear',
+            description='Очищает ваш контекст'
+        ),
+        BotCommand(
+            name='/state',
+            description='Показывают ваше контекстное состояние'
+        ),
+        BotCommand(
+            name='/data',
+            description='Показывает вашу контекстную память'
+        ),
+        BotCommand(
+            name='/context',
+            description='Показывают ваше контекстное состояние'
+        )
+    )
     await dp.start_polling(bot)
     # await dp.handle_webhook(
     #     bot=bot,

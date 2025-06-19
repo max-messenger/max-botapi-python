@@ -1,6 +1,8 @@
 from typing import List, Optional, Union
 from pydantic import BaseModel
 
+from ...types.attachments.upload import AttachmentUpload
+
 from ...types.attachments.buttons import InlineButtonUnion
 from ...types.users import User
 from ...enums.attachment import AttachmentType
@@ -36,6 +38,7 @@ class ButtonsPayload(BaseModel):
 class Attachment(BaseModel):
     type: AttachmentType
     payload: Optional[Union[
+        AttachmentUpload,
         PhotoAttachmentPayload, 
         OtherAttachmentPayload, 
         ContactAttachmentPayload, 

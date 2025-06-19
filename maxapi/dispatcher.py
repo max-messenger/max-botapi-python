@@ -3,6 +3,7 @@ from typing import Callable, List
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from uvicorn import Config, Server
+from aiohttp import ClientConnectorDNSError
 
 from .filters.handler import Handler
 
@@ -121,7 +122,9 @@ class Dispatcher:
                     try:
                         await self.handle(event)
                     except Exception as e:
-                        logger_dp.error(f"Ошибка при обработке события: {events['update_type']}: {e}")
+                        logger_dp.error(f"Ошибка при обработке события: {event.update_type}: {e}")
+            except ClientConnectorDNSError:
+                logger_dp.error(f'Ошибка подключения: {e}')
             except Exception as e:
                 logger_dp.error(f'Общая ошибка при обработке событий: {e}')
 

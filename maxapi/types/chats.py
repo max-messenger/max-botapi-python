@@ -1,23 +1,14 @@
 from pydantic import BaseModel, field_validator
 from typing import Dict, List, Optional
-from enum import Enum
 from datetime import datetime
 
+from ..enums.chat_status import ChatStatus
+from ..enums.chat_type import ChatType
 from ..enums.chat_permission import ChatPermission
 
 from ..types.users import User
 from ..types.message import Message
 
-class ChatType(str, Enum):
-    DIALOG = "dialog"
-    CHAT = "chat"
-
-class ChatStatus(str, Enum):
-    ACTIVE = "active"
-    REMOVED = "removed"
-    LEFT = "left"
-    CLOSED = "closed"
-    SUSPENDED = "suspended"
 
 class Icon(BaseModel):
     url: str

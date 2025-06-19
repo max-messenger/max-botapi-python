@@ -29,7 +29,7 @@ class Handler:
             elif isinstance(arg, State):
                 self.state = arg
             elif isinstance(arg, Command):
-                self.filters.insert(0, F.message.body.text == arg.command)
+                self.filters.insert(0, F.message.body.text.startswith(arg.command))
             else:
                 logger_dp.info(f'Обнаружен неизвестный фильтр `{arg}` при ' 
                                f'регистрации функции `{func_event.__name__}`')

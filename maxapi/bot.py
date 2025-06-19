@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, TYPE_CHECKING
 
+from .methods.get_upload_url import GetUploadURL
 from .methods.get_updates import GetUpdates
 from .methods.remove_member_chat import RemoveMemberChat
 from .methods.add_admin_chat import AddAdminChat
@@ -30,6 +31,7 @@ from .methods.send_message import SendMessage
 
 from .enums.parse_mode import ParseMode
 from .enums.sender_action import SenderAction
+from .enums.upload_type import UploadType
 
 from .types.attachments.attachment import Attachment
 from .types.attachments.image import PhotoAttachmentRequestPayload
@@ -47,7 +49,7 @@ class Bot(BaseConnection):
 
     def __init__(self, token: str):
         super().__init__()
-        
+
         self.bot = self
 
         self.__token = token
@@ -335,6 +337,15 @@ class Bot(BaseConnection):
     ):
         return await GetUpdates(
             bot=self,
+        ).request()
+    
+    async def get_upload_url(
+            self,
+            type: UploadType
+    ):
+        return await GetUploadURL(
+            bot=self,
+            type=type
         ).request()
     
     async def set_my_commands(

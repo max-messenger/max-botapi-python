@@ -1,11 +1,7 @@
-
-
 from re import findall
 from typing import TYPE_CHECKING
 
 from ..types.chats import Chat
-
-from ..types.users import User
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath

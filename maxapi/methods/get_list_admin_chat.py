@@ -1,6 +1,3 @@
-
-
-from re import findall
 from typing import TYPE_CHECKING
 
 from ..methods.types.getted_list_admin_chat import GettedListAdminChat

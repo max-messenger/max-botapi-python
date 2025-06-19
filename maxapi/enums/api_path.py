@@ -11,3 +11,4 @@ class ApiPath(str, Enum):
     PIN = '/pin'
     MEMBERS = '/members'
     ADMINS = '/admins'
+    UPLOADS = '/uploads'

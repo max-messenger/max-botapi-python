@@ -1,6 +1,3 @@
-
-
-from re import findall
 from typing import TYPE_CHECKING, List
 
 from ..methods.types.getted_members_chat import GettedMembersChat

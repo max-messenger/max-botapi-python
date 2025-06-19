@@ -1,5 +1,3 @@
-
-
 from typing import Any, Dict, List, TYPE_CHECKING
 
 from ..types.users import User

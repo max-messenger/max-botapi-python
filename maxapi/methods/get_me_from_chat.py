@@ -2,9 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from ..types.chats import ChatMember, Chats
-
-from ..types.users import User
+from ..types.chats import ChatMember
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath

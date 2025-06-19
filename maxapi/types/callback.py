@@ -1,7 +1,5 @@
-from typing import List, Optional, Union
+from typing import Optional
 from pydantic import BaseModel
-
-from ..types.users import User
 
 from ..types.users import User
 
