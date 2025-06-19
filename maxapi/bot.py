@@ -34,7 +34,8 @@ from .enums.sender_action import SenderAction
 from .types.attachments.attachment import Attachment
 from .types.attachments.image import PhotoAttachmentRequestPayload
 from .types.message import NewMessageLink
-from .types.users import BotCommand, ChatAdmin
+from .types.users import ChatAdmin
+from .types.command import BotCommand
 
 from .connection.base import BaseConnection
 
@@ -46,12 +47,11 @@ class Bot(BaseConnection):
 
     def __init__(self, token: str):
         super().__init__()
+        
         self.bot = self
 
         self.__token = token
-        self.params = {
-            'access_token': self.__token
-        }
+        self.params = {'access_token': self.__token}
         self.marker_updates = None
         
     async def send_message(
@@ -335,4 +335,13 @@ class Bot(BaseConnection):
     ):
         return await GetUpdates(
             bot=self,
+        ).request()
+    
+    async def set_my_commands(
+            self,
+            *commands: BotCommand
+    ):
+        return await ChangeInfo(
+            bot=self,
+            commands=list(commands)
         ).request()

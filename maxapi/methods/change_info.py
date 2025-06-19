@@ -2,7 +2,8 @@
 
 from typing import Any, Dict, List, TYPE_CHECKING
 
-from ..types.users import BotCommand, User
+from ..types.users import User
+from ..types.command import BotCommand
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath

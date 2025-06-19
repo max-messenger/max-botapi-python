@@ -19,7 +19,7 @@
 
 pip install maxapi==0.1
 
-Запуск бота из папки example:
+Запуск бота из папки https://github.com/love-apples/maxapi/tree/main/example:
 
 python example.py
 ```

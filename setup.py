@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="maxapi",
-    version="0.1",
+    version="0.3",
     packages=find_packages(),
     description="Библиотека для взаимодействия с API мессенджера MAX",
     long_description=open("README.md", encoding='utf-8').read(),

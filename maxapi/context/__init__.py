@@ -26,11 +26,14 @@ class MemoryContext:
             self._context.update(kwargs)
 
     async def set_state(self, state: State | str = None):
-        self._state = state
+        async with self._lock:
+            self._state = state
 
     async def get_state(self):
-        return self._state
+        async with self._lock:
+            return self._state
 
     async def clear(self):
-        self._state = None
-        self._context = {}
+        async with self._lock:
+            self._state = None
+            self._context = {}

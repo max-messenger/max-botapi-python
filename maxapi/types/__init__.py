@@ -21,9 +21,10 @@ from ..types.attachments.buttons.link_button import LinkButton
 from ..types.attachments.buttons.request_contact import RequestContact
 from ..types.attachments.buttons.request_geo_location_button import RequestGeoLocationButton
 
-from ..types.command import Command
+from ..types.command import Command, BotCommand
 
 __all__ = [
+    BotCommand,
     CallbackButton,
     ChatButton,
     LinkButton,

@@ -57,6 +57,8 @@ class Dispatcher:
         return new_ctx
 
     async def handle(self, event_object: UpdateUnion):
+        is_handled = False
+
         for handler in self.event_handlers:
 
             if not handler.update_type == event_object.update_type:
@@ -66,9 +68,9 @@ class Dispatcher:
                 if not filter_attrs(event_object, *handler.filters):
                     continue
 
-            memory_context = self.get_memory_context(
-                *event_object.get_ids()
-            )
+            ids = event_object.get_ids()
+
+            memory_context = self.get_memory_context(*ids)
             
             if not handler.state == await memory_context.get_state() \
                 and handler.state:
@@ -82,13 +84,15 @@ class Dispatcher:
                 if not key in func_args:
                     del kwargs[key]
 
-            if kwargs:
-                await handler.func_event(event_object, **kwargs)
-            else:
-                await handler.func_event(event_object, **kwargs)
+            await handler.func_event(event_object, **kwargs)
 
-            logger_dp.info(f'Обработано: {event_object.update_type}')
+            logger_dp.info(f'Обработано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+
+            is_handled = True
             break
+
+        if not is_handled:
+            logger_dp.info(f'Проигнорировано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
 
     async def start_polling(self, bot: Bot):
         self.bot = bot

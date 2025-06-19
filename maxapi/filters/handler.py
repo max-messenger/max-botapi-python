@@ -5,6 +5,7 @@ from magic_filter import F, MagicFilter
 from ..types.command import Command
 from ..context.state_machine import State
 from ..enums.update import UpdateType
+from ..loggers import logger_dp
 
 
 class Handler:
@@ -29,3 +30,6 @@ class Handler:
                 self.state = arg
             elif isinstance(arg, Command):
                 self.filters.insert(0, F.message.body.text == arg.command)
+            else:
+                logger_dp.info(f'Обнаружен неизвестный фильтр `{arg}` при ' 
+                               f'регистрации функции `{func_event.__name__}`')

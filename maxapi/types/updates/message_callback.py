@@ -51,7 +51,7 @@ class MessageCallback(Update):
         bot: Optional[Bot]
 
     def get_ids(self):
-        return (self.message.recipient.chat_id, self.message.recipient.user_id)
+        return (self.message.recipient.chat_id, self.callback.user.user_id)
     
     async def answer(
             self,

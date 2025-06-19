@@ -19,4 +19,4 @@ class MessageCreated(Update):
         bot: Optional[Bot]
 
     def get_ids(self):
-        return (self.message.recipient.chat_id, self.message.recipient.user_id)
+        return (self.message.recipient.chat_id, self.message.sender.user_id)

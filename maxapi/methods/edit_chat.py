@@ -5,10 +5,8 @@ from typing import Any, Dict, List, TYPE_CHECKING
 from collections import Counter
 
 from ..types.attachments.image import PhotoAttachmentRequestPayload
-
 from ..types.chats import Chat
-
-from ..types.users import BotCommand, User
+from ..types.command import Command
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath

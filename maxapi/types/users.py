@@ -3,11 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from ..enums.chat_permission import ChatPermission
-
-
-class BotCommand(BaseModel):
-    name: str
-    description: Optional[str] = None
+from ..types.command import BotCommand
 
 
 class User(BaseModel):
