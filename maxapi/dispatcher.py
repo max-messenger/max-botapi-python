@@ -42,6 +42,10 @@ class Dispatcher:
         self.user_added = Event(update_type=UpdateType.USER_ADDED, router=self)
         self.user_removed = Event(update_type=UpdateType.USER_REMOVED, router=self)
         self.on_started = Event(update_type=UpdateType.ON_STARTED, router=self)
+        
+    async def check_me(self):
+        me = await self.bot.get_me()
+        logger_dp.info(f'Бот: @{me.username} id={me.user_id}')
 
     def include_routers(self, *routers: 'Router'):
         for router in routers:
@@ -97,8 +101,9 @@ class Dispatcher:
 
     async def start_polling(self, bot: Bot):
         self.bot = bot
+        await self.check_me()
 
-        logger_dp.info(f'{len(self.event_handlers)} event handlers started')
+        logger_dp.info(f'{len(self.event_handlers)} событий на обработку')
 
         if self.on_started_func:
             await self.on_started_func()
@@ -130,6 +135,7 @@ class Dispatcher:
 
     async def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080):
         self.bot = bot
+        await self.check_me()
 
         if self.on_started_func:
             await self.on_started_func()

@@ -16,5 +16,9 @@ setup(
         'pydantic==2.11.7',
         'uvicorn==0.34.3'
     ],
+    license='MIT',
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+    ],
     python_requires=">=3.10",
 )

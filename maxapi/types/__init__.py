@@ -23,7 +23,7 @@ from ..types.attachments.buttons.request_geo_location_button import RequestGeoLo
 
 from ..types.command import Command, BotCommand
 
-from input_media import InputMedia
+from .input_media import InputMedia
 
 __all__ = [
     InputMedia,

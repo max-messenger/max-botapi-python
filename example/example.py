@@ -3,7 +3,7 @@ import logging
 
 from maxapi import Bot, Dispatcher, F
 from maxapi.context import MemoryContext, State, StatesGroup
-from maxapi.types import Command, MessageCreated, CallbackButton, MessageCallback, BotCommand
+from maxapi.types import BotStarted, Command, MessageCreated, CallbackButton, MessageCallback, BotCommand
 from maxapi.types.input_media import InputMedia
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
@@ -34,6 +34,14 @@ class Form(StatesGroup):
 @dp.on_started()
 async def _():
     logging.info('Бот стартовал!')
+
+
+@dp.bot_started()
+async def bot_started(event: BotStarted):
+    await event.bot.send_message(
+        chat_id=event.chat_id,
+        text='Привет! Отправь мне /start'
+    )
 
 
 @dp.message_created(Command('clear'))
