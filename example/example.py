@@ -6,7 +6,7 @@ from maxapi.context import MemoryContext, State, StatesGroup
 from maxapi.types import Command, MessageCreated, CallbackButton, MessageCallback
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
-from for_example import router
+from example.for_example import router
 
 logging.basicConfig(level=logging.INFO)
 
