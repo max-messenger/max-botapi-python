@@ -89,6 +89,7 @@ if __name__ == '__main__':
 
 - MAX: [Чат](https://max.ru/join/IPAok63C3vFqbWTFdutMUtjmrAkGqO56YeAN7iyDfc8)
 - Telegram: [@loveappless](https://t.me/loveappless)
+- Telegram чат: [MAXApi | Обсуждение](https://t.me/maxapi_github)
 ---
 
 ## 📄 Лицензия
