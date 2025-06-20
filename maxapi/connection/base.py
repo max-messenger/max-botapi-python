@@ -1,13 +1,19 @@
 import os
+
 from typing import TYPE_CHECKING
 
+import aiofiles
 import aiohttp
+
 from pydantic import BaseModel
+
+from ..exceptions.invalid_token import InvalidToken
 
 from ..types.errors import Error
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
 from ..enums.upload_type import UploadType
+
 from ..loggers import logger_bot, logger_connection
 
 if TYPE_CHECKING:
@@ -65,6 +71,9 @@ class BaseConnection:
             )
         except aiohttp.ClientConnectorDNSError as e:
             return logger_connection.error(f'Ошибка при отправке запроса: {e}')
+        
+        if r.status == 401:
+            raise InvalidToken('Неверный токен!')
 
         if not r.ok:
             raw = await r.json()
@@ -125,3 +134,32 @@ class BaseConnection:
             )
 
             return await response.text()
+        
+    async def download_file(
+            self,
+            path: str,
+            url: str,
+            token: str,
+    ):
+        """
+        Скачивает медиа с указанной ссылки по токену, сохраняя по определенному пути
+
+        :param path: Путь сохранения медиа
+        :param url: Ссылка на медиа
+        :param token: Токен медиа
+
+        :return: Числовой статус
+        """
+        
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                
+                if response.status == 200:
+                    async with aiofiles.open(path, 'wb') as f:
+                        await f.write(await response.read())
+                        
+                return response.status

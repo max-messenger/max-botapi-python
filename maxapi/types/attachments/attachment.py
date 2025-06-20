@@ -1,12 +1,17 @@
-from typing import List, Optional, Union
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, Any, List, Optional, Union
+from pydantic import BaseModel, Field
+
+from ...exceptions.download_file import NotAvailableForDownload
 
 from ...types.attachments.upload import AttachmentUpload
-
 from ...types.attachments.buttons import InlineButtonUnion
 from ...types.users import User
 
 from ...enums.attachment import AttachmentType
+
+
+if TYPE_CHECKING:
+    from ...bot import Bot
 
 
 class StickerAttachmentPayload(BaseModel):
@@ -98,6 +103,36 @@ class Attachment(BaseModel):
         ButtonsPayload,
         StickerAttachmentPayload
     ]] = None
-
+    bot: Optional[Any] = Field(default=None, exclude=True)
+    
+    if TYPE_CHECKING:
+        bot: Optional[Bot]
+        
     class Config:
         use_enum_values = True
+    
+    async def download(
+        self,
+        path: str
+    ):
+        
+        """
+        Скачивает медиа, сохраняя по определенному пути
+
+        :param path: Путь сохранения медиа
+
+        :return: Числовой статус
+        """
+        
+        if not hasattr(self.payload, 'token') or \
+            not hasattr(self.payload, 'url'):
+                raise NotAvailableForDownload()
+            
+        elif not self.payload.token or not self.payload.url:
+            raise NotAvailableForDownload(f'Медиа типа `{self.type}` недоступно для скачивания')
+            
+        return await self.bot.download_file(
+            path=path,
+            url=self.payload.url,
+            token=self.payload.token,
+        )

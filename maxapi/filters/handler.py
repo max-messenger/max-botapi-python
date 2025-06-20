@@ -2,9 +2,14 @@ from typing import Callable
 
 from magic_filter import F, MagicFilter
 
+from ..filters.middleware import BaseMiddleware
+
 from ..types.command import Command
+
 from ..context.state_machine import State
+
 from ..enums.update import UpdateType
+
 from ..loggers import logger_dp
 
 
@@ -36,10 +41,11 @@ class Handler:
         :param kwargs: Дополнительные параметры (не используются)
         """
         
-        self.func_event = func_event
-        self.update_type = update_type
+        self.func_event: Callable = func_event
+        self.update_type: UpdateType = update_type
         self.filters = []
-        self.state = None
+        self.state: State = None
+        self.middleware: BaseMiddleware = None
 
         for arg in args:
             if isinstance(arg, MagicFilter):
@@ -48,6 +54,8 @@ class Handler:
                 self.state = arg
             elif isinstance(arg, Command):
                 self.filters.insert(0, F.message.body.text.startswith(arg.command))
+            elif isinstance(arg, BaseMiddleware):
+                self.middleware = arg
             else:
                 logger_dp.info(f'Обнаружен неизвестный фильтр `{arg}` при ' 
                                f'регистрации функции `{func_event.__name__}`')

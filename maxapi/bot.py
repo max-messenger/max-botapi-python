@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Any, Dict, List, TYPE_CHECKING
 
+from maxapi.methods.download_media import DownloadMedia
+
 from .methods.get_upload_url import GetUploadURL
 from .methods.get_updates import GetUpdates
 from .methods.remove_member_chat import RemoveMemberChat
@@ -570,7 +572,7 @@ class Bot(BaseConnection):
         """Получает участников чата.
 
         :param chat_id: ID чата
-        :param user_ids: Фильтр по ID пользователей
+        :param user_ids: Список ID участников
         :param marker: Маркер для пагинации
         :param count: Количество участников
 
@@ -584,6 +586,28 @@ class Bot(BaseConnection):
             marker=marker,
             count=count,
         ).request()
+        
+    async def get_chat_member(
+            self,
+            chat_id: int,
+            user_id: int,
+        ) -> GettedMembersChat:
+        
+        """Получает участника чата.
+
+        :param chat_id: ID чата
+        :param user_id: ID участника
+
+        :return: Участник
+        """
+        
+        members = await self.get_chat_members(
+            chat_id=chat_id,
+            user_ids=[user_id]
+        )
+        
+        if members.members:
+            return members.members[0]
     
     async def add_chat_members(
             self,
@@ -673,4 +697,28 @@ class Bot(BaseConnection):
         return await ChangeInfo(
             bot=self,
             commands=list(commands)
+        ).request()
+        
+    async def download_file(
+            self, 
+            path: str, 
+            url: str, 
+            token: str
+        ):
+        
+        """
+        Скачивает медиа с указанной ссылки по токену, сохраняя по определенному пути
+
+        :param path: Путь сохранения медиа
+        :param url: Ссылка на медиа
+        :param token: Токен медиа
+
+        :return: Числовой статус
+        """
+        
+        return await DownloadMedia(
+            bot=self,
+            path=path, 
+            media_url=url, 
+            media_token=token
         ).request()

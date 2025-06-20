@@ -60,7 +60,9 @@ class GetMembersChat(BaseConnection):
         
         params = self.bot.params.copy()
 
-        if self.user_ids: params['user_ids'] = ','.join(self.user_ids)
+        if self.user_ids: 
+            self.user_ids = [str(user_id) for user_id in self.user_ids]
+            params['user_ids'] = ','.join(self.user_ids)
         if self.marker: params['marker'] = self.marker
         if self.count: params['marker'] = self.count
 

@@ -2,6 +2,7 @@ from typing import Callable, List
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from magic_filter import MagicFilter
 from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
 
@@ -33,6 +34,8 @@ class Dispatcher:
     def __init__(self):
         self.event_handlers: List[Handler] = []
         self.contexts: List[MemoryContext] = []
+        self.routers: List[Router] = []
+        self.filters: List[MagicFilter] = []
         self.bot = None
         self.on_started_func = None
 
@@ -65,9 +68,24 @@ class Dispatcher:
         """
         
         for router in routers:
-            for event in router.event_handlers:
-                self.event_handlers.append(event)
+            self.routers.append(router)
+            
+    async def __ready(self, bot: Bot):
+        self.bot = bot
+        await self.check_me()
+        
+        self.routers += [self]
+        
+        handlers_count = 0
+        for router in self.routers:
+            for handler in router.event_handlers:
+                handlers_count += 1
 
+        logger_dp.info(f'{handlers_count} событий на обработку')
+
+        if self.on_started_func:
+            await self.on_started_func()
+            
     def __get_memory_context(self, chat_id: int, user_id: int):
         
         """Возвращает или создает контекст для чата и пользователя.
@@ -95,40 +113,51 @@ class Dispatcher:
         Args:
             event_object: Объект события для обработки
         """
+        ids = event_object.get_ids()
         
         is_handled = False
+        
+        for router in self.routers:
+            
+            if is_handled:
+                break
+            
+            if router.filters:
+                if not filter_attrs(event_object, *router.filters):
+                    continue
+            
+            for handler in router.event_handlers:
 
-        for handler in self.event_handlers:
-
-            if not handler.update_type == event_object.update_type:
-                continue
-
-            if handler.filters:
-                if not filter_attrs(event_object, *handler.filters):
+                if not handler.update_type == event_object.update_type:
                     continue
 
-            ids = event_object.get_ids()
+                if handler.filters:
+                    if not filter_attrs(event_object, *handler.filters):
+                        continue
 
-            memory_context = self.__get_memory_context(*ids)
-            
-            if not handler.state == await memory_context.get_state() \
-                and handler.state:
-                continue
-            
-            func_args = handler.func_event.__annotations__.keys()
+                memory_context = self.__get_memory_context(*ids)
+                
+                if not handler.state == await memory_context.get_state() \
+                    and handler.state:
+                    continue
+                
+                func_args = handler.func_event.__annotations__.keys()
 
-            kwargs = {'context': memory_context}
+                kwargs = {'context': memory_context}
 
-            for key in kwargs.copy().keys():
-                if not key in func_args:
-                    del kwargs[key]
+                for key in kwargs.copy().keys():
+                    if not key in func_args:
+                        del kwargs[key]
+                        
+                if handler.middleware:
+                    await handler.middleware()
 
-            await handler.func_event(event_object, **kwargs)
+                await handler.func_event(event_object, **kwargs)
 
-            logger_dp.info(f'Обработано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+                logger_dp.info(f'Обработано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
 
-            is_handled = True
-            break
+                is_handled = True
+                break
 
         if not is_handled:
             logger_dp.info(f'Проигнорировано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
@@ -140,14 +169,7 @@ class Dispatcher:
         Args:
             bot: Экземпляр бота
         """
-        
-        self.bot = bot
-        await self.check_me()
-
-        logger_dp.info(f'{len(self.event_handlers)} событий на обработку')
-
-        if self.on_started_func:
-            await self.on_started_func()
+        await self.__ready(bot)
 
         while True:
             try:
@@ -184,11 +206,7 @@ class Dispatcher:
             port: Порт для сервера
         """
         
-        self.bot = bot
-        await self.check_me()
-
-        if self.on_started_func:
-            await self.on_started_func()
+        await self.__ready(bot)
 
         @app.post('/')
         async def _(request: Request):
@@ -206,7 +224,6 @@ class Dispatcher:
             except Exception as e:
                 logger_dp.error(f"Ошибка при обработке события: {event_json['update_type']}: {e}")
 
-        logger_dp.info(f'{len(self.event_handlers)} событий на обработку')
         config = Config(app=app, host=host, port=port, log_level="critical")
         server = Server(config)
 
@@ -231,8 +248,10 @@ class Event:
 
     def __call__(self, *args, **kwargs):
         def decorator(func_event: Callable):
+            
             if self.update_type == UpdateType.ON_STARTED:
                 self.router.on_started_func = func_event
+                
             else:
                 self.router.event_handlers.append(
                     Handler(

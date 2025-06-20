@@ -6,7 +6,7 @@ from maxapi.context import MemoryContext, State, StatesGroup
 from maxapi.types import BotStarted, Command, MessageCreated, CallbackButton, MessageCallback, BotCommand
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
-from example.router_for_example import router
+from router import router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -158,4 +158,5 @@ async def main():
     # )
 
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())

@@ -1,13 +1,6 @@
-from typing import TYPE_CHECKING, Any, Optional
-
-from pydantic import Field
-
 from .update import Update
 
 from ...types.message import Message
-
-if TYPE_CHECKING:
-    from ...bot import Bot
 
 
 class MessageEdited(Update):
@@ -17,15 +10,10 @@ class MessageEdited(Update):
 
     Attributes:
         message (Message): Объект измененного сообщения.
-        bot (Optional[Any]): Экземпляр бота, не сериализуется.
     """
     
     message: Message
-    bot: Optional[Any] = Field(default=None, exclude=True)
     
-    if TYPE_CHECKING:
-        bot: Optional[Bot]
-
     def get_ids(self):
         
         """

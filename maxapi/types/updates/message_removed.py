@@ -1,11 +1,6 @@
-from typing import TYPE_CHECKING, Any, Optional
-
-from pydantic import Field
+from typing import Optional
 
 from .update import Update
-
-if TYPE_CHECKING:
-    from ...bot import Bot
 
 
 class MessageRemoved(Update):
@@ -17,16 +12,11 @@ class MessageRemoved(Update):
         message_id (Optional[str]): Идентификатор удаленного сообщения. Может быть None.
         chat_id (Optional[int]): Идентификатор чата. Может быть None.
         user_id (Optional[int]): Идентификатор пользователя. Может быть None.
-        bot (Optional[Bot]): Объект бота, исключается из сериализации.
     """
     
     message_id: Optional[str] = None
     chat_id: Optional[int] = None
     user_id: Optional[int] = None
-    bot: Optional[Any] = Field(default=None, exclude=True)
-    
-    if TYPE_CHECKING:
-        bot: Optional[Bot]
 
     def get_ids(self):
         

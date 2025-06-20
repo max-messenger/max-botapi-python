@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import Field
-
 from .update import Update
 
 from ...types.users import User
@@ -18,12 +16,10 @@ class BotAdded(Update):
     Attributes:
         chat_id (Optional[int]): Идентификатор чата, куда добавлен бот.
         user (User): Объект пользователя-бота.
-        bot (Optional[Any]): Ссылка на экземпляр бота, не сериализуется.
     """
     
     chat_id: Optional[int] = None
     user: User
-    bot: Optional[Any] = Field(default=None, exclude=True)
     
     if TYPE_CHECKING:
         bot: Optional[Bot]

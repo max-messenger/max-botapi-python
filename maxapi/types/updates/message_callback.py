@@ -1,6 +1,6 @@
-from typing import Any, List, Optional, TYPE_CHECKING, Union
+from typing import List, Optional, TYPE_CHECKING, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from .update import Update
 
@@ -21,6 +21,8 @@ from ..attachments.audio import Audio
 
 if TYPE_CHECKING:
     from ...bot import Bot
+    from ...types.chats import Chat
+    from ...types.users import User
 
 
 class MessageForCallback(BaseModel):
@@ -65,16 +67,11 @@ class MessageCallback(Update):
         message (Message): Сообщение, на которое пришёл callback.
         user_locale (Optional[str]): Локаль пользователя.
         callback (Callback): Объект callback.
-        bot (Optional[Any]): Экземпляр бота, не сериализуется.
     """
     
     message: Message
     user_locale: Optional[str] = None
     callback: Callback
-    bot: Optional[Any] = Field(default=None, exclude=True)
-
-    if TYPE_CHECKING:
-        bot: Optional[Bot]
 
     def get_ids(self):
         
@@ -89,7 +86,7 @@ class MessageCallback(Update):
     
     async def answer(
             self,
-            notification: str,
+            notification: str = None,
             new_text: str = None,
             link: NewMessageLink = None,
             notify: bool = True,
