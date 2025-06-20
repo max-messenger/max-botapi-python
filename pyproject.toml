@@ -1,0 +1,31 @@
+[project]
+name = "maxapi"
+version = "0.6"
+description = "Библиотека для разработки чат-ботов с помощью API мессенджера MAX"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Denis", email = "your-email@example.com"},
+]
+keywords = ["max", "api", "bot"]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "aiohttp>=3.8.0",
+    "fastapi>=0.68.0",
+    "magic_filter>=1.0.0",
+    "pydantic>=1.8.0",
+    "uvicorn>=0.15.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/love-apples/maxapi"
+
+[tool.setuptools]
+license-files = []
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
