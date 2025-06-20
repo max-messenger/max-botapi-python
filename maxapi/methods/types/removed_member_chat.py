@@ -1,9 +1,16 @@
-from typing import List, Optional
+from typing import Optional
 from pydantic import BaseModel
-
-from ...types.chats import ChatMember
 
 
 class RemovedMemberChat(BaseModel):
+    
+    """
+    Ответ API при удалении участника из чата.
+
+    Attributes:
+        success (bool): Статус успешности операции.
+        message (Optional[str]): Дополнительное сообщение или описание ошибки.
+    """
+    
     success: bool
     message: Optional[str] = None

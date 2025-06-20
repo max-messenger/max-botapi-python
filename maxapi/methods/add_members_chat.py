@@ -13,6 +13,15 @@ if TYPE_CHECKING:
 
 
 class AddMembersChat(BaseConnection):
+    
+    """
+    Класс для добавления участников в чат через API.
+
+    Args:
+        bot (Bot): Экземпляр бота, через который выполняется запрос.
+        chat_id (int): Идентификатор целевого чата.
+        user_ids (List[int]): Список ID пользователей для добавления в чат.
+    """
 
     def __init__(
             self, 
@@ -26,6 +35,16 @@ class AddMembersChat(BaseConnection):
         self.user_ids = user_ids
 
     async def request(self) -> AddedMembersChat:
+        
+        """
+        Отправляет POST-запрос на добавление пользователей в чат.
+
+        Формирует JSON с ID пользователей и вызывает базовый метод запроса.
+
+        Returns:
+            AddedMembersChat: Результат операции с информацией об успешности добавления.
+        """
+        
         json = {}
 
         json['user_ids'] = self.user_ids

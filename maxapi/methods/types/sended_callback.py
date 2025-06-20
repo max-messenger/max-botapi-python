@@ -6,6 +6,16 @@ if TYPE_CHECKING:
 
 
 class SendedCallback(BaseModel):
+    
+    """
+    Ответ API после выполнения callback-действия.
+
+    Attributes:
+        success (bool): Статус успешности выполнения callback.
+        message (Optional[str]): Дополнительное сообщение или описание ошибки.
+        bot (Optional[Bot]): Внутреннее поле для хранения ссылки на экземпляр бота (не сериализуется).
+    """
+    
     success: bool
     message: Optional[str] = None
     bot: Optional[Any] = Field(default=None, exclude=True)

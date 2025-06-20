@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 from ..methods.types.deleted_bot_from_chat import DeletedBotFromChat
-from ..methods.types.deleted_message import DeletedMessage
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
+
 from ..connection.base import BaseConnection
 
 
@@ -13,6 +13,15 @@ if TYPE_CHECKING:
 
 
 class DeleteMeFromMessage(BaseConnection):
+    
+    """
+    Класс для удаления бота из участников указанного чата.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата, из которого нужно удалить бота.
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -22,6 +31,14 @@ class DeleteMeFromMessage(BaseConnection):
             self.chat_id = chat_id
 
     async def request(self) -> DeletedBotFromChat:
+        
+        """
+        Отправляет DELETE-запрос для удаления бота из чата.
+
+        Returns:
+            DeletedBotFromChat: Результат операции удаления.
+        """
+        
         return await super().request(
             method=HTTPMethod.DELETE, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ME,

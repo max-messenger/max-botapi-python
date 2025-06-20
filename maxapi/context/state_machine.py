@@ -1,4 +1,10 @@
 class State:
+    """
+    Представляет отдельное состояние в FSM-группе.
+
+    При использовании внутри StatesGroup, автоматически присваивает уникальное имя в формате 'ИмяКласса:имя_поля'.
+    """
+
     def __init__(self):
         self.name = None
 
@@ -10,7 +16,19 @@ class State:
 
 
 class StatesGroup:
+    """
+    Базовый класс для описания группы состояний FSM.
+
+    Атрибуты должны быть экземплярами State. Метод `states()` возвращает список всех состояний в виде строк.
+    """
+    
     @classmethod
     def states(cls) -> list[str]:
+        """
+        Получить список всех состояний в формате 'ИмяКласса:имя_состояния'.
+
+        :return: Список строковых представлений состояний
+        """
+        
         return [str(getattr(cls, attr)) for attr in dir(cls)
                 if isinstance(getattr(cls, attr), State)]

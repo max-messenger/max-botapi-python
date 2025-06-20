@@ -1,13 +1,10 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from ..types.attachments.video import Video
 
-from .types.edited_message import EditedMessage
-from ..types.message import NewMessageLink
-from ..types.attachments.attachment import Attachment
-from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
+
 from ..connection.base import BaseConnection
 
 
@@ -16,6 +13,15 @@ if TYPE_CHECKING:
 
 
 class GetVideo(BaseConnection):
+    
+    """
+    Класс для получения информации о видео по его токену.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        video_token (str): Токен видео для запроса.
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -25,6 +31,13 @@ class GetVideo(BaseConnection):
             self.video_token = video_token
 
     async def request(self) -> Video:
+        
+        """
+        Выполняет GET-запрос для получения данных видео по токену.
+
+        Returns:
+            Video: Объект с информацией о видео.
+        """
 
         return await super().request(
             method=HTTPMethod.GET, 

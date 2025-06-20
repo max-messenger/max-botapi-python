@@ -1,16 +1,13 @@
 
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from ..enums.sender_action import SenderAction
 from ..methods.types.sended_action import SendedAction
 
-from .types.sended_message import SendedMessage
-from ..types.message import NewMessageLink
-from ..types.attachments.attachment import Attachment
-from ..enums.parse_mode import ParseMode
+from ..enums.sender_action import SenderAction
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
+
 from ..connection.base import BaseConnection
 
 
@@ -19,6 +16,21 @@ if TYPE_CHECKING:
 
 
 class SendAction(BaseConnection):
+    
+    """
+    Класс для отправки действия пользователя (например, индикатора печати) в чат.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int | None): Идентификатор чата. Если None, действие не отправляется.
+        action (SenderAction, optional): Тип действия. По умолчанию SenderAction.TYPING_ON.
+
+    Attributes:
+        bot (Bot): Экземпляр бота.
+        chat_id (int | None): Идентификатор чата.
+        action (SenderAction): Тип действия.
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -30,6 +42,14 @@ class SendAction(BaseConnection):
             self.action = action
 
     async def request(self) -> SendedAction:
+        
+        """
+        Выполняет POST-запрос для отправки действия в указанный чат.
+
+        Returns:
+            SendedAction: Результат выполнения запроса.
+        """
+        
         json = {}
 
         json['action'] = self.action.value

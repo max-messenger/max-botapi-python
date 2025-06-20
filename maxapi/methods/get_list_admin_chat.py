@@ -13,6 +13,18 @@ if TYPE_CHECKING:
 
 
 class GetListAdminChat(BaseConnection):
+    
+    """
+    Класс для получения списка администраторов чата через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата.
+
+    Attributes:
+        bot (Bot): Экземпляр бота.
+        chat_id (int): Идентификатор чата.
+    """
 
     def __init__(
             self, 
@@ -23,6 +35,14 @@ class GetListAdminChat(BaseConnection):
         self.chat_id = chat_id
 
     async def request(self) -> GettedListAdminChat:
+        
+        """
+        Выполняет GET-запрос для получения списка администраторов указанного чата.
+
+        Returns:
+            GettedListAdminChat: Объект с информацией о администраторах чата.
+        """
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ADMINS,

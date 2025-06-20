@@ -3,12 +3,14 @@ from typing import Any, List, Optional, TYPE_CHECKING, Union
 from pydantic import BaseModel, Field
 
 from .update import Update
+
+from ...enums.parse_mode import ParseMode
+
+from ...types.message import NewMessageLink
+from ...types.attachments.share import Share
 from ...types.callback import Callback
 from ...types.message import Message
 
-from ...enums.parse_mode import ParseMode
-from ...types.message import NewMessageLink
-from ...types.attachments.share import Share
 from ..attachments.buttons.attachment_button import AttachmentButton
 from ..attachments.sticker import Sticker
 from ..attachments.file import File
@@ -22,6 +24,19 @@ if TYPE_CHECKING:
 
 
 class MessageForCallback(BaseModel):
+    
+    """
+    Модель сообщения для ответа на callback-запрос.
+
+    Attributes:
+        text (Optional[str]): Текст сообщения.
+        attachments (Optional[List[Union[AttachmentButton, Audio, Video, File, Image, Sticker, Share]]]):
+            Список вложений.
+        link (Optional[NewMessageLink]): Связь с другим сообщением.
+        notify (Optional[bool]): Отправлять ли уведомление.
+        format (Optional[ParseMode]): Режим разбора текста.
+    """
+    
     text: Optional[str] = None
     attachments: Optional[
         List[
@@ -42,6 +57,17 @@ class MessageForCallback(BaseModel):
 
 
 class MessageCallback(Update):
+    
+    """
+    Обновление с callback-событием сообщения.
+
+    Attributes:
+        message (Message): Сообщение, на которое пришёл callback.
+        user_locale (Optional[str]): Локаль пользователя.
+        callback (Callback): Объект callback.
+        bot (Optional[Any]): Экземпляр бота, не сериализуется.
+    """
+    
     message: Message
     user_locale: Optional[str] = None
     callback: Callback
@@ -51,6 +77,14 @@ class MessageCallback(Update):
         bot: Optional[Bot]
 
     def get_ids(self):
+        
+        """
+        Возвращает кортеж идентификаторов (chat_id, user_id).
+
+        Returns:
+            tuple[Optional[int], int]: Идентификаторы чата и пользователя.
+        """
+        
         return (self.message.recipient.chat_id, self.callback.user.user_id)
     
     async def answer(
@@ -61,6 +95,21 @@ class MessageCallback(Update):
             notify: bool = True,
             format: ParseMode = None,
         ):
+        
+        """
+        Отправляет ответ на callback с возможностью изменить текст, вложения и параметры уведомления.
+
+        Args:
+            notification (str): Текст уведомления.
+            new_text (Optional[str]): Новый текст сообщения.
+            link (Optional[NewMessageLink]): Связь с другим сообщением.
+            notify (bool): Отправлять ли уведомление.
+            format (Optional[ParseMode]): Режим разбора текста.
+
+        Returns:
+            Результат вызова send_callback бота.
+        """
+        
         message = MessageForCallback()
 
         message.text = new_text

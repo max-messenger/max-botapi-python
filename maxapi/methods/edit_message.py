@@ -3,9 +3,11 @@ from typing import List, TYPE_CHECKING
 from .types.edited_message import EditedMessage
 from ..types.message import NewMessageLink
 from ..types.attachments.attachment import Attachment
+
 from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
+
 from ..connection.base import BaseConnection
 
 
@@ -14,6 +16,20 @@ if TYPE_CHECKING:
 
 
 class EditMessage(BaseConnection):
+    
+    """
+    Класс для редактирования существующего сообщения через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        message_id (str): Идентификатор сообщения для редактирования.
+        text (str, optional): Новый текст сообщения.
+        attachments (List[Attachment], optional): Список вложений для сообщения.
+        link (NewMessageLink, optional): Связь с другим сообщением (ответ или пересылка).
+        notify (bool, optional): Отправлять ли уведомление о сообщении (по умолчанию True).
+        parse_mode (ParseMode, optional): Формат разметки текста (markdown, html и т.д.).
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -33,6 +49,16 @@ class EditMessage(BaseConnection):
             self.parse_mode = parse_mode
 
     async def request(self) -> EditedMessage:
+        
+        """
+        Выполняет PUT-запрос для обновления сообщения.
+
+        Формирует тело запроса на основе переданных параметров и отправляет запрос к API.
+
+        Returns:
+            EditedMessage: Обновлённое сообщение.
+        """
+        
         params = self.bot.params.copy()
 
         json = {}

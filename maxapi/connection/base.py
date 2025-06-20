@@ -15,6 +15,14 @@ if TYPE_CHECKING:
 
 
 class BaseConnection:
+    
+    """
+    Базовый класс для всех методов API.
+
+    Содержит общую логику выполнения запроса (например, сериализацию, отправку HTTP-запроса, обработку ответа).
+
+    Метод request() может быть переопределён в потомках при необходимости.
+    """
 
     API_URL = 'https://botapi.max.ru'
 
@@ -30,6 +38,21 @@ class BaseConnection:
             is_return_raw: bool = False,
             **kwargs
         ):
+        
+        """
+        Выполняет HTTP-запрос к API, используя указанные параметры.
+
+        :param method: HTTP-метод запроса (GET, POST и т.д.)
+        :param path: Путь к конечной точке API
+        :param model: Pydantic-модель, в которую будет десериализован ответ (если is_return_raw=False)
+        :param is_return_raw: Если True — вернуть "сырое" тело ответа, иначе — результат десериализации в model
+        :param kwargs: Дополнительные параметры (например, query, headers, json)
+
+        :return:
+            - Объект model (если is_return_raw=False и model задан)
+            
+            - dict (если is_return_raw=True)
+        """
         
         if not self.bot.session:
             self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
@@ -71,11 +94,21 @@ class BaseConnection:
             path: str,
             type: UploadType
     ):
+        """
+        Загружает файл на указанный URL.
+
+        :param url: Конечная точка загрузки файла
+        :param path: Путь к локальному файлу
+        :param type: Тип файла (video, image, audio, file)
+
+        :return: Сырой .text() ответ от сервера после загрузки файла
+        """
+        
         with open(path, 'rb') as f:
             file_data = f.read()
 
         basename = os.path.basename(path)
-        name, ext = os.path.splitext(basename)
+        _, ext = os.path.splitext(basename)
 
         form = aiohttp.FormData()
         form.add_field(

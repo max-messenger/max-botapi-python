@@ -14,6 +14,18 @@ if TYPE_CHECKING:
 
 
 class GetChatByLink(BaseConnection):
+    
+    """
+    Класс для получения информации о чате по ссылке.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        link (str): Ссылка на чат (с содержанием @ или без).
+
+    Attributes:
+        link (list[str]): Список валидных частей ссылки.
+        PATTERN_LINK (str): Регулярное выражение для парсинга ссылки.
+    """
 
     PATTERN_LINK = r'@?[a-zA-Z]+[a-zA-Z0-9-_]*'
 
@@ -29,6 +41,14 @@ class GetChatByLink(BaseConnection):
             return
 
     async def request(self) -> Chat:
+        
+        """
+        Выполняет GET-запрос для получения данных чата по ссылке.
+
+        Returns:
+            Chat: Объект с информацией о чате.
+        """
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + self.link[-1],

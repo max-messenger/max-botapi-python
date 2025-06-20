@@ -1,5 +1,3 @@
-
-
 from typing import TYPE_CHECKING
 
 from ..types.chats import ChatMember
@@ -15,6 +13,19 @@ if TYPE_CHECKING:
 
 
 class GetMeFromChat(BaseConnection):
+    
+    """
+    Класс для получения информации о текущем боте в конкретном чате.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата.
+
+    Attributes:
+        bot (Bot): Экземпляр бота.
+        chat_id (int): Идентификатор чата.
+    """
+    
     def __init__(
             self, 
             bot: 'Bot',
@@ -24,6 +35,14 @@ class GetMeFromChat(BaseConnection):
         self.chat_id = chat_id
 
     async def request(self) -> ChatMember:
+        
+        """
+        Выполняет GET-запрос для получения информации о боте в указанном чате.
+
+        Returns:
+            ChatMember: Информация о боте как участнике чата.
+        """
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ME,

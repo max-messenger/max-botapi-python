@@ -1,7 +1,4 @@
-
-
-from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from .types.getted_pineed_message import GettedPin
 
@@ -15,6 +12,15 @@ if TYPE_CHECKING:
 
 
 class GetPinnedMessage(BaseConnection):
+    
+    """
+    Класс для получения закреплённого сообщения в указанном чате.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата.
+    """
+    
     def __init__(
             self,
             bot: 'Bot', 
@@ -24,6 +30,14 @@ class GetPinnedMessage(BaseConnection):
         self.chat_id = chat_id
 
     async def request(self) -> GettedPin:
+        
+        """
+        Выполняет GET-запрос для получения закреплённого сообщения.
+
+        Returns:
+            GettedPin: Объект с информацией о закреплённом сообщении.
+        """
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.PIN,

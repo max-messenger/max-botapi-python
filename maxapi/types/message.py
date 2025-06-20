@@ -3,19 +3,21 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import Any, Optional, List, Union, TYPE_CHECKING
 
-from ..enums.parse_mode import ParseMode
-from ..types.attachments.attachment import Attachment
-from ..types.attachments.share import Share
-from .attachments.buttons.attachment_button import AttachmentButton
 from ..enums.text_style import TextStyle
+from ..enums.parse_mode import ParseMode
 from ..enums.chat_type import ChatType
 from ..enums.message_link_type import MessageLinkType
+
+from .attachments.attachment import Attachment
+from .attachments.share import Share
+from .attachments.buttons.attachment_button import AttachmentButton
 from .attachments.sticker import Sticker
 from .attachments.file import File
 from .attachments.image import Image
 from .attachments.video import Video
 from .attachments.audio import Audio
-from ..types.users import User
+
+from .users import User
 
 
 if TYPE_CHECKING:
@@ -23,6 +25,16 @@ if TYPE_CHECKING:
 
 
 class MarkupElement(BaseModel):
+    
+    """
+    Модель элемента разметки текста.
+
+    Attributes:
+        type (TextStyle): Тип разметки.
+        from_ (int): Начальная позиция разметки в тексте.
+        length (int): Длина разметки.
+    """
+    
     type: TextStyle
     from_: int = Field(..., alias='from')
     length: int
@@ -32,16 +44,47 @@ class MarkupElement(BaseModel):
 
 
 class MarkupLink(MarkupElement):
+    
+    """
+    Модель разметки ссылки.
+
+    Attributes:
+        url (Optional[str]): URL ссылки. Может быть None.
+    """
+    
     url: Optional[str] = None
 
 
 class Recipient(BaseModel):
-    user_id: Optional[int] = None  # Для пользователя
-    chat_id: Optional[int] = None  # Для чата
-    chat_type: ChatType  # Тип получателя (диалог или чат)
+    
+    """
+    Модель получателя сообщения.
+
+    Attributes:
+        user_id (Optional[int]): Идентификатор пользователя. Может быть None.
+        chat_id (Optional[int]): Идентификатор чата. Может быть None.
+        chat_type (ChatType): Тип получателя (диалог или чат).
+    """
+    
+    user_id: Optional[int] = None
+    chat_id: Optional[int] = None
+    chat_type: ChatType
 
 
 class MessageBody(BaseModel):
+    
+    """
+    Модель тела сообщения.
+
+    Attributes:
+        mid (str): Уникальный идентификатор сообщения.
+        seq (int): Порядковый номер сообщения.
+        text (str): Текст сообщения. Может быть None.
+        attachments (Optional[List[Union[AttachmentButton, Audio, Video, File, Image, Sticker, Share]]]): 
+            Список вложений. По умолчанию пустой.
+        markup (Optional[List[Union[MarkupLink, MarkupElement]]]): Список элементов разметки. По умолчанию пустой.
+    """
+    
     mid: str
     seq: int
     text: str = None
@@ -69,10 +112,29 @@ class MessageBody(BaseModel):
 
 
 class MessageStat(BaseModel):
+    
+    """
+    Модель статистики сообщения.
+
+    Attributes:
+        views (int): Количество просмотров сообщения.
+    """
+    
     views: int
 
 
 class LinkedMessage(BaseModel):
+    
+    """
+    Модель связанного сообщения.
+
+    Attributes:
+        type (MessageLinkType): Тип связи.
+        sender (User): Отправитель связанного сообщения.
+        chat_id (Optional[int]): Идентификатор чата. Может быть None.
+        message (MessageBody): Тело связанного сообщения.
+    """
+    
     type: MessageLinkType
     sender: User
     chat_id: Optional[int] = None
@@ -80,6 +142,21 @@ class LinkedMessage(BaseModel):
 
 
 class Message(BaseModel):
+    
+    """
+    Модель сообщения.
+
+    Attributes:
+        sender (User): Отправитель сообщения.
+        recipient (Recipient): Получатель сообщения.
+        timestamp (int): Временная метка сообщения.
+        link (Optional[LinkedMessage]): Связанное сообщение. Может быть None.
+        body (Optional[MessageBody]): Тело сообщения. Может быть None.
+        stat (Optional[MessageStat]): Статистика сообщения. Может быть None.
+        url (Optional[str]): URL сообщения. Может быть None.
+        bot (Optional[Bot]): Объект бота, исключается из сериализации.
+    """
+    
     sender: User
     recipient: Recipient
     timestamp: int
@@ -100,6 +177,22 @@ class Message(BaseModel):
             notify: bool = True,
             parse_mode: ParseMode = None
         ):
+        
+        """
+        Отправляет ответное сообщение.
+
+        Args:
+            text (str, optional): Текст ответа. Может быть None.
+            disable_link_preview (bool): Отключить предпросмотр ссылок. По умолчанию False.
+            attachments (List[Attachment], optional): Список вложений. Может быть None.
+            link (NewMessageLink, optional): Связь с другим сообщением. Может быть None.
+            notify (bool): Флаг отправки уведомления. По умолчанию True.
+            parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
+
+        Returns:
+            Any: Результат выполнения метода send_message бота.
+        """
+        
         return await self.bot.send_message(
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
@@ -119,6 +212,21 @@ class Message(BaseModel):
             notify: bool = True,
             parse_mode: ParseMode = None
         ):
+        
+        """
+        Редактирует текущее сообщение.
+
+        Args:
+            text (str, optional): Новый текст сообщения. Может быть None.
+            attachments (List[Attachment], optional): Новые вложения. Может быть None.
+            link (NewMessageLink, optional): Новая связь с сообщением. Может быть None.
+            notify (bool): Флаг отправки уведомления. По умолчанию True.
+            parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
+
+        Returns:
+            Any: Результат выполнения метода edit_message бота.
+        """
+        
         return await self.bot.edit_message(
             message_id=self.body.mid,
             text=text,
@@ -129,11 +237,30 @@ class Message(BaseModel):
         )
     
     async def delete(self):
+        
+        """
+        Удаляет текущее сообщение.
+
+        Returns:
+            Any: Результат выполнения метода delete_message бота.
+        """
+        
         return await self.bot.delete_message(
             message_id=self.body.mid,
         )
     
     async def pin(self, notify: bool = True):
+        
+        """
+        Закрепляет текущее сообщение в чате.
+
+        Args:
+            notify (bool): Флаг отправки уведомления. По умолчанию True.
+
+        Returns:
+            Any: Результат выполнения метода pin_message бота.
+        """
+        
         return await self.bot.pin_message(
             chat_id=self.recipient.chat_id,
             message_id=self.body.mid,
@@ -142,6 +269,15 @@ class Message(BaseModel):
 
 
 class Messages(BaseModel):
+    
+    """
+    Модель списка сообщений.
+
+    Attributes:
+        messages (List[Message]): Список сообщений.
+        bot (Optional[Bot]): Объект бота, исключается из сериализации.
+    """
+    
     messages: List[Message]
     bot: Optional[Any] = Field(default=None, exclude=True)
     
@@ -150,5 +286,14 @@ class Messages(BaseModel):
 
 
 class NewMessageLink(BaseModel):
+    
+    """
+    Модель ссылки на новое сообщение.
+
+    Attributes:
+        type (MessageLinkType): Тип связи.
+        mid (str): Идентификатор сообщения.
+    """
+    
     type: MessageLinkType
     mid: str

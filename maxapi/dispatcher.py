@@ -3,7 +3,7 @@ from typing import Callable, List
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from uvicorn import Config, Server
-from aiohttp import ClientConnectorDNSError
+from aiohttp import ClientConnectorError
 
 from .filters.handler import Handler
 
@@ -24,6 +24,12 @@ app = FastAPI()
 
 
 class Dispatcher:
+    
+    """Основной класс для обработки событий бота.
+
+    Обеспечивает работу с вебхуком и поллингом, управляет обработчиками событий.
+    """
+    
     def __init__(self):
         self.event_handlers: List[Handler] = []
         self.contexts: List[MemoryContext] = []
@@ -44,15 +50,36 @@ class Dispatcher:
         self.on_started = Event(update_type=UpdateType.ON_STARTED, router=self)
         
     async def check_me(self):
+        
+        """Проверяет и логирует информацию о боте."""
+        
         me = await self.bot.get_me()
         logger_dp.info(f'Бот: @{me.username} id={me.user_id}')
 
     def include_routers(self, *routers: 'Router'):
+        
+        """Добавляет обработчики из роутеров.
+        
+        Args:
+            *routers: Роутеры для включения
+        """
+        
         for router in routers:
             for event in router.event_handlers:
                 self.event_handlers.append(event)
 
-    def get_memory_context(self, chat_id: int, user_id: int):
+    def __get_memory_context(self, chat_id: int, user_id: int):
+        
+        """Возвращает или создает контекст для чата и пользователя.
+        
+        Args:
+            chat_id: ID чата
+            user_id: ID пользователя
+            
+        Returns:
+            Существующий или новый контекст
+        """
+
         for ctx in self.contexts:
             if ctx.chat_id == chat_id and ctx.user_id == user_id:
                 return ctx
@@ -62,6 +89,13 @@ class Dispatcher:
         return new_ctx
 
     async def handle(self, event_object: UpdateUnion):
+        
+        """Обрабатывает событие.
+        
+        Args:
+            event_object: Объект события для обработки
+        """
+        
         is_handled = False
 
         for handler in self.event_handlers:
@@ -75,7 +109,7 @@ class Dispatcher:
 
             ids = event_object.get_ids()
 
-            memory_context = self.get_memory_context(*ids)
+            memory_context = self.__get_memory_context(*ids)
             
             if not handler.state == await memory_context.get_state() \
                 and handler.state:
@@ -100,6 +134,13 @@ class Dispatcher:
             logger_dp.info(f'Проигнорировано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
 
     async def start_polling(self, bot: Bot):
+        
+        """Запускает поллинг обновлений.
+        
+        Args:
+            bot: Экземпляр бота
+        """
+        
         self.bot = bot
         await self.check_me()
 
@@ -128,12 +169,21 @@ class Dispatcher:
                         await self.handle(event)
                     except Exception as e:
                         logger_dp.error(f"Ошибка при обработке события: {event.update_type}: {e}")
-            except ClientConnectorDNSError:
+            except ClientConnectorError:
                 logger_dp.error(f'Ошибка подключения: {e}')
             except Exception as e:
                 logger_dp.error(f'Общая ошибка при обработке событий: {e}')
 
-    async def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080):
+    async def handle_webhook(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080):
+        
+        """Запускает вебхук сервер.
+        
+        Args:
+            bot: Экземпляр бота
+            host: Хост для сервера
+            port: Порт для сервера
+        """
+        
         self.bot = bot
         await self.check_me()
 
@@ -164,11 +214,17 @@ class Dispatcher:
 
 
 class Router(Dispatcher):
+    
+    """Роутер для группировки обработчиков событий."""
+    
     def __init__(self):
         super().__init__()
 
 
 class Event:
+    
+    """Декоратор для регистрации обработчиков событий."""
+    
     def __init__(self, update_type: UpdateType, router: Dispatcher | Router):
         self.update_type = update_type
         self.router = router

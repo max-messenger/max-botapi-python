@@ -1,7 +1,5 @@
-from typing import Any, Optional
+from typing import Optional
 from pydantic import BaseModel
-
-from ...types.message import Message
 
 
 class GettedUploadUrl(BaseModel):

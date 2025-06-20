@@ -1,5 +1,3 @@
-
-
 from typing import TYPE_CHECKING
 
 from ..types.chats import Chats
@@ -15,6 +13,21 @@ if TYPE_CHECKING:
 
 
 class GetChats(BaseConnection):
+    
+    """
+    Класс для получения списка чатов через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        count (int, optional): Максимальное количество чатов для получения. По умолчанию 50.
+        marker (int, optional): Маркер для постраничной навигации. По умолчанию None.
+
+    Attributes:
+        bot (Bot): Экземпляр бота.
+        count (int): Количество чатов для запроса.
+        marker (int | None): Маркер для пагинации.
+    """
+    
     def __init__(
             self, 
             bot: 'Bot',
@@ -26,6 +39,14 @@ class GetChats(BaseConnection):
         self.marker = marker
 
     async def request(self) -> Chats:
+        
+        """
+        Выполняет GET-запрос для получения списка чатов.
+
+        Returns:
+            Chats: Объект с данными по списку чатов.
+        """
+        
         params = self.bot.params.copy()
 
         params['count'] = self.count

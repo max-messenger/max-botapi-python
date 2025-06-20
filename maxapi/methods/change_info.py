@@ -14,6 +14,18 @@ if TYPE_CHECKING:
 
 
 class ChangeInfo(BaseConnection):
+    
+    """
+    Класс для изменения информации о боте.
+
+    Args:
+        bot (Bot): Объект бота
+        name (str, optional): Новое имя бота
+        description (str, optional): Новое описание
+        commands (List[BotCommand], optional): Список команд
+        photo (Dict[str, Any], optional): Данные фото
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -29,6 +41,13 @@ class ChangeInfo(BaseConnection):
             self.photo = photo
 
     async def request(self) -> User:
+        
+        """Отправляет запрос на изменение информации о боте.
+
+        Returns:
+            User: Объект с обновленными данными бота
+        """
+        
         json = {}
 
         if self.name: json['name'] = self.name

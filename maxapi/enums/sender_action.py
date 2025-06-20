@@ -1,6 +1,14 @@
 from enum import Enum
 
+
 class SenderAction(str, Enum):
+    
+    """
+    Действия отправителя, отображаемые получателю в интерфейсе.
+
+    Используются для имитации активности (например, "печатает...") перед отправкой сообщения или медиа.
+    """
+    
     TYPING_ON = 'typing_on'
     SENDING_PHOTO = 'sending_photo'
     SENDING_VIDEO = 'sending_video'

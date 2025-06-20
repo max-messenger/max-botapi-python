@@ -2,6 +2,13 @@ from enum import Enum
 
 
 class ChatPermission(str, Enum):
+    
+    """
+    Права доступа пользователя в чате.
+
+    Используются для управления разрешениями при добавлении участников или изменении настроек чата.
+    """
+    
     READ_ALL_MESSAGES = 'read_all_messages'
     ADD_REMOVE_MEMBERS = 'add_remove_members'
     ADD_ADMINS = 'add_admins'

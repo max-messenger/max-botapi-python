@@ -1,12 +1,11 @@
 
 
 from logging import getLogger
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from collections import Counter
 
 from ..types.attachments.image import PhotoAttachmentRequestPayload
 from ..types.chats import Chat
-from ..types.command import Command
 
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
@@ -21,6 +20,19 @@ if TYPE_CHECKING:
 
 
 class EditChat(BaseConnection):
+    
+    """
+    Класс для редактирования информации о чате через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата для редактирования.
+        icon (PhotoAttachmentRequestPayload, optional): Новый значок (иконка) чата.
+        title (str, optional): Новое название чата.
+        pin (str, optional): Идентификатор закреплённого сообщения.
+        notify (bool, optional): Включение или отключение уведомлений (по умолчанию True).
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -38,6 +50,18 @@ class EditChat(BaseConnection):
             self.notify = notify
 
     async def request(self) -> Chat:
+        
+        """
+        Выполняет PATCH-запрос для обновления параметров чата.
+
+        Валидация:
+            - Проверяется, что в `icon` атрибуты модели взаимоисключающие (в модели должно быть ровно 2 поля с None).
+            - Если условие не выполнено, логируется ошибка и запрос не отправляется.
+
+        Returns:
+            Chat: Обновлённый объект чата.
+        """
+        
         json = {}
 
         if self.icon:

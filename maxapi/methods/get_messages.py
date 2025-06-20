@@ -1,5 +1,3 @@
-
-
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
@@ -14,6 +12,27 @@ if TYPE_CHECKING:
 
 
 class GetMessages(BaseConnection):
+    
+    """
+    Класс для получения сообщений из чата через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата.
+        message_ids (List[str], optional): Список идентификаторов сообщений для выборки. По умолчанию None.
+        from_time (datetime | int, optional): Временная метка начала выборки сообщений (timestamp или datetime). По умолчанию None.
+        to_time (datetime | int, optional): Временная метка конца выборки сообщений (timestamp или datetime). По умолчанию None.
+        count (int, optional): Максимальное количество сообщений для получения. По умолчанию 50.
+
+    Attributes:
+        bot (Bot): Экземпляр бота.
+        chat_id (int): Идентификатор чата.
+        message_ids (List[str] | None): Фильтр по идентификаторам сообщений.
+        from_time (datetime | int | None): Начальная временная метка.
+        to_time (datetime | int | None): Конечная временная метка.
+        count (int): Максимальное число сообщений.
+    """
+    
     def __init__(
             self,
             bot: 'Bot', 
@@ -31,6 +50,16 @@ class GetMessages(BaseConnection):
         self.count = count
 
     async def request(self) -> Messages:
+        
+        """
+        Выполняет GET-запрос для получения сообщений с учётом параметров фильтрации.
+
+        Преобразует datetime в UNIX timestamp при необходимости.
+
+        Returns:
+            Messages: Объект с полученными сообщениями.
+        """
+        
         params = self.bot.params.copy()
 
         if self.chat_id: params['chat_id'] = self.chat_id

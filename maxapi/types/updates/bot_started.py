@@ -10,6 +10,18 @@ if TYPE_CHECKING:
 
 
 class BotStarted(Update):
+    
+    """
+    Обновление, сигнализирующее о первом старте бота.
+
+    Attributes:
+        chat_id (Optional[int]): Идентификатор чата.
+        user (User): Пользователь (бот).
+        user_locale (Optional[str]): Локаль пользователя.
+        payload (Optional[str]): Дополнительные данные.
+        bot (Optional[Any]): Ссылка на экземпляр бота, не сериализуется.
+    """
+    
     chat_id: Optional[int] = None
     user: User
     user_locale: Optional[str] = None

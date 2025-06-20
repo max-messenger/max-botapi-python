@@ -5,18 +5,19 @@ from typing import List, TYPE_CHECKING
 
 from json import loads as json_loads
 
-from ..enums.upload_type import UploadType
-
+from .types.sended_message import SendedMessage
 from ..types.attachments.upload import AttachmentPayload, AttachmentUpload
 from ..types.errors import Error
-from .types.sended_message import SendedMessage
 from ..types.message import NewMessageLink
 from ..types.input_media import InputMedia
 from ..types.attachments.attachment import Attachment
+
+from ..enums.upload_type import UploadType
 from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
 from ..connection.base import BaseConnection
+
 from ..loggers import logger_bot
 
 
@@ -29,6 +30,22 @@ class UploadResponse:
 
 
 class SendMessage(BaseConnection):
+    
+    """
+    Класс для отправки сообщения в чат или пользователю с поддержкой вложений и форматирования.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int, optional): Идентификатор чата, куда отправлять сообщение.
+        user_id (int, optional): Идентификатор пользователя, если нужно отправить личное сообщение.
+        disable_link_preview (bool, optional): Отключить предпросмотр ссылок. По умолчанию False.
+        text (str, optional): Текст сообщения.
+        attachments (List[Attachment | InputMedia], optional): Список вложений к сообщению.
+        link (NewMessageLink, optional): Связь с другим сообщением (например, ответ или пересылка).
+        notify (bool, optional): Отправлять ли уведомление о сообщении. По умолчанию True.
+        parse_mode (ParseMode, optional): Режим разбора текста (например, Markdown, HTML).
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -55,6 +72,17 @@ class SendMessage(BaseConnection):
             self,
             att: InputMedia
         ):
+        
+        """
+        Загружает файл вложения и формирует объект AttachmentUpload.
+
+        Args:
+            att (InputMedia): Объект вложения для загрузки.
+
+        Returns:
+            AttachmentUpload: Загруженное вложение с токеном.
+        """
+        
         upload = await self.bot.get_upload_url(att.type)
 
         upload_file_response = await self.upload_file(
@@ -83,6 +111,16 @@ class SendMessage(BaseConnection):
         )
 
     async def request(self) -> SendedMessage:
+        
+        """
+        Отправляет сообщение с вложениями (если есть), с обработкой задержки готовности вложений.
+
+        Возвращает результат отправки или ошибку.
+
+        Возвращаемое значение:
+            SendedMessage или Error
+        """
+        
         params = self.bot.params.copy()
 
         json = {'attachments': []}

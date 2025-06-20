@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from .types.removed_member_chat import RemovedMemberChat
 
@@ -13,6 +13,22 @@ if TYPE_CHECKING:
 
 
 class RemoveMemberChat(BaseConnection):
+    
+    """
+    Класс для удаления участника из чата с опцией блокировки.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата.
+        user_id (int): Идентификатор пользователя, которого необходимо удалить.
+        block (bool, optional): Блокировать пользователя после удаления. По умолчанию False.
+
+    Attributes:
+        bot (Bot): Экземпляр бота.
+        chat_id (int): Идентификатор чата.
+        user_id (int): Идентификатор пользователя.
+        block (bool): Флаг блокировки пользователя.
+    """
 
     def __init__(
             self, 
@@ -28,6 +44,16 @@ class RemoveMemberChat(BaseConnection):
         self.block = block
 
     async def request(self) -> RemovedMemberChat:
+        
+        """
+        Выполняет DELETE-запрос для удаления пользователя из чата.
+
+        Параметр `block` определяет, будет ли пользователь заблокирован после удаления.
+
+        Returns:
+            RemovedMemberChat: Результат удаления участника.
+        """
+        
         params = self.bot.params.copy()
 
         params['chat_id'] = self.chat_id

@@ -1,6 +1,14 @@
 from enum import Enum
 
+
 class ApiPath(str, Enum):
+    
+    """
+    Перечисление всех доступных API-эндпоинтов.
+
+    Используется для унифицированного указания путей при отправке запросов.
+    """
+    
     ME = '/me'
     CHATS = '/chats'
     MESSAGES = '/messages'

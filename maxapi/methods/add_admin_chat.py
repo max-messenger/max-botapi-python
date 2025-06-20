@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, List
 
 from .types.added_admin_chat import AddedListAdminChat
-
 from ..types.users import ChatAdmin
 
 from ..enums.http_method import HTTPMethod
@@ -15,6 +14,16 @@ if TYPE_CHECKING:
 
 
 class AddAdminChat(BaseConnection):
+    
+    """
+    Класс для добавления списка администраторов в чат через API.
+
+    Args:
+        bot (Bot): Экземпляр бота, через который выполняется запрос.
+        chat_id (int): Идентификатор чата.
+        admins (List[ChatAdmin]): Список администраторов для добавления.
+        marker (int, optional): Маркер для пагинации или дополнительных настроек. По умолчанию None.
+    """
 
     def __init__(
             self, 
@@ -29,6 +38,16 @@ class AddAdminChat(BaseConnection):
         self.marker = marker
 
     async def request(self) -> AddedListAdminChat:
+        
+        """
+        Выполняет HTTP POST запрос для добавления администраторов в чат.
+
+        Формирует JSON с данными администраторов и отправляет запрос на соответствующий API-эндпоинт.
+
+        Returns:
+            AddedListAdminChat: Результат операции с информацией об успешности.
+        """
+        
         json = {}
 
         json['admins'] = [admin.model_dump() for admin in self.admins]

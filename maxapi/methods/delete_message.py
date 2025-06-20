@@ -12,6 +12,15 @@ if TYPE_CHECKING:
 
 
 class DeleteMessage(BaseConnection):
+    
+    """
+    Класс для удаления сообщения через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        message_id (str): Идентификатор сообщения, которое нужно удалить.
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -21,6 +30,16 @@ class DeleteMessage(BaseConnection):
             self.message_id = message_id
 
     async def request(self) -> DeletedMessage:
+        
+        """
+        Выполняет DELETE-запрос для удаления сообщения.
+
+        Использует параметр message_id для идентификации сообщения.
+
+        Returns:
+            DeletedMessage: Результат операции удаления сообщения.
+        """
+        
         params = self.bot.params.copy()
 
         params['message_id'] = self.message_id

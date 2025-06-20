@@ -12,6 +12,15 @@ if TYPE_CHECKING:
 
 
 class DeleteChat(BaseConnection):
+    
+    """
+    Класс для удаления чата через API.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        chat_id (int): Идентификатор чата, который необходимо удалить.
+    """
+    
     def __init__(
             self,
             bot: 'Bot',
@@ -21,6 +30,14 @@ class DeleteChat(BaseConnection):
             self.chat_id = chat_id
 
     async def request(self) -> DeletedChat:
+        
+        """
+        Отправляет DELETE-запрос для удаления указанного чата.
+
+        Returns:
+            DeletedChat: Результат операции удаления чата.
+        """
+        
         return await super().request(
             method=HTTPMethod.DELETE, 
             path=ApiPath.CHATS.value + '/' + str(self.chat_id),

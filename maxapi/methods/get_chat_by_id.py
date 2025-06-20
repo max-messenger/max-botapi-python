@@ -14,6 +14,14 @@ if TYPE_CHECKING:
 
 class GetChatById(BaseConnection):
 
+    """
+    Класс для получения информации о чате по его идентификатору.
+
+    Args:
+        bot (Bot): Экземпляр бота для выполнения запроса.
+        id (int): Идентификатор чата.
+    """
+    
     def __init__(
             self, 
             bot: 'Bot',
@@ -23,6 +31,14 @@ class GetChatById(BaseConnection):
         self.id = id
 
     async def request(self) -> Chat:
+        
+        """
+        Выполняет GET-запрос для получения данных чата.
+
+        Returns:
+            Chat: Объект чата с полной информацией.
+        """
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + str(self.id),

@@ -1,6 +1,14 @@
 from enum import Enum
 
+
 class UpdateType(str, Enum):
+    
+    """
+    Типы обновлений (ивентов) от API.
+
+    Используются для обработки различных событий в боте или чате.
+    """
+    
     MESSAGE_CREATED = 'message_created'
     BOT_ADDED = 'bot_added'
     BOT_REMOVED = 'bot_removed'
@@ -13,4 +21,5 @@ class UpdateType(str, Enum):
     USER_ADDED = 'user_added'
     USER_REMOVED = 'user_removed'
 
+    # Для начинки диспатчера
     ON_STARTED = 'on_started'
