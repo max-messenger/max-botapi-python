@@ -62,10 +62,10 @@ if __name__ == '__main__':
 
 ## ⭐️ Примеры
 
- - [Эхо бот](https://love-apples/maxapi/blob/main/examples/echo/main.py)
- - [Обработчик доступных событий](https://love-apples/maxapi/blob/main/examples/events/main.py)
- - [Обработчики с MagicFilter](https://love-apples/maxapi/blob/main/examples/magic_filters/main.py)
- - [Демонстрация роутинга, InputMedia и механика контекста](https://love-apples/maxapi/blob/main/examples/router_with_input_media/main.py) (audio.mp3 для команды /media)
+ - [Эхо бот](https://github.com/love-apples/maxapi/blob/main/examples/echo/main.py)
+ - [Обработчик доступных событий](https://github.com/love-apples/maxapi/blob/main/examples/events/main.py)
+ - [Обработчики с MagicFilter](https://github.com/love-apples/maxapi/blob/main/examples/magic_filters/main.py)
+ - [Демонстрация роутинга, InputMedia и механика контекста](https://github.com/love-apples/maxapi/tree/main/examples/router_with_input_media) (audio.mp3 для команды /media)
 
 ---
 
