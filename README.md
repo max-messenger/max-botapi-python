@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/maxapi.svg)](https://pypi.org/project/maxapi/)
 [![Python Version](https://img.shields.io/pypi/pyversions/maxapi.svg)](https://pypi.org/project/maxapi/)
-[![License](https://img.shields.io/github/license/love-apples/maxapi.svg)](https://love-apples/maxapi/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/love-apples/maxapi.svg)](https://love-apples/maxapi/blob/main/LICENSE.md)
 
 ---
 
