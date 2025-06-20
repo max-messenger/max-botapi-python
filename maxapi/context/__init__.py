@@ -2,7 +2,7 @@ import asyncio
 
 from typing import Any, Dict
 
-from ..context.state_machine import State
+from ..context.state_machine import State, StatesGroup
 
 
 class MemoryContext:

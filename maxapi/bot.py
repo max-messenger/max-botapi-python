@@ -33,6 +33,7 @@ from .enums.parse_mode import ParseMode
 from .enums.sender_action import SenderAction
 from .enums.upload_type import UploadType
 
+from .types.message import Message
 from .types.attachments.attachment import Attachment
 from .types.attachments.image import PhotoAttachmentRequestPayload
 from .types.message import Messages, NewMessageLink
@@ -41,29 +42,27 @@ from .types.command import BotCommand
 
 from .connection.base import BaseConnection
 
-if TYPE_CHECKING:
-    from .types.message import Message
-    from .methods.types.added_admin_chat import AddedListAdminChat
-    from .methods.types.added_members_chat import AddedMembersChat
-    from .methods.types.deleted_bot_from_chat import DeletedBotFromChat
-    from .methods.types.deleted_chat import DeletedChat
-    from .methods.types.deleted_message import DeletedMessage
-    from .methods.types.deleted_pin_message import DeletedPinMessage
-    from .methods.types.edited_message import EditedMessage
-    from .methods.types.getted_list_admin_chat import GettedListAdminChat
-    from .methods.types.getted_members_chat import GettedMembersChat
-    from .methods.types.getted_pineed_message import GettedPin
-    from .methods.types.getted_upload_url import GettedUploadUrl
-    from .methods.types.pinned_message import PinnedMessage
-    from .methods.types.removed_admin import RemovedAdmin
-    from .methods.types.removed_member_chat import RemovedMemberChat
-    from .methods.types.sended_action import SendedAction
-    from .methods.types.sended_callback import SendedCallback
-    from .methods.types.sended_message import SendedMessage
-    from maxapi.types.attachments.video import Video
-    from maxapi.types.chats import Chat, ChatMember, Chats
-    from maxapi.types.updates import UpdateUnion
-    
+from .methods.types.added_admin_chat import AddedListAdminChat
+from .methods.types.added_members_chat import AddedMembersChat
+from .methods.types.deleted_bot_from_chat import DeletedBotFromChat
+from .methods.types.deleted_chat import DeletedChat
+from .methods.types.deleted_message import DeletedMessage
+from .methods.types.deleted_pin_message import DeletedPinMessage
+from .methods.types.edited_message import EditedMessage
+from .methods.types.getted_list_admin_chat import GettedListAdminChat
+from .methods.types.getted_members_chat import GettedMembersChat
+from .methods.types.getted_pineed_message import GettedPin
+from .methods.types.getted_upload_url import GettedUploadUrl
+from .methods.types.pinned_message import PinnedMessage
+from .methods.types.removed_admin import RemovedAdmin
+from .methods.types.removed_member_chat import RemovedMemberChat
+from .methods.types.sended_action import SendedAction
+from .methods.types.sended_callback import SendedCallback
+from .methods.types.sended_message import SendedMessage
+from .types.attachments.video import Video
+from .types.chats import Chat, ChatMember, Chats
+from .types.updates import UpdateUnion
+
 
 class Bot(BaseConnection):
     
