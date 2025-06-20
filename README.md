@@ -25,7 +25,7 @@ from maxapi.types import BotStarted, Command, MessageCreated
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot('f9LHodD0cOL5NY7All_9xJRh5ZhPw6bRvq_0Adm8-1bZZEHdRy6_ZHDMNVPejUYNZg7Zhty-wKHNv2X2WJBQ')
+bot = Bot('тут_ваш_токен')
 dp = Dispatcher()
 
 
