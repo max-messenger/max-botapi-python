@@ -169,7 +169,8 @@ class Message(BaseModel):
     if TYPE_CHECKING:
         bot: Optional[Bot]
 
-    async def answer(self,
+    async def answer(
+            self,
             text: str = None,
             disable_link_preview: bool = False,
             attachments: List[Attachment] = None,
@@ -204,7 +205,8 @@ class Message(BaseModel):
             parse_mode=parse_mode
         )
         
-    async def reply(self,
+    async def reply(
+            self,
             text: str = None,
             disable_link_preview: bool = False,
             attachments: List[Attachment] = None,
@@ -234,6 +236,44 @@ class Message(BaseModel):
             attachments=attachments,
             link=NewMessageLink(
                 type=MessageLinkType.REPLY,
+                mid=self.body.mid
+            ),
+            notify=notify,
+            parse_mode=parse_mode
+        )
+        
+    async def forward(
+            self,
+            chat_id, 
+            user_id: int = None,
+            disable_link_preview: bool = False,
+            attachments: List[Attachment] = None,
+            notify: bool = True,
+            parse_mode: ParseMode = None
+        ):
+        
+        """
+        Пересылает отправленное сообщение в указанный чат (автозаполнение link).
+
+        Args:
+            chat_id (int): ID чата для отправки (обязателен, если не указан user_id)
+            user_id (int): ID пользователя для отправки (обязателен, если не указан chat_id). По умолчанию None
+            disable_link_preview (bool): Отключить предпросмотр ссылок. По умолчанию False.
+            attachments (List[Attachment], optional): Список вложений. Может быть None.
+            notify (bool): Флаг отправки уведомления. По умолчанию True.
+            parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
+
+        Returns:
+            Any: Результат выполнения метода send_message бота.
+        """
+        
+        return await self.bot.send_message(
+            chat_id=chat_id,
+            user_id=user_id,
+            disable_link_preview=disable_link_preview,
+            attachments=attachments,
+            link=NewMessageLink(
+                type=MessageLinkType.FORWARD,
                 mid=self.body.mid
             ),
             notify=notify,
