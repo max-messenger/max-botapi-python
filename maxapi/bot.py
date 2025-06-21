@@ -78,7 +78,8 @@ class Bot(BaseConnection):
             self, 
             token: str,
             parse_mode: Optional[ParseMode] = None,
-            disable_notifications: Optional[bool] = None
+            disable_notifications: Optional[bool] = None,
+            auto_requests: bool = True,
         ):
         
         """Инициализирует экземпляр бота с указанным токеном.
@@ -86,6 +87,8 @@ class Bot(BaseConnection):
         :param token: Токен доступа к API бота
         :param parse_mode: Форматирование по умолчанию
         :param disable_notifications: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется)
+        :param auto_requests: Автоматическое заполнение полей chat и from_user в Update
+        с помощью API запросов если они не заложены как полноценные объекты в Update (по умолчанию True, при False chat и from_user в некоторых событиях будут выдавать None)
         """
         
         super().__init__()
@@ -98,6 +101,7 @@ class Bot(BaseConnection):
         
         self.parse_mode = parse_mode
         self.disable_notifications = disable_notifications
+        self.auto_requests = auto_requests
         
     async def send_message(
             self,
