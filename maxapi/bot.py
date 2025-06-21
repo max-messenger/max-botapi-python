@@ -78,7 +78,7 @@ class Bot(BaseConnection):
             self, 
             token: str,
             parse_mode: Optional[ParseMode] = None,
-            disable_notifications: Optional[bool] = None,
+            notify: Optional[bool] = None,
             auto_requests: bool = True,
         ):
         
@@ -86,7 +86,7 @@ class Bot(BaseConnection):
 
         :param token: Токен доступа к API бота
         :param parse_mode: Форматирование по умолчанию
-        :param disable_notifications: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется)
+        :param notify: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется) (не работает на стороне MAX)
         :param auto_requests: Автоматическое заполнение полей chat и from_user в Update
         с помощью API запросов если они не заложены как полноценные объекты в Update (по умолчанию True, при False chat и from_user в некоторых событиях будут выдавать None)
         """
@@ -100,30 +100,28 @@ class Bot(BaseConnection):
         self.marker_updates = None
         
         self.parse_mode = parse_mode
-        self.disable_notifications = disable_notifications
+        self.notify = notify
         self.auto_requests = auto_requests
         
     async def send_message(
             self,
             chat_id: int = None, 
             user_id: int = None,
-            disable_link_preview: bool = False,
             text: str = None,
             attachments: List[Attachment] = None,
             link: NewMessageLink = None,
-            notify: bool = True,
-            parse_mode: ParseMode = None
+            notify: Optional[bool] = None,
+            parse_mode: Optional[ParseMode] = None
         ) -> SendedMessage:
         
         """Отправляет сообщение в чат или пользователю.
 
         :param chat_id: ID чата для отправки (обязателен, если не указан user_id)
         :param user_id: ID пользователя для отправки (обязателен, если не указан chat_id)
-        :param disable_link_preview: Отключить предпросмотр ссылок (по умолчанию False)
         :param text: Текст сообщения
         :param attachments: Список вложений к сообщению
         :param link: Данные ссылки сообщения
-        :param notify: Отправлять уведомление получателю (по умолчанию True)
+        :param notify: Отправлять уведомление получателю (по умолчанию берется значение из бота)
         :param parse_mode: Режим форматирования текста
 
         :return: Объект отправленного сообщения
@@ -133,12 +131,11 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             user_id=user_id,
-            disable_link_preview=disable_link_preview,
             text=text,
             attachments=attachments,
             link=link,
-            notify=notify if not self.disable_notifications \
-                    else self.disable_notifications,
+            notify=notify if notify \
+                    else self.notify,
             parse_mode=parse_mode if parse_mode \
                     else self.parse_mode
         ).request()
@@ -169,8 +166,8 @@ class Bot(BaseConnection):
             text: str = None,
             attachments: List[Attachment] = None,
             link: NewMessageLink = None,
-            notify: bool = True,
-            parse_mode: ParseMode = None
+            notify: Optional[bool] = None,
+            parse_mode: Optional[ParseMode] = None
         ) -> EditedMessage:
         
         """Редактирует существующее сообщение.
@@ -179,7 +176,7 @@ class Bot(BaseConnection):
         :param text: Новый текст сообщения
         :param attachments: Новые вложения
         :param link: Новая ссылка сообщения
-        :param notify: Уведомлять получателя об изменении (по умолчанию True)
+        :param notify: Отправлять уведомление получателю (по умолчанию берется значение из бота)
         :param parse_mode: Режим форматирования текста
 
         :return: Объект отредактированного сообщения
@@ -191,8 +188,8 @@ class Bot(BaseConnection):
             text=text,
             attachments=attachments,
             link=link,
-            notify=notify if not self.disable_notifications \
-                    else self.disable_notifications,
+            notify=notify if notify \
+                    else self.notify,
             parse_mode=parse_mode if parse_mode \
                     else self.parse_mode
         ).request()
@@ -382,7 +379,7 @@ class Bot(BaseConnection):
             icon: PhotoAttachmentRequestPayload = None,
             title: str = None,
             pin: str = None,
-            notify: bool = True,
+            notify: Optional[bool] = None,
         ) -> Chat:
         
         """Редактирует параметры чата.
@@ -391,7 +388,7 @@ class Bot(BaseConnection):
         :param icon: Данные иконки чата
         :param title: Новый заголовок чата
         :param pin: ID сообщения для закрепления
-        :param notify: Уведомлять участников (по умолчанию True)
+        :param notify: Отправлять уведомление получателю (по умолчанию берется значение из бота)
 
         :return: Обновленный объект чата
         """
@@ -402,8 +399,8 @@ class Bot(BaseConnection):
             icon=icon,
             title=title,
             pin=pin,
-            notify=notify if not self.disable_notifications \
-                    else self.disable_notifications,
+            notify=notify if notify \
+                    else self.notify,
         ).request()
     
     async def get_video(
@@ -450,14 +447,14 @@ class Bot(BaseConnection):
             self,
             chat_id: int,
             message_id: str,
-            notify: bool = True
+            notify: Optional[bool] = None
         ) -> PinnedMessage:
         
         """Закрепляет сообщение в чате.
 
         :param chat_id: ID чата
         :param message_id: ID сообщения
-        :param notify: Уведомлять участников (по умолчанию True)
+        :param notify: Отправлять уведомление получателю (по умолчанию берется значение из бота)
 
         :return: Закрепленное сообщение
         """
@@ -466,8 +463,8 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             message_id=message_id,
-            notify=notify if not self.disable_notifications \
-                    else self.disable_notifications,
+            notify=notify if notify \
+                    else self.notify,
         ).request()
     
     async def delete_pin_message(

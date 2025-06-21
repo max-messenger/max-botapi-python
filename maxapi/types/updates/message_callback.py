@@ -90,7 +90,7 @@ class MessageCallback(Update):
             new_text: str = None,
             link: NewMessageLink = None,
             notify: bool = True,
-            format: ParseMode = None,
+            format: Optional[ParseMode] = None,
         ):
         
         """

@@ -172,11 +172,10 @@ class Message(BaseModel):
     async def answer(
             self,
             text: str = None,
-            disable_link_preview: bool = False,
             attachments: List[Attachment] = None,
             link: NewMessageLink = None,
-            notify: bool = True,
-            parse_mode: ParseMode = None
+            notify: Optional[bool] = None,
+            parse_mode: Optional[ParseMode] = None
         ):
         
         """
@@ -184,7 +183,6 @@ class Message(BaseModel):
 
         Args:
             text (str, optional): Текст ответа. Может быть None.
-            disable_link_preview (bool): Отключить предпросмотр ссылок. По умолчанию False.
             attachments (List[Attachment], optional): Список вложений. Может быть None.
             link (NewMessageLink, optional): Связь с другим сообщением. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
@@ -198,7 +196,6 @@ class Message(BaseModel):
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
             text=text,
-            disable_link_preview=disable_link_preview,
             attachments=attachments,
             link=link,
             notify=notify,
@@ -208,10 +205,9 @@ class Message(BaseModel):
     async def reply(
             self,
             text: str = None,
-            disable_link_preview: bool = False,
             attachments: List[Attachment] = None,
-            notify: bool = True,
-            parse_mode: ParseMode = None
+            notify: Optional[bool] = None,
+            parse_mode: Optional[ParseMode] = None
         ):
         
         """
@@ -219,7 +215,6 @@ class Message(BaseModel):
 
         Args:
             text (str, optional): Текст ответа. Может быть None.
-            disable_link_preview (bool): Отключить предпросмотр ссылок. По умолчанию False.
             attachments (List[Attachment], optional): Список вложений. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
             parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
@@ -232,7 +227,6 @@ class Message(BaseModel):
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
             text=text,
-            disable_link_preview=disable_link_preview,
             attachments=attachments,
             link=NewMessageLink(
                 type=MessageLinkType.REPLY,
@@ -246,10 +240,9 @@ class Message(BaseModel):
             self,
             chat_id, 
             user_id: int = None,
-            disable_link_preview: bool = False,
             attachments: List[Attachment] = None,
-            notify: bool = True,
-            parse_mode: ParseMode = None
+            notify: Optional[bool] = None,
+            parse_mode: Optional[ParseMode] = None
         ):
         
         """
@@ -258,7 +251,6 @@ class Message(BaseModel):
         Args:
             chat_id (int): ID чата для отправки (обязателен, если не указан user_id)
             user_id (int): ID пользователя для отправки (обязателен, если не указан chat_id). По умолчанию None
-            disable_link_preview (bool): Отключить предпросмотр ссылок. По умолчанию False.
             attachments (List[Attachment], optional): Список вложений. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
             parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
@@ -270,7 +262,6 @@ class Message(BaseModel):
         return await self.bot.send_message(
             chat_id=chat_id,
             user_id=user_id,
-            disable_link_preview=disable_link_preview,
             attachments=attachments,
             link=NewMessageLink(
                 type=MessageLinkType.FORWARD,
@@ -286,7 +277,7 @@ class Message(BaseModel):
             attachments: List[Attachment] = None,
             link: NewMessageLink = None,
             notify: bool = True,
-            parse_mode: ParseMode = None
+            parse_mode: Optional[ParseMode] = None
         ):
         
         """

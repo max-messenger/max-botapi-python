@@ -1,7 +1,7 @@
 
 
 import asyncio
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from json import loads as json_loads
 
@@ -38,7 +38,6 @@ class SendMessage(BaseConnection):
         bot (Bot): Экземпляр бота для выполнения запроса.
         chat_id (int, optional): Идентификатор чата, куда отправлять сообщение.
         user_id (int, optional): Идентификатор пользователя, если нужно отправить личное сообщение.
-        disable_link_preview (bool, optional): Отключить предпросмотр ссылок. По умолчанию False.
         text (str, optional): Текст сообщения.
         attachments (List[Attachment | InputMedia], optional): Список вложений к сообщению.
         link (NewMessageLink, optional): Связь с другим сообщением (например, ответ или пересылка).
@@ -51,17 +50,15 @@ class SendMessage(BaseConnection):
             bot: 'Bot',
             chat_id: int = None, 
             user_id: int = None, 
-            disable_link_preview: bool = False,
             text: str = None,
             attachments: List[Attachment | InputMedia] = None,
             link: NewMessageLink = None,
             notify: bool = True,
-            parse_mode: ParseMode = None
+            parse_mode: Optional[ParseMode] = None
         ):
             self.bot = bot
             self.chat_id = chat_id
             self.user_id = user_id
-            self.disable_link_preview = disable_link_preview
             self.text = text
             self.attachments = attachments
             self.link = link
@@ -129,7 +126,6 @@ class SendMessage(BaseConnection):
         elif self.user_id: params['user_id'] = self.user_id
 
         json['text'] = self.text
-        json['disable_link_preview'] = str(self.disable_link_preview).lower()
         
         if self.attachments:
             

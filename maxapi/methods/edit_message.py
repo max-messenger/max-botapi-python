@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from .types.edited_message import EditedMessage
 from ..types.message import NewMessageLink
@@ -38,7 +38,7 @@ class EditMessage(BaseConnection):
             attachments: List['Attachment'] = None,
             link: 'NewMessageLink' = None,
             notify: bool = True,
-            parse_mode: ParseMode = None
+            parse_mode: Optional[ParseMode] = None
         ):
             self.bot = bot
             self.message_id = message_id
