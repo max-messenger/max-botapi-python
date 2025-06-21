@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
 from maxapi.methods.download_media import DownloadMedia
 
@@ -74,11 +74,18 @@ class Bot(BaseConnection):
     пользователями и другими функциями бота.
     """
 
-    def __init__(self, token: str):
+    def __init__(
+            self, 
+            token: str,
+            parse_mode: Optional[ParseMode] = None,
+            disable_notifications: Optional[bool] = None
+        ):
         
         """Инициализирует экземпляр бота с указанным токеном.
 
         :param token: Токен доступа к API бота
+        :param parse_mode: Форматирование по умолчанию
+        :param disable_notifications: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется)
         """
         
         super().__init__()
@@ -88,6 +95,9 @@ class Bot(BaseConnection):
         self.__token = token
         self.params = {'access_token': self.__token}
         self.marker_updates = None
+        
+        self.parse_mode = parse_mode
+        self.disable_notifications = disable_notifications
         
     async def send_message(
             self,
@@ -123,8 +133,10 @@ class Bot(BaseConnection):
             text=text,
             attachments=attachments,
             link=link,
-            notify=notify,
-            parse_mode=parse_mode
+            notify=notify if not self.disable_notifications \
+                    else self.disable_notifications,
+            parse_mode=parse_mode if parse_mode \
+                    else self.parse_mode
         ).request()
     
     async def send_action(
@@ -175,8 +187,10 @@ class Bot(BaseConnection):
             text=text,
             attachments=attachments,
             link=link,
-            notify=notify,
-            parse_mode=parse_mode
+            notify=notify if not self.disable_notifications \
+                    else self.disable_notifications,
+            parse_mode=parse_mode if parse_mode \
+                    else self.parse_mode
         ).request()
     
     async def delete_message(
@@ -384,7 +398,8 @@ class Bot(BaseConnection):
             icon=icon,
             title=title,
             pin=pin,
-            notify=notify
+            notify=notify if not self.disable_notifications \
+                    else self.disable_notifications,
         ).request()
     
     async def get_video(
@@ -447,7 +462,8 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             message_id=message_id,
-            notify=notify
+            notify=notify if not self.disable_notifications \
+                    else self.disable_notifications,
         ).request()
     
     async def delete_pin_message(
