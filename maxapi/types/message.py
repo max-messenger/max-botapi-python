@@ -179,7 +179,7 @@ class Message(BaseModel):
         ):
         
         """
-        Отправляет ответное сообщение.
+        Отправляет сообщение (автозаполнение chat_id, user_id).
 
         Args:
             text (str, optional): Текст ответа. Может быть None.
@@ -200,6 +200,42 @@ class Message(BaseModel):
             disable_link_preview=disable_link_preview,
             attachments=attachments,
             link=link,
+            notify=notify,
+            parse_mode=parse_mode
+        )
+        
+    async def reply(self,
+            text: str = None,
+            disable_link_preview: bool = False,
+            attachments: List[Attachment] = None,
+            notify: bool = True,
+            parse_mode: ParseMode = None
+        ):
+        
+        """
+        Отправляет ответное сообщение (автозаполнение chat_id, user_id, link).
+
+        Args:
+            text (str, optional): Текст ответа. Может быть None.
+            disable_link_preview (bool): Отключить предпросмотр ссылок. По умолчанию False.
+            attachments (List[Attachment], optional): Список вложений. Может быть None.
+            notify (bool): Флаг отправки уведомления. По умолчанию True.
+            parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
+
+        Returns:
+            Any: Результат выполнения метода send_message бота.
+        """
+        
+        return await self.bot.send_message(
+            chat_id=self.recipient.chat_id,
+            user_id=self.recipient.user_id,
+            text=text,
+            disable_link_preview=disable_link_preview,
+            attachments=attachments,
+            link=NewMessageLink(
+                type=MessageLinkType.REPLY,
+                mid=self.body.mid
+            ),
             notify=notify,
             parse_mode=parse_mode
         )
