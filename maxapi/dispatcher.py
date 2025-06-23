@@ -6,8 +6,7 @@ from magic_filter import MagicFilter
 from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
 
-from maxapi.filters.middleware import BaseMiddleware
-
+from .filters.middleware import BaseMiddleware
 from .filters.handler import Handler
 
 from .context import MemoryContext

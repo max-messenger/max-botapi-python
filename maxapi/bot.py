@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
-from maxapi.methods.download_media import DownloadMedia
-
+from .methods.download_media import DownloadMedia
 from .methods.get_upload_url import GetUploadURL
 from .methods.get_updates import GetUpdates
 from .methods.remove_member_chat import RemoveMemberChat

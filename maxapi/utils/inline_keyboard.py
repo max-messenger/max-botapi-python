@@ -1,4 +1,4 @@
-from maxapi.types.attachments.buttons import InlineButtonUnion
+from ..types.attachments.buttons import InlineButtonUnion
 from ..enums.attachment import AttachmentType
 from ..types.attachments.attachment import Attachment, ButtonsPayload
 
