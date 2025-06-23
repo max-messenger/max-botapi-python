@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 from magic_filter import F, MagicFilter
 
@@ -45,7 +45,7 @@ class Handler:
         self.update_type: UpdateType = update_type
         self.filters = []
         self.state: State = None
-        self.middleware: BaseMiddleware = None
+        self.middlewares: List[BaseMiddleware] = []
 
         for arg in args:
             if isinstance(arg, MagicFilter):
@@ -55,7 +55,7 @@ class Handler:
             elif isinstance(arg, Command):
                 self.filters.insert(0, F.message.body.text.startswith(arg.command))
             elif isinstance(arg, BaseMiddleware):
-                self.middleware = arg
+                self.middlewares.append(arg)
             else:
                 logger_dp.info(f'Обнаружен неизвестный фильтр `{arg}` при ' 
                                f'регистрации функции `{func_event.__name__}`')

@@ -1,10 +1,12 @@
-from typing import Callable, List
+from typing import Any, Callable, Dict, List
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from magic_filter import MagicFilter
 from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
+
+from maxapi.filters.middleware import BaseMiddleware
 
 from .filters.handler import Handler
 
@@ -36,6 +38,8 @@ class Dispatcher:
         self.contexts: List[MemoryContext] = []
         self.routers: List[Router] = []
         self.filters: List[MagicFilter] = []
+        self.middlewares: List[BaseMiddleware] = []
+        
         self.bot = None
         self.on_started_func = None
 
@@ -78,7 +82,7 @@ class Dispatcher:
         
         handlers_count = 0
         for router in self.routers:
-            for handler in router.event_handlers:
+            for _ in router.event_handlers:
                 handlers_count += 1
 
         logger_dp.info(f'{handlers_count} событий на обработку')
@@ -105,6 +109,30 @@ class Dispatcher:
         new_ctx = MemoryContext(chat_id, user_id)
         self.contexts.append(new_ctx)
         return new_ctx
+        
+    async def process_middlewares(
+            self,
+            middlewares: List[BaseMiddleware],
+            event_object: UpdateUnion,
+            result_data_kwargs: Dict[str, Any]
+        ):
+        
+        for middleware in middlewares:
+            result = await middleware.process_middleware(
+                event_object=event_object,
+                result_data_kwargs=result_data_kwargs
+            )
+            
+            if result == None or result == False:
+                return
+            
+            elif result == True:
+                result = {}
+            
+            for key, value in result.items():
+                result_data_kwargs[key] = value
+        
+        return result_data_kwargs
 
     async def handle(self, event_object: UpdateUnion):
         
@@ -113,54 +141,68 @@ class Dispatcher:
         Args:
             event_object: Объект события для обработки
         """
-        ids = event_object.get_ids()
-        
-        is_handled = False
-        
-        for router in self.routers:
+        try:
+            ids = event_object.get_ids()
+            memory_context = self.__get_memory_context(*ids)
+            kwargs = {'context': memory_context}
             
-            if is_handled:
-                break
+            is_handled = False
             
-            if router.filters:
-                if not filter_attrs(event_object, *router.filters):
-                    continue
-            
-            for handler in router.event_handlers:
+            for router in self.routers:
+                
+                if is_handled:
+                    break
+                
+                if router.filters:
+                    if not filter_attrs(event_object, *router.filters):
+                        continue
+                    
+                kwargs = await self.process_middlewares(
+                    middlewares=router.middlewares,
+                    event_object=event_object,
+                    result_data_kwargs=kwargs
+                )
+                
+                for handler in router.event_handlers:
 
-                if not handler.update_type == event_object.update_type:
-                    continue
-
-                if handler.filters:
-                    if not filter_attrs(event_object, *handler.filters):
+                    if not handler.update_type == event_object.update_type:
                         continue
 
-                memory_context = self.__get_memory_context(*ids)
-                
-                if not handler.state == await memory_context.get_state() \
-                    and handler.state:
-                    continue
-                
-                func_args = handler.func_event.__annotations__.keys()
+                    if handler.filters:
+                        if not filter_attrs(event_object, *handler.filters):
+                            continue
 
-                kwargs = {'context': memory_context}
-
-                for key in kwargs.copy().keys():
-                    if not key in func_args:
-                        del kwargs[key]
+                    if not handler.state == await memory_context.get_state() \
+                        and handler.state:
+                        continue
+                    
+                    func_args = handler.func_event.__annotations__.keys()
+                    
+                    kwargs = await self.process_middlewares(
+                        middlewares=handler.middlewares,
+                        event_object=event_object,
+                        result_data_kwargs=kwargs
+                    )
+                    
+                    if not kwargs:
+                        continue
                         
-                if handler.middleware:
-                    await handler.middleware()
+                    for key in kwargs.copy().keys():
+                        if not key in func_args:
+                            del kwargs[key]
+                        
+                    await handler.func_event(event_object, **kwargs)
 
-                await handler.func_event(event_object, **kwargs)
+                    logger_dp.info(f'Обработано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
 
-                logger_dp.info(f'Обработано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+                    is_handled = True
+                    break
 
-                is_handled = True
-                break
-
-        if not is_handled:
-            logger_dp.info(f'Проигнорировано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+            if not is_handled:
+                logger_dp.info(f'Проигнорировано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+            
+        except Exception as e:
+            logger_dp.error(f"Ошибка при обработке события: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]} | {e} ")
 
     async def start_polling(self, bot: Bot):
         
@@ -187,10 +229,7 @@ class Dispatcher:
                 )
                 
                 for event in processed_events:
-                    try:
-                        await self.handle(event)
-                    except Exception as e:
-                        logger_dp.error(f"Ошибка при обработке события: {event.update_type}: {e}")
+                    await self.handle(event)
             except ClientConnectorError:
                 logger_dp.error(f'Ошибка подключения: {e}')
             except Exception as e:

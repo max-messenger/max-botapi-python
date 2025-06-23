@@ -1,5 +1,7 @@
 from typing import Optional
 
+from maxapi.enums.button_type import ButtonType
+
 from .button import Button
 
 
@@ -7,7 +9,6 @@ class ChatButton(Button):
     
     """
     Attributes:
-        type: Тип кнопки (наследуется от Button)
         text: Текст кнопки (наследуется от Button)
         chat_title: Название чата (до 128 символов)
         chat_description: Описание чата (до 256 символов)
@@ -15,6 +16,7 @@ class ChatButton(Button):
         uuid: Уникальный идентификатор чата
     """
     
+    type: ButtonType = ButtonType.CHAT
     chat_title: Optional[str] = None
     chat_description: Optional[str] = None
     start_payload: Optional[str] = None

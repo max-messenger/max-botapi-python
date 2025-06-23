@@ -9,6 +9,7 @@ from ..types.updates.message_edited import MessageEdited
 from ..types.updates.message_removed import MessageRemoved
 from ..types.updates.user_added import UserAdded
 from ..types.updates.user_removed import UserRemoved
+from ..types.updates import UpdateUnion
 
 from ..types.attachments.attachment import PhotoAttachmentPayload
 from ..types.attachments.attachment import OtherAttachmentPayload
@@ -20,12 +21,14 @@ from ..types.attachments.buttons.chat_button import ChatButton
 from ..types.attachments.buttons.link_button import LinkButton
 from ..types.attachments.buttons.request_contact import RequestContact
 from ..types.attachments.buttons.request_geo_location_button import RequestGeoLocationButton
+from ..types.message import Message
 
 from ..types.command import Command, BotCommand
 
 from .input_media import InputMedia
 
 __all__ = [
+    UpdateUnion,
     InputMedia,
     BotCommand,
     CallbackButton,
