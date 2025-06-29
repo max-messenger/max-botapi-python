@@ -23,10 +23,10 @@ from ..loggers import logger_bot
 
 if TYPE_CHECKING:
     from ..bot import Bot
+    
 
-
-class UploadResponse:
-    token: str = None
+RETRY_DELAY = 2
+ATTEMPTS_COUNT = 5
 
 
 class SendMessage(BaseConnection):
@@ -69,6 +69,9 @@ class SendMessage(BaseConnection):
             self,
             att: InputMedia
         ):
+        
+        # очень нестабильный метод независящий от модуля
+        # ждем обновлений MAX API
         
         """
         Загружает файл вложения и формирует объект AttachmentUpload.
@@ -140,11 +143,11 @@ class SendMessage(BaseConnection):
                     json['attachments'].append(att.model_dump()) 
         
         if not self.link is None: json['link'] = self.link.model_dump()
-        if not self.notify is None: json['notify'] = self.notify
+        json['notify'] = self.notify
         if not self.parse_mode is None: json['format'] = self.parse_mode.value
 
         response = None
-        for attempt in range(5):
+        for attempt in range(ATTEMPTS_COUNT):
             response = await super().request(
                 method=HTTPMethod.POST, 
                 path=ApiPath.MESSAGES,
@@ -155,8 +158,8 @@ class SendMessage(BaseConnection):
 
             if isinstance(response, Error):
                 if response.raw.get('code') == 'attachment.not.ready':
-                    logger_bot.info(f'Ошибка при отправке загруженного медиа, попытка {attempt+1}, жду 2 секунды')
-                    await asyncio.sleep(2)
+                    logger_bot.info(f'Ошибка при отправке загруженного медиа, попытка {attempt+1}, жду {RETRY_DELAY} секунды')
+                    await asyncio.sleep(RETRY_DELAY)
                     continue
             
             return response

@@ -113,8 +113,8 @@ class BaseConnection:
         :return: Сырой .text() ответ от сервера после загрузки файла
         """
         
-        with open(path, 'rb') as f:
-            file_data = f.read()
+        async with aiofiles.open(path, 'rb') as f:
+            file_data = await f.read()
 
         basename = os.path.basename(path)
         _, ext = os.path.splitext(basename)

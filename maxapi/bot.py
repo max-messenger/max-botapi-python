@@ -1,68 +1,69 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Any, Dict, List, TYPE_CHECKING, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-from .methods.download_media import DownloadMedia
-from .methods.get_upload_url import GetUploadURL
-from .methods.get_updates import GetUpdates
-from .methods.remove_member_chat import RemoveMemberChat
-from .methods.add_admin_chat import AddAdminChat
-from .methods.add_members_chat import AddMembersChat
-from .methods.get_members_chat import GetMembersChat
-from .methods.remove_admin import RemoveAdmin
-from .methods.get_list_admin_chat import GetListAdminChat
-from .methods.delete_bot_from_chat import DeleteMeFromMessage
-from .methods.get_me_from_chat import GetMeFromChat
-from .methods.delete_pin_message import DeletePinMessage
-from .methods.get_pinned_message import GetPinnedMessage
-from .methods.pin_message import PinMessage
-from .methods.delete_chat import DeleteChat
-from .methods.send_action import SendAction
-from .methods.edit_chat import EditChat
-from .methods.get_chat_by_id import GetChatById
-from .methods.get_chat_by_link import GetChatByLink
-from .methods.send_callback import SendCallback
-from .methods.get_video import GetVideo
-from .methods.delete_message import DeleteMessage
-from .methods.edit_message import EditMessage
-from .methods.change_info import ChangeInfo
-from .methods.get_me import GetMe
-from .methods.get_messages import GetMessages
-from .methods.get_chats import GetChats
-from .methods.send_message import SendMessage
-
+from .connection.base import BaseConnection
 from .enums.parse_mode import ParseMode
 from .enums.sender_action import SenderAction
 from .enums.upload_type import UploadType
 
-from .types.message import Message
-from .types.attachments.attachment import Attachment
-from .types.attachments.image import PhotoAttachmentRequestPayload
-from .types.message import Messages, NewMessageLink
-from .types.users import ChatAdmin, User
-from .types.command import BotCommand
+from .methods.add_admin_chat import AddAdminChat
+from .methods.add_members_chat import AddMembersChat
+from .methods.change_info import ChangeInfo
+from .methods.delete_bot_from_chat import DeleteMeFromMessage
+from .methods.delete_chat import DeleteChat
+from .methods.delete_message import DeleteMessage
+from .methods.delete_pin_message import DeletePinMessage
+from .methods.download_media import DownloadMedia
+from .methods.edit_chat import EditChat
+from .methods.edit_message import EditMessage
+from .methods.get_chat_by_id import GetChatById
+from .methods.get_chat_by_link import GetChatByLink
+from .methods.get_chats import GetChats
+from .methods.get_list_admin_chat import GetListAdminChat
+from .methods.get_me import GetMe
+from .methods.get_me_from_chat import GetMeFromChat
+from .methods.get_members_chat import GetMembersChat
+from .methods.get_messages import GetMessages
+from .methods.get_pinned_message import GetPinnedMessage
+from .methods.get_updates import GetUpdates
+from .methods.get_upload_url import GetUploadURL
+from .methods.get_video import GetVideo
+from .methods.pin_message import PinMessage
+from .methods.remove_admin import RemoveAdmin
+from .methods.remove_member_chat import RemoveMemberChat
+from .methods.send_action import SendAction
+from .methods.send_callback import SendCallback
+from .methods.send_message import SendMessage
 
-from .connection.base import BaseConnection
+if TYPE_CHECKING:
+    from .types.attachments.attachment import Attachment
+    from .types.attachments.image import PhotoAttachmentRequestPayload
+    from .types.attachments.video import Video
+    from .types.chats import Chat, ChatMember, Chats
+    from .types.command import BotCommand
+    from .types.message import Message, Messages, NewMessageLink
+    from .types.updates import UpdateUnion
+    from .types.users import ChatAdmin, User
 
-from .methods.types.added_admin_chat import AddedListAdminChat
-from .methods.types.added_members_chat import AddedMembersChat
-from .methods.types.deleted_bot_from_chat import DeletedBotFromChat
-from .methods.types.deleted_chat import DeletedChat
-from .methods.types.deleted_message import DeletedMessage
-from .methods.types.deleted_pin_message import DeletedPinMessage
-from .methods.types.edited_message import EditedMessage
-from .methods.types.getted_list_admin_chat import GettedListAdminChat
-from .methods.types.getted_members_chat import GettedMembersChat
-from .methods.types.getted_pineed_message import GettedPin
-from .methods.types.getted_upload_url import GettedUploadUrl
-from .methods.types.pinned_message import PinnedMessage
-from .methods.types.removed_admin import RemovedAdmin
-from .methods.types.removed_member_chat import RemovedMemberChat
-from .methods.types.sended_action import SendedAction
-from .methods.types.sended_callback import SendedCallback
-from .methods.types.sended_message import SendedMessage
-from .types.attachments.video import Video
-from .types.chats import Chat, ChatMember, Chats
-from .types.updates import UpdateUnion
+    from .methods.types.added_admin_chat import AddedListAdminChat
+    from .methods.types.added_members_chat import AddedMembersChat
+    from .methods.types.deleted_bot_from_chat import DeletedBotFromChat
+    from .methods.types.deleted_chat import DeletedChat
+    from .methods.types.deleted_message import DeletedMessage
+    from .methods.types.deleted_pin_message import DeletedPinMessage
+    from .methods.types.edited_message import EditedMessage
+    from .methods.types.getted_list_admin_chat import GettedListAdminChat
+    from .methods.types.getted_members_chat import GettedMembersChat
+    from .methods.types.getted_pineed_message import GettedPin
+    from .methods.types.getted_upload_url import GettedUploadUrl
+    from .methods.types.pinned_message import PinnedMessage
+    from .methods.types.removed_admin import RemovedAdmin
+    from .methods.types.removed_member_chat import RemovedMemberChat
+    from .methods.types.sended_action import SendedAction
+    from .methods.types.sended_callback import SendedCallback
+    from .methods.types.sended_message import SendedMessage
 
 
 class Bot(BaseConnection):
@@ -102,6 +103,12 @@ class Bot(BaseConnection):
         self.notify = notify
         self.auto_requests = auto_requests
         
+    def _resolve_notify(self, notify: Optional[bool]) -> Optional[bool]:
+        return notify if notify is not None else self.notify
+
+    def _resolve_parse_mode(self, mode: Optional[ParseMode]) -> Optional[ParseMode]:
+        return mode if mode is not None else self.parse_mode
+        
     async def send_message(
             self,
             chat_id: int = None, 
@@ -133,10 +140,8 @@ class Bot(BaseConnection):
             text=text,
             attachments=attachments,
             link=link,
-            notify=notify if notify \
-                    else self.notify,
-            parse_mode=parse_mode if parse_mode \
-                    else self.parse_mode
+            notify=self._resolve_notify(notify),
+            parse_mode=self._resolve_parse_mode(notify)
         ).request()
     
     async def send_action(
@@ -187,10 +192,8 @@ class Bot(BaseConnection):
             text=text,
             attachments=attachments,
             link=link,
-            notify=notify if notify \
-                    else self.notify,
-            parse_mode=parse_mode if parse_mode \
-                    else self.parse_mode
+            notify=self._resolve_notify(notify),
+            parse_mode=self._resolve_parse_mode(notify)
         ).request()
     
     async def delete_message(
@@ -398,8 +401,7 @@ class Bot(BaseConnection):
             icon=icon,
             title=title,
             pin=pin,
-            notify=notify if notify \
-                    else self.notify,
+            notify=self._resolve_notify(notify),
         ).request()
     
     async def get_video(
@@ -422,7 +424,7 @@ class Bot(BaseConnection):
     async def send_callback(
             self,
             callback_id: str,
-            message: 'Message' = None,
+            message: Message = None,
             notification: str = None
         ) -> SendedCallback:
         
@@ -462,8 +464,7 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             message_id=message_id,
-            notify=notify if notify \
-                    else self.notify,
+            notify=self._resolve_notify(notify),
         ).request()
     
     async def delete_pin_message(

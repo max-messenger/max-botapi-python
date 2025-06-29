@@ -1,3 +1,5 @@
+import asyncio
+
 from typing import Any, Callable, Dict, List
 
 from fastapi import FastAPI, Request
@@ -22,7 +24,8 @@ from .enums.update import UpdateType
 from .loggers import logger_dp
 
 
-app = FastAPI()
+webhook_app = FastAPI()
+CONNECTION_RETRY_DELAY = 30
 
 
 class Dispatcher:
@@ -39,8 +42,8 @@ class Dispatcher:
         self.filters: List[MagicFilter] = []
         self.middlewares: List[BaseMiddleware] = []
         
-        self.bot = None
-        self.on_started_func = None
+        self.bot: Bot = None
+        self.on_started_func: Callable = None
 
         self.message_created = Event(update_type=UpdateType.MESSAGE_CREATED, router=self)
         self.bot_added = Event(update_type=UpdateType.BOT_ADDED, router=self)
@@ -230,7 +233,8 @@ class Dispatcher:
                 for event in processed_events:
                     await self.handle(event)
             except ClientConnectorError:
-                logger_dp.error(f'Ошибка подключения: {e}')
+                logger_dp.error(f'Ошибка подключения, жду {CONNECTION_RETRY_DELAY} секунд')
+                await asyncio.sleep(CONNECTION_RETRY_DELAY)
             except Exception as e:
                 logger_dp.error(f'Общая ошибка при обработке событий: {e}')
 
@@ -246,7 +250,7 @@ class Dispatcher:
         
         await self.__ready(bot)
 
-        @app.post('/')
+        @webhook_app.post('/')
         async def _(request: Request):
             try:
                 event_json = await request.json()
@@ -262,7 +266,7 @@ class Dispatcher:
             except Exception as e:
                 logger_dp.error(f"Ошибка при обработке события: {event_json['update_type']}: {e}")
 
-        config = Config(app=app, host=host, port=port, log_level="critical")
+        config = Config(app=webhook_app, host=host, port=port, log_level="critical")
         server = Server(config)
 
         await server.serve()

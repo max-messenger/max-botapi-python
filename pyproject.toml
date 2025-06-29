@@ -18,6 +18,7 @@ dependencies = [
     "magic_filter>=1.0.0",
     "pydantic>=1.8.0",
     "uvicorn>=0.15.0",
+    "aiofiles==24.1.0",
 ]
 
 [project.urls]

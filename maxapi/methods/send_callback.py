@@ -1,5 +1,4 @@
-
-
+from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..methods.types.sended_callback import SendedCallback
@@ -37,7 +36,7 @@ class SendCallback(BaseConnection):
             self,
             bot: 'Bot',
             callback_id: str,
-            message: 'Message' = None,
+            message: Message = None,
             notification: str = None
         ):
             self.bot = bot
