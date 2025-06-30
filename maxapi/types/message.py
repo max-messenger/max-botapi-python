@@ -16,6 +16,7 @@ from .attachments.file import File
 from .attachments.image import Image
 from .attachments.video import Video
 from .attachments.audio import Audio
+from .attachments.location import Location
 
 from .users import User
 
@@ -97,7 +98,8 @@ class MessageBody(BaseModel):
                 File,
                 Image,
                 Sticker,
-                Share
+                Share,
+                Location
             ]
         ]
     ] = []
