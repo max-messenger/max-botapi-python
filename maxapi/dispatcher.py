@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 
 from typing import Any, Callable, Dict, List
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from magic_filter import MagicFilter
 from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
 
@@ -22,6 +23,9 @@ from .filters import filter_attrs
 from .bot import Bot
 from .enums.update import UpdateType
 from .loggers import logger_dp
+
+if TYPE_CHECKING:
+    from magic_filter import MagicFilter
 
 
 webhook_app = FastAPI()

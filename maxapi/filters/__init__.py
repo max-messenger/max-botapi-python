@@ -1,7 +1,4 @@
 from magic_filter import MagicFilter
-from magic_filter.operations.call import CallOperation as mf_call
-from magic_filter.operations.function import FunctionOperation as mf_func
-from magic_filter.operations.comparator import ComparatorOperation as mf_comparator
 
 F = MagicFilter()
 
