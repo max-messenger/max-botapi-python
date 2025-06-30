@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, TYPE_CHECKING
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
