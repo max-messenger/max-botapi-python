@@ -141,7 +141,7 @@ class Bot(BaseConnection):
             attachments=attachments,
             link=link,
             notify=self._resolve_notify(notify),
-            parse_mode=self._resolve_parse_mode(notify)
+            parse_mode=self._resolve_parse_mode(parse_mode)
         ).request()
     
     async def send_action(
@@ -193,7 +193,7 @@ class Bot(BaseConnection):
             attachments=attachments,
             link=link,
             notify=self._resolve_notify(notify),
-            parse_mode=self._resolve_parse_mode(notify)
+            parse_mode=self._resolve_parse_mode(parse_mode)
         ).request()
     
     async def delete_message(
