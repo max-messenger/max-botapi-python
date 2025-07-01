@@ -12,6 +12,10 @@ class BaseMiddleware:
             event_object: UpdateUnion
         ):
         
+        # пока что заглушка
+        if result_data_kwargs is None:
+            return {}
+        
         kwargs_temp = {'data': result_data_kwargs.copy()}
         
         for key in kwargs_temp.copy().keys():
