@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 
 
 webhook_app = FastAPI()
+
 CONNECTION_RETRY_DELAY = 30
+GET_UPDATES_RETRY_DELAY = 5
 
 
 class Dispatcher:
@@ -219,8 +221,8 @@ class Dispatcher:
                 events = await self.bot.get_updates()
 
                 if isinstance(events, Error):
-                    logger_dp.info(f'Ошибка при получении обновлений: {events}, жду 5 секунд')
-                    await asyncio.sleep(5)
+                    logger_dp.info(f'Ошибка при получении обновлений: {events}, жду {GET_UPDATES_RETRY_DELAY} секунд')
+                    await asyncio.sleep(GET_UPDATES_RETRY_DELAY)
                     continue
 
                 self.bot.marker_updates = events.get('marker')
