@@ -77,8 +77,7 @@ class Dispatcher:
             *routers: Роутеры для включения
         """
         
-        for router in routers:
-            self.routers.append(router)
+        self.routers += [r for r in routers]
             
     async def __ready(self, bot: Bot):
         self.bot = bot
@@ -86,10 +85,7 @@ class Dispatcher:
         
         self.routers += [self]
         
-        handlers_count = 0
-        for router in self.routers:
-            for _ in router.event_handlers:
-                handlers_count += 1
+        handlers_count = sum(len(router.event_handlers) for router in self.routers)
 
         logger_dp.info(f'{handlers_count} событий на обработку')
 
@@ -129,14 +125,13 @@ class Dispatcher:
                 result_data_kwargs=result_data_kwargs
             )
             
-            if result == None or result == False:
+            if result is None or result is False:
                 return
             
-            elif result == True:
-                result = {}
+            elif result is True:
+                continue
             
-            for key, value in result.items():
-                result_data_kwargs[key] = value
+            result_data_kwargs.update(result)
         
         return result_data_kwargs
 
@@ -150,6 +145,7 @@ class Dispatcher:
         try:
             ids = event_object.get_ids()
             memory_context = self.__get_memory_context(*ids)
+            current_state = await memory_context.get_state()
             kwargs = {'context': memory_context}
             
             is_handled = False
@@ -178,8 +174,7 @@ class Dispatcher:
                         if not filter_attrs(event_object, *handler.filters):
                             continue
 
-                    if not handler.state == await memory_context.get_state() \
-                        and handler.state:
+                    if not handler.state == current_state and handler.state:
                         continue
                     
                     func_args = handler.func_event.__annotations__.keys()
@@ -224,7 +219,8 @@ class Dispatcher:
                 events = await self.bot.get_updates()
 
                 if isinstance(events, Error):
-                    logger_dp.info(f'Ошибка при получении обновлений: {events}')
+                    logger_dp.info(f'Ошибка при получении обновлений: {events}, жду 5 секунд')
+                    await asyncio.sleep(5)
                     continue
 
                 self.bot.marker_updates = events.get('marker')
@@ -236,6 +232,7 @@ class Dispatcher:
                 
                 for event in processed_events:
                     await self.handle(event)
+                    
             except ClientConnectorError:
                 logger_dp.error(f'Ошибка подключения, жду {CONNECTION_RETRY_DELAY} секунд')
                 await asyncio.sleep(CONNECTION_RETRY_DELAY)
