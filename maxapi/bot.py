@@ -82,7 +82,8 @@ class Bot(BaseConnection):
             auto_requests: bool = True,
         ):
         
-        """Инициализирует экземпляр бота с указанным токеном.
+        """
+        Инициализирует экземпляр бота с указанным токеном.
 
         :param token: Токен доступа к API бота
         :param parse_mode: Форматирование по умолчанию
@@ -120,7 +121,8 @@ class Bot(BaseConnection):
             parse_mode: Optional[ParseMode] = None
         ) -> SendedMessage:
         
-        """Отправляет сообщение в чат или пользователю.
+        """
+        Отправляет сообщение в чат или пользователю.
 
         :param chat_id: ID чата для отправки (обязателен, если не указан user_id)
         :param user_id: ID пользователя для отправки (обязателен, если не указан chat_id)
@@ -150,7 +152,8 @@ class Bot(BaseConnection):
             action: SenderAction = SenderAction.TYPING_ON
         ) -> SendedAction:
         
-        """Отправляет действие в чат (например, "печатает").
+        """
+        Отправляет действие в чат (например, "печатает").
 
         :param chat_id: ID чата для отправки действия
         :param action: Тип действия (по умолчанию SenderAction.TYPING_ON)
@@ -174,7 +177,8 @@ class Bot(BaseConnection):
             parse_mode: Optional[ParseMode] = None
         ) -> EditedMessage:
         
-        """Редактирует существующее сообщение.
+        """
+        Редактирует существующее сообщение.
 
         :param message_id: ID сообщения для редактирования
         :param text: Новый текст сообщения
@@ -201,7 +205,8 @@ class Bot(BaseConnection):
             message_id: str
         ) -> DeletedMessage:
         
-        """Удаляет сообщение.
+        """
+        Удаляет сообщение.
 
         :param message_id: ID сообщения для удаления
 
@@ -218,7 +223,8 @@ class Bot(BaseConnection):
             chat_id: int
         ) -> DeletedChat:
         
-        """Удаляет чат.
+        """
+        Удаляет чат.
 
         :param chat_id: ID чата для удаления
 
@@ -239,7 +245,8 @@ class Bot(BaseConnection):
             count: int = 50,
         ) -> Messages:
         
-        """Получает сообщения из чата.
+        """
+        Получает сообщения из чата.
 
         :param chat_id: ID чата (обязателен, если не указаны message_ids)
         :param message_ids: Список ID сообщений для получения
@@ -264,7 +271,8 @@ class Bot(BaseConnection):
             message_id: str
         ) -> Messages:
         
-        """Получает одно сообщение по ID.
+        """
+        Получает одно сообщение по ID.
 
         :param message_id: ID сообщения
 
@@ -277,7 +285,8 @@ class Bot(BaseConnection):
 
     async def get_me(self) -> User:
         
-        """Получает информацию о текущем боте.
+        """
+        Получает информацию о текущем боте.
 
         :return: Объект пользователя бота
         """
@@ -289,7 +298,8 @@ class Bot(BaseConnection):
             chat_id: int
         ) -> GettedPin:
         
-        """Получает закрепленное сообщение в чате.
+        """
+        Получает закрепленное сообщение в чате.
 
         :param chat_id: ID чата
 
@@ -309,7 +319,8 @@ class Bot(BaseConnection):
             photo: Dict[str, Any] = None
         ) -> User:
         
-        """Изменяет информацию о боте.
+        """
+        Изменяет информацию о боте.
 
         :param name: Новое имя бота
         :param description: Новое описание бота
@@ -333,7 +344,8 @@ class Bot(BaseConnection):
             marker: int = None
         ) -> Chats:
         
-        """Получает список чатов бота.
+        """
+        Получает список чатов бота.
 
         :param count: Количество чатов (по умолчанию 50)
         :param marker: Маркер для пагинации
@@ -352,7 +364,8 @@ class Bot(BaseConnection):
             link: str
         ) -> Chat:
         
-        """Получает чат по ссылке.
+        """
+        Получает чат по ссылке.
 
         :param link: Ссылка на чат
 
@@ -366,7 +379,8 @@ class Bot(BaseConnection):
             id: int
         ) -> Chat:
         
-        """Получает чат по ID.
+        """
+        Получает чат по ID.
 
         :param id: ID чата
 
@@ -384,7 +398,8 @@ class Bot(BaseConnection):
             notify: Optional[bool] = None,
         ) -> Chat:
         
-        """Редактирует параметры чата.
+        """
+        Редактирует параметры чата.
 
         :param chat_id: ID чата
         :param icon: Данные иконки чата
@@ -409,7 +424,8 @@ class Bot(BaseConnection):
             video_token: str
         ) -> Video:
         
-        """Получает видео по токену.
+        """
+        Получает видео по токену.
 
         :param video_token: Токен видео
 
@@ -428,7 +444,8 @@ class Bot(BaseConnection):
             notification: str = None
         ) -> SendedCallback:
         
-        """Отправляет callback ответ.
+        """
+        Отправляет callback ответ.
 
         :param callback_id: ID callback
         :param message: Сообщение для отправки
@@ -451,7 +468,8 @@ class Bot(BaseConnection):
             notify: Optional[bool] = None
         ) -> PinnedMessage:
         
-        """Закрепляет сообщение в чате.
+        """
+        Закрепляет сообщение в чате.
 
         :param chat_id: ID чата
         :param message_id: ID сообщения
@@ -472,7 +490,8 @@ class Bot(BaseConnection):
             chat_id: int,
         ) -> DeletedPinMessage:
         
-        """Удаляет закрепленное сообщение в чате.
+        """
+        Удаляет закрепленное сообщение в чате.
 
         :param chat_id: ID чата
 
@@ -489,7 +508,8 @@ class Bot(BaseConnection):
             chat_id: int,
         ) -> ChatMember:
         
-        """Получает информацию о боте в конкретном чате.
+        """
+        Получает информацию о боте в конкретном чате.
 
         :param chat_id: ID чата
 
@@ -506,7 +526,8 @@ class Bot(BaseConnection):
             chat_id: int,
         ) -> DeletedBotFromChat:
         
-        """Удаляет бота из чата.
+        """
+        Удаляет бота из чата.
 
         :param chat_id: ID чата
 
@@ -523,7 +544,8 @@ class Bot(BaseConnection):
             chat_id: int,
         ) -> GettedListAdminChat:
         
-        """Получает список администраторов чата.
+        """
+        Получает список администраторов чата.
 
         :param chat_id: ID чата
 
@@ -542,7 +564,8 @@ class Bot(BaseConnection):
             marker: int = None
         ) -> AddedListAdminChat:
         
-        """Добавляет администраторов в чат.
+        """
+        Добавляет администраторов в чат.
 
         :param chat_id: ID чата
         :param admins: Список администраторов
@@ -564,7 +587,8 @@ class Bot(BaseConnection):
             user_id: int
         ) -> RemovedAdmin:
         
-        """Удаляет администратора из чата.
+        """
+        Удаляет администратора из чата.
 
         :param chat_id: ID чата
         :param user_id: ID пользователя
@@ -586,7 +610,8 @@ class Bot(BaseConnection):
             count: int = None,
         ) -> GettedMembersChat:
         
-        """Получает участников чата.
+        """
+        Получает участников чата.
 
         :param chat_id: ID чата
         :param user_ids: Список ID участников
@@ -610,7 +635,8 @@ class Bot(BaseConnection):
             user_id: int,
         ) -> GettedMembersChat:
         
-        """Получает участника чата.
+        """
+        Получает участника чата.
 
         :param chat_id: ID чата
         :param user_id: ID участника
@@ -632,7 +658,8 @@ class Bot(BaseConnection):
             user_ids: List[str],
         ) -> AddedMembersChat:
         
-        """Добавляет участников в чат.
+        """
+        Добавляет участников в чат.
 
         :param chat_id: ID чата
         :param user_ids: Список ID пользователей
@@ -653,7 +680,8 @@ class Bot(BaseConnection):
             block: bool = False,
         ) -> RemovedMemberChat:
         
-        """Исключает участника из чата.
+        """
+        Исключает участника из чата.
 
         :param chat_id: ID чата
         :param user_id: ID пользователя
@@ -673,7 +701,8 @@ class Bot(BaseConnection):
             self,
         ) -> UpdateUnion:
         
-        """Получает обновления для бота.
+        """
+        Получает обновления для бота.
 
         :return: Список обновлений
         """
@@ -687,7 +716,8 @@ class Bot(BaseConnection):
             type: UploadType
         ) -> GettedUploadUrl:
         
-        """Получает URL для загрузки файлов.
+        """
+        Получает URL для загрузки файлов.
 
         :param type: Тип загружаемого файла
 
@@ -704,7 +734,8 @@ class Bot(BaseConnection):
             *commands: BotCommand
         ) -> User:
         
-        """Устанавливает список команд бота.
+        """
+        Устанавливает список команд бота.
 
         :param commands: Список команд
 
