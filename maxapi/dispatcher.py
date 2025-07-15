@@ -36,12 +36,19 @@ GET_UPDATES_RETRY_DELAY = 5
 
 class Dispatcher:
     
-    """Основной класс для обработки событий бота.
+    """
+    Основной класс для обработки событий бота.
 
-    Обеспечивает работу с вебхуком и поллингом, управляет обработчиками событий.
+    Обеспечивает запуск поллинга и вебхука, маршрутизацию событий,
+    применение middleware, фильтров и вызов соответствующих обработчиков.
     """
     
     def __init__(self):
+        
+        """
+        Инициализация диспетчера.
+        """
+        
         self.event_handlers: List[Handler] = []
         self.contexts: List[MemoryContext] = []
         self.routers: List[Router] = []
@@ -66,22 +73,31 @@ class Dispatcher:
         
     async def check_me(self):
         
-        """Проверяет и логирует информацию о боте."""
+        """
+        Проверяет и логирует информацию о боте.
+        """
         
         me = await self.bot.get_me()
         logger_dp.info(f'Бот: @{me.username} first_name={me.first_name} id={me.user_id}')
 
     def include_routers(self, *routers: 'Router'):
         
-        """Добавляет обработчики из роутеров.
-        
-        Args:
-            *routers: Роутеры для включения
+        """
+        Добавляет указанные роутеры в диспетчер.
+
+        :param routers: Роутеры для добавления.
         """
         
         self.routers += [r for r in routers]
             
     async def __ready(self, bot: Bot):
+        
+        """
+        Подготавливает диспетчер: сохраняет бота, регистрирует обработчики, вызывает on_started.
+
+        :param bot: Экземпляр бота.
+        """
+        
         self.bot = bot
         await self.check_me()
         
@@ -96,14 +112,12 @@ class Dispatcher:
             
     def __get_memory_context(self, chat_id: int, user_id: int):
         
-        """Возвращает или создает контекст для чата и пользователя.
-        
-        Args:
-            chat_id: ID чата
-            user_id: ID пользователя
-            
-        Returns:
-            Существующий или новый контекст
+        """
+        Возвращает существующий или создает новый контекст по chat_id и user_id.
+
+        :param chat_id: Идентификатор чата.
+        :param user_id: Идентификатор пользователя.
+        :return: Объект MemoryContext.
         """
 
         for ctx in self.contexts:
@@ -120,6 +134,15 @@ class Dispatcher:
             event_object: UpdateUnion,
             result_data_kwargs: Dict[str, Any]
         ):
+        
+        """
+        Последовательно обрабатывает middleware цепочку.
+
+        :param middlewares: Список middleware.
+        :param event_object: Объект события.
+        :param result_data_kwargs: Аргументы, передаваемые обработчику.
+        :return: Изменённые аргументы или None.
+        """
         
         for middleware in middlewares:
             result = await middleware.process_middleware(
@@ -139,11 +162,12 @@ class Dispatcher:
 
     async def handle(self, event_object: UpdateUnion):
         
-        """Обрабатывает событие.
-        
-        Args:
-            event_object: Объект события для обработки
         """
+        Основной обработчик события. Применяет фильтры, middleware и вызывает подходящий handler.
+
+        :param event_object: Событие, пришедшее в бот.
+        """
+        
         try:
             ids = event_object.get_ids()
             memory_context = self.__get_memory_context(*ids)
@@ -209,11 +233,12 @@ class Dispatcher:
 
     async def start_polling(self, bot: Bot):
         
-        """Запускает поллинг обновлений.
-        
-        Args:
-            bot: Экземпляр бота
         """
+        Запускает цикл получения обновлений с сервера (long polling).
+
+        :param bot: Экземпляр бота.
+        """
+        
         await self.__ready(bot)
 
         while True:
@@ -243,12 +268,12 @@ class Dispatcher:
 
     async def handle_webhook(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080):
         
-        """Запускает вебхук сервер.
-        
-        Args:
-            bot: Экземпляр бота
-            host: Хост для сервера
-            port: Порт для сервера
+        """
+        Запускает FastAPI-приложение для приёма обновлений через вебхук.
+
+        :param bot: Экземпляр бота.
+        :param host: Хост, на котором запускается сервер.
+        :param port: Порт сервера.
         """
         
         await self.__ready(bot)
@@ -277,7 +302,9 @@ class Dispatcher:
 
 class Router(Dispatcher):
     
-    """Роутер для группировки обработчиков событий."""
+    """
+    Роутер для группировки обработчиков событий.
+    """
     
     def __init__(self):
         super().__init__()
@@ -285,13 +312,30 @@ class Router(Dispatcher):
 
 class Event:
     
-    """Декоратор для регистрации обработчиков событий."""
+    """
+    Декоратор для регистрации обработчиков событий.
+    """
     
     def __init__(self, update_type: UpdateType, router: Dispatcher | Router):
+        
+        """
+        Инициализирует событие-декоратор.
+
+        :param update_type: Тип события (UpdateType).
+        :param router: Роутер или диспетчер, в который регистрируется обработчик.
+        """
+        
         self.update_type = update_type
         self.router = router
 
     def __call__(self, *args, **kwargs):
+        
+        """
+        Регистрирует функцию как обработчик события.
+
+        :return: Исходная функция.
+        """
+        
         def decorator(func_event: Callable):
             
             if self.update_type == UpdateType.ON_STARTED:
