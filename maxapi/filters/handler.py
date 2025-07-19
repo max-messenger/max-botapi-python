@@ -4,7 +4,7 @@ from magic_filter import F, MagicFilter
 
 from ..filters.middleware import BaseMiddleware
 
-from ..types.command import Command
+from ..types.command import Command, CommandStart
 
 from ..context.state_machine import State
 
@@ -52,7 +52,7 @@ class Handler:
                 self.filters.append(arg)
             elif isinstance(arg, State):
                 self.state = arg
-            elif isinstance(arg, Command):
+            elif isinstance(arg, (Command, CommandStart)):
                 self.filters.insert(0, F.message.body.text.startswith(arg.command))
             elif isinstance(arg, BaseMiddleware):
                 self.middlewares.append(arg)
