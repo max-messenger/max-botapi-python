@@ -82,6 +82,12 @@ class ButtonsPayload(BaseModel):
     """
     
     buttons: List[List[InlineButtonUnion]]
+    
+    def pack(self):
+        return Attachment(
+            type=AttachmentType.INLINE_KEYBOARD,
+            payload=self
+        )
 
 
 class Attachment(BaseModel):
