@@ -78,6 +78,9 @@ class Dispatcher:
         """
         
         me = await self.bot.get_me()
+        
+        self.bot._me = me
+        
         logger_dp.info(f'Бот: @{me.username} first_name={me.first_name} id={me.user_id}')
 
     def include_routers(self, *routers: 'Router'):
