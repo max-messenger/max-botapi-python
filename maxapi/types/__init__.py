@@ -26,6 +26,7 @@ from ..types.message import Message
 from ..types.command import Command, BotCommand
 
 from .input_media import InputMedia
+from .input_media import InputMediaBuffer
 
 __all__ = [
     UpdateUnion,

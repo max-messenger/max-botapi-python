@@ -1,10 +1,13 @@
 import os
+import mimetypes
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import aiofiles
 import aiohttp
 
+import puremagic
 from pydantic import BaseModel
 
 from ..exceptions.invalid_token import InvalidToken
@@ -133,6 +136,51 @@ class BaseConnection:
                 data=form
             )
 
+            return await response.text()
+        
+    async def upload_file_buffer(
+        self,
+        url: str,
+        buffer: bytes,
+        type: UploadType
+    ):
+        """
+        Загружает файл из буфера.
+
+        :param url: Конечная точка загрузки файла
+        :param buffer: Буфер (bytes)
+        :param type: Тип файла (video, image, audio, file)
+
+        :return: Сырой .text() ответ от сервера после загрузки файла
+        """
+
+        try:
+            matches = puremagic.magic_string(buffer[:4096])
+            if matches:
+                mime_type = matches[0][1]
+                ext = mimetypes.guess_extension(mime_type) or ''
+            else:
+                mime_type = f"{type.value}/*"
+                ext = ''
+        except Exception:
+            mime_type = f"{type.value}/*"
+            ext = ''
+
+        basename = f'{uuid4()}{ext}'
+
+        form = aiohttp.FormData()
+        form.add_field(
+            name='data',
+            value=buffer,
+            filename=basename,
+            content_type=mime_type
+        )
+
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(
+                url=url, 
+                data=form
+            )
             return await response.text()
         
     async def download_file(

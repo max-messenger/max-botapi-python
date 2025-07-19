@@ -9,7 +9,7 @@ from .types.sended_message import SendedMessage
 from ..types.attachments.upload import AttachmentPayload, AttachmentUpload
 from ..types.errors import Error
 from ..types.message import NewMessageLink
-from ..types.input_media import InputMedia
+from ..types.input_media import InputMedia, InputMediaBuffer
 from ..types.attachments.attachment import Attachment
 
 from ..enums.upload_type import UploadType
@@ -67,7 +67,7 @@ class SendMessage(BaseConnection):
 
     async def __process_input_media(
             self,
-            att: InputMedia
+            att: InputMedia | InputMediaBuffer
         ):
         
         # очень нестабильный метод независящий от модуля
@@ -85,11 +85,18 @@ class SendMessage(BaseConnection):
         
         upload = await self.bot.get_upload_url(att.type)
 
-        upload_file_response = await self.upload_file(
-            url=upload.url,
-            path=att.path,
-            type=att.type
-        )
+        if isinstance(att, InputMedia):
+            upload_file_response = await self.upload_file(
+                url=upload.url,
+                path=att.path,
+                type=att.type,
+            )
+        elif isinstance(att, InputMediaBuffer):
+            upload_file_response = await self.upload_file_buffer(
+                url=upload.url,
+                buffer=att.buffer,
+                type=att.type,
+            )
 
         if att.type in (UploadType.VIDEO, UploadType.AUDIO):
             token = upload.token
@@ -134,7 +141,7 @@ class SendMessage(BaseConnection):
             
             for att in self.attachments:
 
-                if isinstance(att, InputMedia):
+                if isinstance(att, InputMedia) or isinstance(att, InputMediaBuffer):
                     input_media = await self.__process_input_media(att)
                     json['attachments'].append(
                         input_media.model_dump()
