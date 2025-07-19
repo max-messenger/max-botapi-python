@@ -104,6 +104,12 @@ class Bot(BaseConnection):
         self.notify = notify
         self.auto_requests = auto_requests
         
+        self._me: User = None
+        
+    @property
+    def me(self):
+        return self._me
+        
     def _resolve_notify(self, notify: Optional[bool]) -> Optional[bool]:
         return notify if notify is not None else self.notify
 
