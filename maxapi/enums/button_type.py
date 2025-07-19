@@ -14,3 +14,5 @@ class ButtonType(str, Enum):
     LINK = 'link'
     REQUEST_GEO_LOCATION = 'request_geo_location'
     CHAT = 'chat'
+    MESSAGE = 'message'
+    OPEN_APP = 'open_app'
