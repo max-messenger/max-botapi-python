@@ -41,3 +41,18 @@ class BotCommand(BaseModel):
 
     name: str
     description: Optional[str] = None
+    
+    
+class CommandStart(Command):
+    
+    """
+    Класс для представления команды /start бота.
+
+    Attributes:
+        prefix (str): Префикс команды. По умолчанию '/'.
+    """
+    
+    text = 'start'
+    
+    def __init__(self, prefix: str = '/'):
+        self.prefix = prefix
