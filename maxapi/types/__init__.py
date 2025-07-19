@@ -11,6 +11,7 @@ from ..types.updates.user_added import UserAdded
 from ..types.updates.user_removed import UserRemoved
 from ..types.updates import UpdateUnion
 
+from ..types.attachments.attachment import Attachment
 from ..types.attachments.attachment import PhotoAttachmentPayload
 from ..types.attachments.attachment import OtherAttachmentPayload
 from ..types.attachments.attachment import ContactAttachmentPayload
@@ -19,23 +20,31 @@ from ..types.attachments.attachment import StickerAttachmentPayload
 from ..types.attachments.buttons.callback_button import CallbackButton
 from ..types.attachments.buttons.chat_button import ChatButton
 from ..types.attachments.buttons.link_button import LinkButton
-from ..types.attachments.buttons.request_contact import RequestContact
+from ..types.attachments.buttons.request_contact import RequestContactButton
+from ..types.attachments.buttons.open_app_button import OpenAppButton
 from ..types.attachments.buttons.request_geo_location_button import RequestGeoLocationButton
+from ..types.attachments.buttons.message_button import MessageButton
 from ..types.message import Message
 
-from ..types.command import Command, BotCommand
+from ..types.command import Command, BotCommand, CommandStart
 
 from .input_media import InputMedia
 from .input_media import InputMediaBuffer
 
 __all__ = [
+    CommandStart,
+    OpenAppButton,
+    Message,
+    Attachment,
+    InputMediaBuffer,
+    MessageButton,
     UpdateUnion,
     InputMedia,
     BotCommand,
     CallbackButton,
     ChatButton,
     LinkButton,
-    RequestContact,
+    RequestContactButton,
     RequestGeoLocationButton,
     Command,
     PhotoAttachmentPayload,
