@@ -278,8 +278,6 @@ class Dispatcher:
         :param host: Хост, на котором запускается сервер.
         :param port: Порт сервера.
         """
-        
-        await self.__ready(bot)
 
         @webhook_app.post('/')
         async def _(request: Request):
@@ -297,8 +295,26 @@ class Dispatcher:
             except Exception as e:
                 logger_dp.error(f"Ошибка при обработке события: {event_json['update_type']}: {e}")
 
-        config = Config(app=webhook_app, host=host, port=port, log_level="critical")
+        await self.init_serve(
+            bot=bot,
+            host=host,
+            port=port
+        )
+        
+    async def init_serve(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080, **kwargs):
+    
+        """
+        Запускает сервер для обработки входящих вебхуков.
+
+        :param bot: Экземпляр бота.
+        :param host: Хост, на котором запускается сервер.
+        :param port: Порт сервера.
+        """
+        
+        config = Config(app=webhook_app, host=host, port=port, **kwargs)
         server = Server(config)
+        
+        await self.__ready(bot)
 
         await server.serve()
 
