@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, TYPE_CHECKING, Optional
 
 from .types.edited_message import EditedMessage
@@ -13,6 +15,7 @@ from ..connection.base import BaseConnection
 
 if TYPE_CHECKING:
     from ..bot import Bot
+    from ..types.input_media import InputMedia, InputMediaBuffer
 
 
 class EditMessage(BaseConnection):
@@ -24,7 +27,7 @@ class EditMessage(BaseConnection):
         bot (Bot): Экземпляр бота для выполнения запроса.
         message_id (str): Идентификатор сообщения для редактирования.
         text (str, optional): Новый текст сообщения.
-        attachments (List[Attachment], optional): Список вложений для сообщения.
+        attachments (List[Attachment | InputMedia | InputMediaBuffer], optional): Список вложений для сообщения.
         link (NewMessageLink, optional): Связь с другим сообщением (ответ или пересылка).
         notify (bool, optional): Отправлять ли уведомление о сообщении (по умолчанию True).
         parse_mode (ParseMode, optional): Формат разметки текста (markdown, html и т.д.).
@@ -32,11 +35,11 @@ class EditMessage(BaseConnection):
     
     def __init__(
             self,
-            bot: 'Bot',
+            bot: Bot,
             message_id: str,
             text: str = None,
-            attachments: List['Attachment'] = None,
-            link: 'NewMessageLink' = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
+            link: NewMessageLink = None,
             notify: bool = True,
             parse_mode: Optional[ParseMode] = None
         ):
