@@ -53,7 +53,7 @@ class Handler:
             elif isinstance(arg, State):
                 self.state = arg
             elif isinstance(arg, (Command, CommandStart)):
-                self.filters.insert(0, F.message.body.text.startswith(arg.command))
+                self.filters.insert(0, F.message.body.text.split()[0] == arg.command)
             elif isinstance(arg, BaseMiddleware):
                 self.middlewares.append(arg)
             else:
