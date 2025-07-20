@@ -23,6 +23,7 @@ from .users import User
 
 if TYPE_CHECKING:
     from ..bot import Bot
+    from ..types.input_media import InputMedia, InputMediaBuffer
 
 
 class MarkupElement(BaseModel):
@@ -174,7 +175,7 @@ class Message(BaseModel):
     async def answer(
             self,
             text: str = None,
-            attachments: List[Attachment] = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
             link: NewMessageLink = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
@@ -185,7 +186,7 @@ class Message(BaseModel):
 
         Args:
             text (str, optional): Текст ответа. Может быть None.
-            attachments (List[Attachment], optional): Список вложений. Может быть None.
+            attachments (List[Attachment | InputMedia | InputMediaBuffer], optional): Список вложений. Может быть None.
             link (NewMessageLink, optional): Связь с другим сообщением. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
             parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
@@ -207,7 +208,7 @@ class Message(BaseModel):
     async def reply(
             self,
             text: str = None,
-            attachments: List[Attachment] = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
@@ -217,7 +218,7 @@ class Message(BaseModel):
 
         Args:
             text (str, optional): Текст ответа. Может быть None.
-            attachments (List[Attachment], optional): Список вложений. Может быть None.
+            attachments (List[Attachment | InputMedia | InputMediaBuffer], optional): Список вложений. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
             parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
 
@@ -242,7 +243,7 @@ class Message(BaseModel):
             self,
             chat_id, 
             user_id: int = None,
-            attachments: List[Attachment] = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
@@ -253,7 +254,7 @@ class Message(BaseModel):
         Args:
             chat_id (int): ID чата для отправки (обязателен, если не указан user_id)
             user_id (int): ID пользователя для отправки (обязателен, если не указан chat_id). По умолчанию None
-            attachments (List[Attachment], optional): Список вложений. Может быть None.
+            attachments (List[Attachment | InputMedia | InputMediaBuffer], optional): Список вложений. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
             parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
 
@@ -276,7 +277,7 @@ class Message(BaseModel):
     async def edit(
             self,
             text: str = None,
-            attachments: List[Attachment] = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
             link: NewMessageLink = None,
             notify: bool = True,
             parse_mode: Optional[ParseMode] = None
@@ -287,7 +288,7 @@ class Message(BaseModel):
 
         Args:
             text (str, optional): Новый текст сообщения. Может быть None.
-            attachments (List[Attachment], optional): Новые вложения. Может быть None.
+            attachments (List[Attachment | InputMedia | InputMediaBuffer], optional): Новые вложения. Может быть None.
             link (NewMessageLink, optional): Новая связь с сообщением. Может быть None.
             notify (bool): Флаг отправки уведомления. По умолчанию True.
             parse_mode (ParseMode, optional): Режим форматирования текста. Может быть None.
