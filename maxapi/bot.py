@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
+from .types.input_media import InputMedia, InputMediaBuffer
+
 from .connection.base import BaseConnection
 from .enums.parse_mode import ParseMode
 from .enums.sender_action import SenderAction
@@ -121,7 +123,7 @@ class Bot(BaseConnection):
             chat_id: int = None, 
             user_id: int = None,
             text: str = None,
-            attachments: List[Attachment] = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
             link: NewMessageLink = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
@@ -177,7 +179,7 @@ class Bot(BaseConnection):
             self,
             message_id: str,
             text: str = None,
-            attachments: List[Attachment] = None,
+            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
             link: NewMessageLink = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
