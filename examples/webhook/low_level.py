@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot('тут_ваш_токен')
 dp = Dispatcher()
 
-
+ 
 @dp.message_created()
 async def handle_message(event: MessageCreated):
     await event.message.answer('Бот работает через вебхук!')
