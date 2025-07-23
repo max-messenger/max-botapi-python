@@ -1,6 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .update import Update
 
@@ -52,7 +52,7 @@ class MessageForCallback(BaseModel):
                 Share
             ]
         ]
-    ] = []
+    ] = Field(default_factory=list)
     link: Optional[NewMessageLink] = None
     notify: Optional[bool] = True
     format: Optional[ParseMode] = None

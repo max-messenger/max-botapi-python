@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Dict, List, Optional
 from datetime import datetime
 
@@ -96,7 +96,7 @@ class Chats(BaseModel):
         marker (Optional[int]): Маркер для пагинации. Может быть None.
     """
     
-    chats: List[Chat] = []
+    chats: List[Chat] = Field(default_factory=list)
     marker: Optional[int] = None
 
 

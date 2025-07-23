@@ -103,7 +103,7 @@ class MessageBody(BaseModel):
                 Location
             ]
         ]
-    ] = []
+    ] = Field(default_factory=list)
 
     markup: Optional[
         List[
@@ -111,7 +111,7 @@ class MessageBody(BaseModel):
                 MarkupLink, MarkupElement
             ]
         ]
-    ] = []
+    ] = Field(default_factory=list)
 
 
 class MessageStat(BaseModel):
