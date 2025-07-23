@@ -5,12 +5,13 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import aiofiles
-import aiohttp
-
 import puremagic
+
 from pydantic import BaseModel
+from aiohttp import ClientSession, ClientConnectionError, FormData
 
 from ..exceptions.invalid_token import InvalidToken
+from ..exceptions.max import MaxConnection
 
 from ..types.errors import Error
 from ..enums.http_method import HTTPMethod
@@ -37,7 +38,7 @@ class BaseConnection:
 
     def __init__(self):
         self.bot: 'Bot' = None
-        self.session: aiohttp.ClientSession = None
+        self.session: ClientSession = None
 
     async def request(
             self,
@@ -64,7 +65,7 @@ class BaseConnection:
         """
         
         if not self.bot.session:
-            self.bot.session = aiohttp.ClientSession(self.bot.API_URL)
+            self.bot.session = ClientSession(self.bot.API_URL)
 
         try:
             r = await self.bot.session.request(
@@ -72,10 +73,11 @@ class BaseConnection:
                 url=path.value if isinstance(path, ApiPath) else path, 
                 **kwargs
             )
-        except aiohttp.ClientConnectorDNSError as e:
-            return logger_connection.error(f'Ошибка при отправке запроса: {e}')
+        except ClientConnectionError as e:
+            raise MaxConnection(f'Ошибка при отправке запроса: {e}')
         
         if r.status == 401:
+            await self.bot.session.close()
             raise InvalidToken('Неверный токен!')
 
         if not r.ok:
@@ -122,7 +124,7 @@ class BaseConnection:
         basename = os.path.basename(path)
         _, ext = os.path.splitext(basename)
 
-        form = aiohttp.FormData()
+        form = FormData()
         form.add_field(
             name='data',
             value=file_data,
@@ -130,7 +132,7 @@ class BaseConnection:
             content_type=f"{type.value}/{ext.lstrip('.')}"
         )
 
-        async with aiohttp.ClientSession() as session:
+        async with ClientSession() as session:
             response = await session.post(
                 url=url, 
                 data=form
@@ -168,7 +170,7 @@ class BaseConnection:
 
         basename = f'{uuid4()}{ext}'
 
-        form = aiohttp.FormData()
+        form = FormData()
         form.add_field(
             name='data',
             value=buffer,
@@ -176,7 +178,7 @@ class BaseConnection:
             content_type=mime_type
         )
 
-        async with aiohttp.ClientSession() as session:
+        async with ClientSession() as session:
             response = await session.post(
                 url=url, 
                 data=form
@@ -203,7 +205,7 @@ class BaseConnection:
             'Authorization': f'Bearer {token}'
         }
 
-        async with aiohttp.ClientSession() as session:
+        async with ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 
                 if response.status == 200:
