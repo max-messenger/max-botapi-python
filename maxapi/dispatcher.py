@@ -9,6 +9,8 @@ from fastapi.responses import JSONResponse
 from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
 
+from .exceptions.invalid_token import InvalidToken
+
 from .filters.middleware import BaseMiddleware
 from .filters.handler import Handler
 
@@ -102,6 +104,7 @@ class Dispatcher:
         """
         
         self.bot = bot
+        
         await self.check_me()
         
         self.routers += [self]
