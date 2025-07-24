@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import Any, Callable, Dict, List, TYPE_CHECKING, Optional, cast
+from typing import Any, Callable, Dict, List, TYPE_CHECKING, Optional
+from asyncio.exceptions import TimeoutError as AsyncioTimeoutError
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
-
-from .exceptions.invalid_token import InvalidToken
 
 from .filters.middleware import BaseMiddleware
 from .filters.handler import Handler
@@ -248,8 +247,13 @@ class Dispatcher:
         await self.__ready(bot)
 
         while True:
+                
             try:
                 events: Dict = await self.bot.get_updates() # type: ignore
+            except AsyncioTimeoutError:
+                continue
+        
+            try:
 
                 if isinstance(events, Error):
                     logger_dp.info(f'Ошибка при получении обновлений: {events}, жду {GET_UPDATES_RETRY_DELAY} секунд')
