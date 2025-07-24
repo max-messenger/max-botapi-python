@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from __future__ import annotations
+from typing import TYPE_CHECKING, Dict
 
 from ..types.updates import UpdateUnion
 
@@ -28,13 +29,13 @@ class GetUpdates(BaseConnection):
     
     def __init__(
             self,
-            bot: 'Bot', 
+            bot: Bot, 
             limit: int = 100,
         ):
         self.bot = bot
         self.limit = limit
 
-    async def request(self) -> UpdateUnion:
+    async def fetch(self) -> Dict:
         
         """
         Выполняет GET-запрос для получения обновлений с указанным лимитом.
@@ -44,7 +45,7 @@ class GetUpdates(BaseConnection):
         Returns:
             UpdateUnion: Объединённый тип данных обновлений.
         """
-        
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         params['limit'] = self.limit

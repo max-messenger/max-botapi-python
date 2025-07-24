@@ -24,7 +24,7 @@ class GetMe(BaseConnection):
     def __init__(self, bot: 'Bot'):
         self.bot = bot
 
-    async def request(self) -> User:
+    async def fetch(self) -> User:
         
         """
         Выполняет GET-запрос для получения данных о боте.
@@ -32,7 +32,7 @@ class GetMe(BaseConnection):
         Returns:
             User: Объект пользователя с полной информацией.
         """
-        
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.ME,

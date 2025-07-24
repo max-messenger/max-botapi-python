@@ -36,7 +36,7 @@ class DownloadMedia(BaseConnection):
             self.media_url = media_url
             self.media_token = media_token
 
-    async def request(self) -> int:
+    async def fetch(self) -> int:
         
         """
         Выполняет GET-запрос для скачивания медиафайла

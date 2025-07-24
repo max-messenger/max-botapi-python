@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from ..methods.types.added_members_chat import AddedMembersChat
 
@@ -34,7 +34,7 @@ class AddMembersChat(BaseConnection):
         self.chat_id = chat_id
         self.user_ids = user_ids
 
-    async def request(self) -> AddedMembersChat:
+    async def fetch(self) -> AddedMembersChat:
         
         """
         Отправляет POST-запрос на добавление пользователей в чат.
@@ -45,7 +45,9 @@ class AddMembersChat(BaseConnection):
             AddedMembersChat: Результат операции с информацией об успешности добавления.
         """
         
-        json = {}
+        assert self.bot is not None
+        
+        json: Dict[str, Any] = {}
 
         json['user_ids'] = self.user_ids
 

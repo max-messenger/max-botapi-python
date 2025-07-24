@@ -43,7 +43,7 @@ class RemoveMemberChat(BaseConnection):
         self.user_id = user_id
         self.block = block
 
-    async def request(self) -> RemovedMemberChat:
+    async def fetch(self) -> RemovedMemberChat:
         
         """
         Выполняет DELETE-запрос для удаления пользователя из чата.
@@ -54,6 +54,7 @@ class RemoveMemberChat(BaseConnection):
             RemovedMemberChat: Результат удаления участника.
         """
         
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         params['chat_id'] = self.chat_id

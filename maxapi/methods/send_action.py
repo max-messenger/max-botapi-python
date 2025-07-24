@@ -1,6 +1,6 @@
 
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from ..methods.types.sended_action import SendedAction
 
@@ -34,14 +34,14 @@ class SendAction(BaseConnection):
     def __init__(
             self,
             bot: 'Bot',
-            chat_id: int = None,
+            chat_id: Optional[int] = None,
             action: SenderAction = SenderAction.TYPING_ON
         ):
             self.bot = bot
             self.chat_id = chat_id
             self.action = action
 
-    async def request(self) -> SendedAction:
+    async def fetch(self) -> SendedAction:
         
         """
         Выполняет POST-запрос для отправки действия в указанный чат.
@@ -49,8 +49,9 @@ class SendAction(BaseConnection):
         Returns:
             SendedAction: Результат выполнения запроса.
         """
+        assert self.bot is not None
         
-        json = {}
+        json: Dict[str, Any] = {}
 
         json['action'] = self.action.value
 

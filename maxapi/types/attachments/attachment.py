@@ -112,33 +112,33 @@ class Attachment(BaseModel):
     bot: Optional[Any] = Field(default=None, exclude=True)
     
     if TYPE_CHECKING:
-        bot: Optional[Bot]
+        bot: Optional[Bot] # type: ignore
         
     class Config:
         use_enum_values = True
     
-    async def download(
-        self,
-        path: str
-    ):
+    # async def download(
+    #     self,
+    #     path: str
+    # ):
         
-        """
-        Скачивает медиа, сохраняя по определенному пути
+    #     """
+    #     Скачивает медиа, сохраняя по определенному пути
 
-        :param path: Путь сохранения медиа
+    #     :param path: Путь сохранения медиа
 
-        :return: Числовой статус
-        """
+    #     :return: Числовой статус
+    #     """
         
-        if not hasattr(self.payload, 'token') or \
-            not hasattr(self.payload, 'url'):
-                raise NotAvailableForDownload()
+    #     if not hasattr(self.payload, 'token') or \
+    #         not hasattr(self.payload, 'url'):
+    #             raise NotAvailableForDownload()
             
-        elif not self.payload.token or not self.payload.url:
-            raise NotAvailableForDownload(f'Медиа типа `{self.type}` недоступно для скачивания')
+    #     elif not self.payload.token or not self.payload.url:
+    #         raise NotAvailableForDownload(f'Медиа типа `{self.type}` недоступно для скачивания')
             
-        return await self.bot.download_file(
-            path=path,
-            url=self.payload.url,
-            token=self.payload.token,
-        )
+    #     return await self.bot.download_file(
+    #         path=path,
+    #         url=self.payload.url,
+    #         token=self.payload.token,
+    #     )

@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 
 class GettedUploadUrl(BaseModel):
-    url: Optional[str] = None
+    url: str
     token: Optional[str] = None

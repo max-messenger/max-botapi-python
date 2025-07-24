@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ..types.chats import Chats
 
@@ -32,13 +32,13 @@ class GetChats(BaseConnection):
             self, 
             bot: 'Bot',
             count: int = 50,
-            marker: int = None
+            marker: Optional[int] = None
         ):
         self.bot = bot
         self.count = count
         self.marker = marker
 
-    async def request(self) -> Chats:
+    async def fetch(self) -> Chats:
         
         """
         Выполняет GET-запрос для получения списка чатов.
@@ -46,7 +46,7 @@ class GetChats(BaseConnection):
         Returns:
             Chats: Объект с данными по списку чатов.
         """
-        
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         params['count'] = self.count

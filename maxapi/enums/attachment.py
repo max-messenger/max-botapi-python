@@ -17,3 +17,4 @@ class AttachmentType(str, Enum):
     CONTACT = 'contact'
     INLINE_KEYBOARD = 'inline_keyboard'
     LOCATION = 'location'
+    SHARE = 'share'

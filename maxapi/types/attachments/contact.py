@@ -1,4 +1,4 @@
-from typing import Literal
+from ...enums.attachment import AttachmentType
 
 from .attachment import Attachment
 
@@ -12,4 +12,4 @@ class Contact(Attachment):
         type (Literal['contact']): Тип вложения, всегда 'contact'.
     """
     
-    type: Literal['contact'] = 'contact'
+    type: AttachmentType = AttachmentType.CONTACT

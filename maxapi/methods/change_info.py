@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
 from ..types.users import User
 from ..types.command import BotCommand
@@ -29,10 +29,10 @@ class ChangeInfo(BaseConnection):
     def __init__(
             self,
             bot: 'Bot',
-            name: str = None, 
-            description: str = None,
-            commands: List[BotCommand] = None,
-            photo: Dict[str, Any] = None
+            name: Optional[str] = None, 
+            description: Optional[str] = None,
+            commands: Optional[List[BotCommand]] = None,
+            photo: Optional[Dict[str, Any]] = None
         ):
             self.bot = bot
             self.name = name
@@ -40,7 +40,7 @@ class ChangeInfo(BaseConnection):
             self.commands = commands
             self.photo = photo
 
-    async def request(self) -> User:
+    async def fetch(self) -> User:
         
         """Отправляет запрос на изменение информации о боте.
 
@@ -48,7 +48,9 @@ class ChangeInfo(BaseConnection):
             User: Объект с обновленными данными бота
         """
         
-        json = {}
+        assert self.bot is not None
+        
+        json: Dict[str, Any] = {}
 
         if self.name: json['name'] = self.name
         if self.description: json['description'] = self.description

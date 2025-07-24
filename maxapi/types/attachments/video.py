@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Any, Literal, Optional
 from pydantic import BaseModel, Field
 
+from ...enums.attachment import AttachmentType
+
 from .attachment import Attachment
 
 if TYPE_CHECKING:
@@ -59,7 +61,7 @@ class Video(Attachment):
         bot (Optional[Any]): Ссылка на экземпляр бота, не сериализуется.
     """
     
-    type: Optional[Literal['video']] = 'video'
+    type: AttachmentType = AttachmentType.VIDEO
     token: Optional[str] = None
     urls: Optional[VideoUrl] = None
     thumbnail: VideoThumbnail
@@ -69,4 +71,4 @@ class Video(Attachment):
     bot: Optional[Any] = Field(default=None, exclude=True)
     
     if TYPE_CHECKING:
-        bot: Optional['Bot']
+        bot: Optional['Bot'] # type: ignore

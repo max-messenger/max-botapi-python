@@ -30,7 +30,7 @@ class DeleteMeFromMessage(BaseConnection):
             self.bot = bot
             self.chat_id = chat_id
 
-    async def request(self) -> DeletedBotFromChat:
+    async def fetch(self) -> DeletedBotFromChat:
         
         """
         Отправляет DELETE-запрос для удаления бота из чата.
@@ -39,6 +39,7 @@ class DeleteMeFromMessage(BaseConnection):
             DeletedBotFromChat: Результат операции удаления.
         """
         
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.DELETE, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ME,

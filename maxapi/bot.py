@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+
+from .client.default import DefaultConnectionProperties
 
 from .types.input_media import InputMedia, InputMediaBuffer
 
@@ -82,6 +84,7 @@ class Bot(BaseConnection):
             parse_mode: Optional[ParseMode] = None,
             notify: Optional[bool] = None,
             auto_requests: bool = True,
+            default_connection: Optional[DefaultConnectionProperties] = None
         ):
         
         """
@@ -91,22 +94,24 @@ class Bot(BaseConnection):
         :param parse_mode: Форматирование по умолчанию
         :param notify: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется) (не работает на стороне MAX)
         :param auto_requests: Автоматическое заполнение полей chat и from_user в Update
+        :param default_connection: Настройки aiohttp
         с помощью API запросов если они не заложены как полноценные объекты в Update (по умолчанию True, при False chat и from_user в некоторых событиях будут выдавать None)
         """
         
         super().__init__()
 
         self.bot = self
+        self.default_connection = default_connection or DefaultConnectionProperties()
 
         self.__token = token
-        self.params = {'access_token': self.__token}
+        self.params: Dict[str, Any] = {'access_token': self.__token}
         self.marker_updates = None
         
         self.parse_mode = parse_mode
         self.notify = notify
         self.auto_requests = auto_requests
         
-        self._me: User = None
+        self._me: User | None = None
         
     @property
     def me(self):
@@ -120,11 +125,11 @@ class Bot(BaseConnection):
         
     async def send_message(
             self,
-            chat_id: int = None, 
-            user_id: int = None,
-            text: str = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
-            link: NewMessageLink = None,
+            chat_id: Optional[int] = None, 
+            user_id: Optional[int] = None,
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
+            link: Optional[NewMessageLink] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ) -> SendedMessage:
@@ -152,11 +157,11 @@ class Bot(BaseConnection):
             link=link,
             notify=self._resolve_notify(notify),
             parse_mode=self._resolve_parse_mode(parse_mode)
-        ).request()
+        ).fetch()
     
     async def send_action(
             self,
-            chat_id: int = None,
+            chat_id: Optional[int] = None,
             action: SenderAction = SenderAction.TYPING_ON
         ) -> SendedAction:
         
@@ -173,14 +178,14 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             action=action
-        ).request()
+        ).fetch()
     
     async def edit_message(
             self,
             message_id: str,
-            text: str = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
-            link: NewMessageLink = None,
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
+            link: Optional[NewMessageLink] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ) -> EditedMessage:
@@ -206,7 +211,7 @@ class Bot(BaseConnection):
             link=link,
             notify=self._resolve_notify(notify),
             parse_mode=self._resolve_parse_mode(parse_mode)
-        ).request()
+        ).fetch()
     
     async def delete_message(
             self,
@@ -224,7 +229,7 @@ class Bot(BaseConnection):
         return await DeleteMessage(
             bot=self,
             message_id=message_id,
-        ).request()
+        ).fetch()
     
     async def delete_chat(
             self,
@@ -242,14 +247,14 @@ class Bot(BaseConnection):
         return await DeleteChat(
             bot=self,
             chat_id=chat_id,
-        ).request()
+        ).fetch()
 
     async def get_messages(
             self, 
-            chat_id: int = None,
-            message_ids: List[str] = None,
-            from_time: datetime | int = None,
-            to_time: datetime | int = None,
+            chat_id: Optional[int] = None,
+            message_ids: Optional[List[str]] = None,
+            from_time: Optional[Union[datetime, int]] = None,
+            to_time: Optional[Union[datetime, int]] = None,
             count: int = 50,
         ) -> Messages:
         
@@ -272,7 +277,7 @@ class Bot(BaseConnection):
             from_time=from_time,
             to_time=to_time,
             count=count
-        ).request()
+        ).fetch()
     
     async def get_message(
             self, 
@@ -299,7 +304,7 @@ class Bot(BaseConnection):
         :return: Объект пользователя бота
         """
         
-        return await GetMe(self).request()
+        return await GetMe(self).fetch()
     
     async def get_pin_message(
             self, 
@@ -317,14 +322,14 @@ class Bot(BaseConnection):
         return await GetPinnedMessage(
             bot=self, 
             chat_id=chat_id
-        ).request()
+        ).fetch()
     
     async def change_info(
             self, 
-            name: str = None, 
-            description: str = None,
-            commands: List[BotCommand] = None,
-            photo: Dict[str, Any] = None
+            name: Optional[str] = None, 
+            description: Optional[str] = None,
+            commands: Optional[List[BotCommand]] = None,
+            photo: Optional[Dict[str, Any]] = None
         ) -> User:
         
         """
@@ -344,12 +349,12 @@ class Bot(BaseConnection):
             description=description, 
             commands=commands, 
             photo=photo
-        ).request()
+        ).fetch()
     
     async def get_chats(
             self,
             count: int = 50,
-            marker: int = None
+            marker: Optional[int] = None
         ) -> Chats:
         
         """
@@ -365,7 +370,7 @@ class Bot(BaseConnection):
             bot=self,
             count=count,
             marker=marker
-        ).request()
+        ).fetch()
     
     async def get_chat_by_link(
             self, 
@@ -380,7 +385,7 @@ class Bot(BaseConnection):
         :return: Объект чата
         """
         
-        return await GetChatByLink(bot=self, link=link).request()
+        return await GetChatByLink(bot=self, link=link).fetch()
     
     async def get_chat_by_id(
             self, 
@@ -395,14 +400,14 @@ class Bot(BaseConnection):
         :return: Объект чата
         """
         
-        return await GetChatById(bot=self, id=id).request()
+        return await GetChatById(bot=self, id=id).fetch()
     
     async def edit_chat(
             self,
             chat_id: int,
-            icon: PhotoAttachmentRequestPayload = None,
-            title: str = None,
-            pin: str = None,
+            icon: Optional[PhotoAttachmentRequestPayload] = None,
+            title: Optional[str] = None,
+            pin: Optional[str] = None,
             notify: Optional[bool] = None,
         ) -> Chat:
         
@@ -425,7 +430,7 @@ class Bot(BaseConnection):
             title=title,
             pin=pin,
             notify=self._resolve_notify(notify),
-        ).request()
+        ).fetch()
     
     async def get_video(
             self, 
@@ -443,13 +448,13 @@ class Bot(BaseConnection):
         return await GetVideo(
             bot=self, 
             video_token=video_token
-        ).request()
+        ).fetch()
 
     async def send_callback(
             self,
             callback_id: str,
-            message: Message = None,
-            notification: str = None
+            message: Optional[Message] = None,
+            notification: Optional[str] = None
         ) -> SendedCallback:
         
         """
@@ -467,7 +472,7 @@ class Bot(BaseConnection):
             callback_id=callback_id,
             message=message,
             notification=notification
-        ).request()
+        ).fetch()
     
     async def pin_message(
             self,
@@ -491,7 +496,7 @@ class Bot(BaseConnection):
             chat_id=chat_id,
             message_id=message_id,
             notify=self._resolve_notify(notify),
-        ).request()
+        ).fetch()
     
     async def delete_pin_message(
             self,
@@ -509,7 +514,7 @@ class Bot(BaseConnection):
         return await DeletePinMessage(
             bot=self,
             chat_id=chat_id,
-        ).request()
+        ).fetch()
     
     async def get_me_from_chat(
             self,
@@ -527,7 +532,7 @@ class Bot(BaseConnection):
         return await GetMeFromChat(
             bot=self,
             chat_id=chat_id,
-        ).request()
+        ).fetch()
     
     async def delete_me_from_chat(
             self,
@@ -545,7 +550,7 @@ class Bot(BaseConnection):
         return await DeleteMeFromMessage(
             bot=self,
             chat_id=chat_id,
-        ).request()
+        ).fetch()
     
     async def get_list_admin_chat(
             self,
@@ -563,13 +568,13 @@ class Bot(BaseConnection):
         return await GetListAdminChat(
             bot=self,
             chat_id=chat_id,
-        ).request()
+        ).fetch()
     
     async def add_list_admin_chat(
             self,
             chat_id: int,
             admins: List[ChatAdmin],
-            marker: int = None
+            marker: Optional[int] = None
         ) -> AddedListAdminChat:
         
         """
@@ -587,7 +592,7 @@ class Bot(BaseConnection):
             chat_id=chat_id,
             admins=admins,
             marker=marker,
-        ).request()
+        ).fetch()
     
     async def remove_admin(
             self,
@@ -608,14 +613,14 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             user_id=user_id,
-        ).request()
+        ).fetch()
     
     async def get_chat_members(
             self,
             chat_id: int,
-            user_ids: List[int] = None,
-            marker: int = None,
-            count: int = None,
+            user_ids: Optional[List[int]] = None,
+            marker: Optional[int] = None,
+            count: Optional[int] = None,
         ) -> GettedMembersChat:
         
         """
@@ -635,13 +640,13 @@ class Bot(BaseConnection):
             user_ids=user_ids,
             marker=marker,
             count=count,
-        ).request()
+        ).fetch()
         
     async def get_chat_member(
             self,
             chat_id: int,
             user_id: int,
-        ) -> GettedMembersChat:
+        ) -> Optional[ChatMember]:
         
         """
         Получает участника чата.
@@ -659,11 +664,13 @@ class Bot(BaseConnection):
         
         if members.members:
             return members.members[0]
+
+        return None
     
     async def add_chat_members(
             self,
             chat_id: int,
-            user_ids: List[str],
+            user_ids: List[int],
         ) -> AddedMembersChat:
         
         """
@@ -679,7 +686,7 @@ class Bot(BaseConnection):
             bot=self,
             chat_id=chat_id,
             user_ids=user_ids,
-        ).request()
+        ).fetch()
     
     async def kick_chat_member(
             self,
@@ -703,11 +710,11 @@ class Bot(BaseConnection):
             chat_id=chat_id,
             user_id=user_id,
             block=block,
-        ).request()
+        ).fetch()
     
     async def get_updates(
             self,
-        ) -> UpdateUnion:
+        ) -> Dict:
         
         """
         Получает обновления для бота.
@@ -717,7 +724,7 @@ class Bot(BaseConnection):
         
         return await GetUpdates(
             bot=self,
-        ).request()
+        ).fetch()
     
     async def get_upload_url(
             self,
@@ -735,7 +742,7 @@ class Bot(BaseConnection):
         return await GetUploadURL(
             bot=self,
             type=type
-        ).request()
+        ).fetch()
     
     async def set_my_commands(
             self,
@@ -753,7 +760,7 @@ class Bot(BaseConnection):
         return await ChangeInfo(
             bot=self,
             commands=list(commands)
-        ).request()
+        ).fetch()
         
     async def download_file(
             self, 
@@ -777,4 +784,4 @@ class Bot(BaseConnection):
             path=path, 
             media_url=url, 
             media_token=token
-        ).request()
+        ).fetch()

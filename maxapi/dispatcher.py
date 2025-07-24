@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import Any, Callable, Dict, List, TYPE_CHECKING
+from typing import Any, Callable, Dict, List, TYPE_CHECKING, Optional, cast
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -45,7 +45,7 @@ class Dispatcher:
     применение middleware, фильтров и вызов соответствующих обработчиков.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         
         """
         Инициализация диспетчера.
@@ -53,12 +53,12 @@ class Dispatcher:
         
         self.event_handlers: List[Handler] = []
         self.contexts: List[MemoryContext] = []
-        self.routers: List[Router] = []
+        self.routers: List[Router | Dispatcher] = []
         self.filters: List[MagicFilter] = []
         self.middlewares: List[BaseMiddleware] = []
         
-        self.bot: Bot = None
-        self.on_started_func: Callable = None
+        self.bot: Optional[Bot] = None
+        self.on_started_func: Optional[Callable] = None
 
         self.message_created = Event(update_type=UpdateType.MESSAGE_CREATED, router=self)
         self.bot_added = Event(update_type=UpdateType.BOT_ADDED, router=self)
@@ -249,18 +249,18 @@ class Dispatcher:
 
         while True:
             try:
-                events = await self.bot.get_updates()
+                events: Dict = await self.bot.get_updates() # type: ignore
 
                 if isinstance(events, Error):
                     logger_dp.info(f'Ошибка при получении обновлений: {events}, жду {GET_UPDATES_RETRY_DELAY} секунд')
                     await asyncio.sleep(GET_UPDATES_RETRY_DELAY)
                     continue
 
-                self.bot.marker_updates = events.get('marker')
-
+                self.bot.marker_updates = events.get('marker') # type: ignore
+ 
                 processed_events = await process_update_request(
                     events=events,
-                    bot=self.bot
+                    bot=self.bot # type: ignore
                 )
                 
                 for event in processed_events:
@@ -270,7 +270,7 @@ class Dispatcher:
                 logger_dp.error(f'Ошибка подключения, жду {CONNECTION_RETRY_DELAY} секунд')
                 await asyncio.sleep(CONNECTION_RETRY_DELAY)
             except Exception as e:
-                logger_dp.error(f'Общая ошибка при обработке событий: {e}')
+                logger_dp.error(f'Общая ошибка при обработке событий: {e.__class__} - {e}')
 
     async def handle_webhook(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080):
         
@@ -289,7 +289,7 @@ class Dispatcher:
 
                 event_object = await process_update_webhook(
                     event_json=event_json,
-                    bot=self.bot
+                    bot=self.bot # type: ignore
                 )
 
                 await self.handle(event_object)

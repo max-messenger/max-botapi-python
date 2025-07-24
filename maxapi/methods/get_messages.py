@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..types.message import Messages
 from ..enums.http_method import HTTPMethod
@@ -36,10 +36,10 @@ class GetMessages(BaseConnection):
     def __init__(
             self,
             bot: 'Bot', 
-            chat_id: int,
-            message_ids: List[str] = None,
-            from_time: datetime | int = None,
-            to_time: datetime | int = None,
+            chat_id: Optional[int] = None,
+            message_ids: Optional[List[str]] = None,
+            from_time: Optional[Union[datetime, int]] = None,
+            to_time: Optional[Union[datetime, int]] = None,
             count: int = 50,
         ):
         self.bot = bot
@@ -49,7 +49,7 @@ class GetMessages(BaseConnection):
         self.to_time = to_time
         self.count = count
 
-    async def request(self) -> Messages:
+    async def fetch(self) -> Messages:
         
         """
         Выполняет GET-запрос для получения сообщений с учётом параметров фильтрации.
@@ -59,7 +59,7 @@ class GetMessages(BaseConnection):
         Returns:
             Messages: Объект с полученными сообщениями.
         """
-        
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         if self.chat_id: params['chat_id'] = self.chat_id

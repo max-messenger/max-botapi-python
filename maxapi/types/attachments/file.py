@@ -1,4 +1,6 @@
-from typing import Literal, Optional
+from typing import Optional
+
+from ...enums.attachment import AttachmentType
 
 from .attachment import Attachment
 
@@ -14,6 +16,6 @@ class File(Attachment):
         size (Optional[int]): Размер файла в байтах.
     """
     
-    type: Literal['file'] = 'file'
+    type: AttachmentType = AttachmentType.FILE
     filename: Optional[str] = None
     size: Optional[int] = None

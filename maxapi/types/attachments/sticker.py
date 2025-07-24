@@ -1,4 +1,6 @@
-from typing import Literal, Optional
+from typing import Optional
+
+from ...enums.attachment import AttachmentType
 
 from .attachment import Attachment
 
@@ -14,6 +16,6 @@ class Sticker(Attachment):
         height (Optional[int]): Высота стикера в пикселях.
     """
     
-    type: Literal['sticker'] = 'sticker'
+    type: AttachmentType = AttachmentType.STICKER
     width: Optional[int] = None
     height: Optional[int] = None

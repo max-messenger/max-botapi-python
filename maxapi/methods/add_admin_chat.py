@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from .types.added_admin_chat import AddedListAdminChat
 from ..types.users import ChatAdmin
@@ -30,14 +30,14 @@ class AddAdminChat(BaseConnection):
             bot: 'Bot',
             chat_id: int,
             admins: List[ChatAdmin],
-            marker: int = None
+            marker: Optional[int] = None
         ):
         self.bot = bot
         self.chat_id = chat_id
         self.admins = admins
         self.marker = marker
 
-    async def request(self) -> AddedListAdminChat:
+    async def fetch(self) -> AddedListAdminChat:
         
         """
         Выполняет HTTP POST запрос для добавления администраторов в чат.
@@ -48,7 +48,9 @@ class AddAdminChat(BaseConnection):
             AddedListAdminChat: Результат операции с информацией об успешности.
         """
         
-        json = {}
+        assert self.bot is not None
+        
+        json: Dict[str, Any] = {}
 
         json['admins'] = [admin.model_dump() for admin in self.admins]
         json['marker'] = self.marker

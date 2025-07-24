@@ -34,7 +34,7 @@ class GetListAdminChat(BaseConnection):
         self.bot = bot
         self.chat_id = chat_id
 
-    async def request(self) -> GettedListAdminChat:
+    async def fetch(self) -> GettedListAdminChat:
         
         """
         Выполняет GET-запрос для получения списка администраторов указанного чата.
@@ -42,7 +42,7 @@ class GetListAdminChat(BaseConnection):
         Returns:
             GettedListAdminChat: Объект с информацией о администраторах чата.
         """
-        
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ADMINS,

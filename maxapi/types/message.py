@@ -89,7 +89,7 @@ class MessageBody(BaseModel):
     
     mid: str
     seq: int
-    text: str = None
+    text: Optional[str] = None
     attachments: Optional[
         List[
             Union[
@@ -103,7 +103,7 @@ class MessageBody(BaseModel):
                 Location
             ]
         ]
-    ] = Field(default_factory=list)
+    ] = Field(default_factory=list) # type: ignore
 
     markup: Optional[
         List[
@@ -111,7 +111,7 @@ class MessageBody(BaseModel):
                 MarkupLink, MarkupElement
             ]
         ]
-    ] = Field(default_factory=list)
+    ] = Field(default_factory=list) # type: ignore
 
 
 class MessageStat(BaseModel):
@@ -164,19 +164,19 @@ class Message(BaseModel):
     recipient: Recipient
     timestamp: int
     link: Optional[LinkedMessage] = None
-    body: Optional[MessageBody] = None
+    body: MessageBody
     stat: Optional[MessageStat] = None
     url: Optional[str] = None
     bot: Optional[Any] = Field(default=None, exclude=True)
     
     if TYPE_CHECKING:
-        bot: Optional[Bot]
+        bot: Optional[Bot] # type: ignore
 
     async def answer(
             self,
-            text: str = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
-            link: NewMessageLink = None,
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
+            link: Optional[NewMessageLink] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
@@ -195,6 +195,7 @@ class Message(BaseModel):
             Any: Результат выполнения метода send_message бота.
         """
         
+        assert self.bot is not None
         return await self.bot.send_message(
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
@@ -207,8 +208,8 @@ class Message(BaseModel):
         
     async def reply(
             self,
-            text: str = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
@@ -226,6 +227,7 @@ class Message(BaseModel):
             Any: Результат выполнения метода send_message бота.
         """
         
+        assert self.bot is not None
         return await self.bot.send_message(
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
@@ -242,8 +244,8 @@ class Message(BaseModel):
     async def forward(
             self,
             chat_id, 
-            user_id: int = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
+            user_id: Optional[int] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
@@ -262,6 +264,7 @@ class Message(BaseModel):
             Any: Результат выполнения метода send_message бота.
         """
         
+        assert self.bot is not None
         return await self.bot.send_message(
             chat_id=chat_id,
             user_id=user_id,
@@ -276,9 +279,9 @@ class Message(BaseModel):
     
     async def edit(
             self,
-            text: str = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
-            link: NewMessageLink = None,
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
+            link: Optional[NewMessageLink] = None,
             notify: bool = True,
             parse_mode: Optional[ParseMode] = None
         ):
@@ -297,6 +300,7 @@ class Message(BaseModel):
             Any: Результат выполнения метода edit_message бота.
         """
         
+        assert self.bot is not None
         return await self.bot.edit_message(
             message_id=self.body.mid,
             text=text,
@@ -331,6 +335,7 @@ class Message(BaseModel):
             Any: Результат выполнения метода pin_message бота.
         """
         
+        assert self.bot is not None
         return await self.bot.pin_message(
             chat_id=self.recipient.chat_id,
             message_id=self.body.mid,
@@ -352,7 +357,7 @@ class Messages(BaseModel):
     bot: Optional[Any] = Field(default=None, exclude=True)
     
     if TYPE_CHECKING:
-        bot: Optional[Bot]
+        bot: Optional[Bot] # type: ignore
 
 
 class NewMessageLink(BaseModel):

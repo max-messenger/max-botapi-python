@@ -46,7 +46,7 @@ MemoryContext(chat_id: int, user_id: int)
 
 ---
 
-### `async def set_state(state: State | str = None)`
+### `async def set_state(state: Optional[Union[State, str]] = None)`
 
 Устанавливает новое состояние пользователя или сбрасывает его.
 

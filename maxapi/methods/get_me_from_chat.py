@@ -34,7 +34,7 @@ class GetMeFromChat(BaseConnection):
         self.bot = bot
         self.chat_id = chat_id
 
-    async def request(self) -> ChatMember:
+    async def fetch(self) -> ChatMember:
         
         """
         Выполняет GET-запрос для получения информации о боте в указанном чате.
@@ -42,7 +42,7 @@ class GetMeFromChat(BaseConnection):
         Returns:
             ChatMember: Информация о боте как участнике чата.
         """
-        
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ME,

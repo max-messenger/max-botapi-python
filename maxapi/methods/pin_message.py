@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from .types.pinned_message import PinnedMessage
 
@@ -35,14 +35,14 @@ class PinMessage(BaseConnection):
             bot: 'Bot', 
             chat_id: int,
             message_id: str,
-            notify: bool = True
+            notify: Optional[bool] = None
         ):
         self.bot = bot
         self.chat_id = chat_id
         self.message_id = message_id
         self.notify = notify
 
-    async def request(self) -> PinnedMessage:
+    async def fetch(self) -> PinnedMessage:
         
         """
         Выполняет PUT-запрос для закрепления сообщения в чате.
@@ -52,8 +52,8 @@ class PinMessage(BaseConnection):
         Returns:
             PinnedMessage: Объект с информацией о закреплённом сообщении.
         """
-        
-        json = {}
+        assert self.bot is not None
+        json: Dict[str, Any] = {}
 
         json['message_id'] = self.message_id
         json['notify'] = self.notify

@@ -2,6 +2,8 @@ from typing import List, Optional, TYPE_CHECKING, Union
 
 from pydantic import BaseModel, Field
 
+from ...types.attachments.location import Location
+
 from .update import Update
 
 from ...enums.parse_mode import ParseMode
@@ -49,10 +51,11 @@ class MessageForCallback(BaseModel):
                 File,
                 Image,
                 Sticker,
-                Share
+                Share,
+                Location
             ]
         ]
-    ] = Field(default_factory=list)
+    ] = Field(default_factory=list) # type: ignore
     link: Optional[NewMessageLink] = None
     notify: Optional[bool] = True
     format: Optional[ParseMode] = None
@@ -86,9 +89,9 @@ class MessageCallback(Update):
     
     async def answer(
             self,
-            notification: str = None,
-            new_text: str = None,
-            link: NewMessageLink = None,
+            notification: Optional[str] = None,
+            new_text: Optional[str] = None,
+            link: Optional[NewMessageLink] = None,
             notify: bool = True,
             format: Optional[ParseMode] = None,
         ):
@@ -115,6 +118,7 @@ class MessageCallback(Update):
         message.notify = notify
         message.format = format
 
+        assert self.bot is not None
         return await self.bot.send_callback(
             callback_id=self.callback.callback_id,
             message=message,

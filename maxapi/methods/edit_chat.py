@@ -1,8 +1,10 @@
 
 
 from logging import getLogger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
 from collections import Counter
+
+from ..exceptions.max import MaxIconParamsException
 
 from ..types.attachments.image import PhotoAttachmentRequestPayload
 from ..types.chats import Chat
@@ -37,10 +39,10 @@ class EditChat(BaseConnection):
             self,
             bot: 'Bot',
             chat_id: int,
-            icon: PhotoAttachmentRequestPayload = None,
-            title: str = None,
-            pin: str = None,
-            notify: bool = True,
+            icon: Optional[PhotoAttachmentRequestPayload] = None,
+            title: Optional[str] = None,
+            pin: Optional[str] = None,
+            notify: Optional[bool] = None,
         ):
             self.bot = bot
             self.chat_id = chat_id
@@ -49,7 +51,7 @@ class EditChat(BaseConnection):
             self.pin = pin
             self.notify = notify
 
-    async def request(self) -> Chat:
+    async def fetch(self) -> Chat:
         
         """
         Выполняет PATCH-запрос для обновления параметров чата.
@@ -62,7 +64,8 @@ class EditChat(BaseConnection):
             Chat: Обновлённый объект чата.
         """
         
-        json = {}
+        assert self.bot is not None
+        json: Dict[str, Any] = {}
 
         if self.icon:
             dump = self.icon.model_dump()
@@ -70,7 +73,8 @@ class EditChat(BaseConnection):
 
             if not None in counter or \
                 not counter[None] == 2:
-                return logger.error(
+                    
+                raise MaxIconParamsException(
                     'Все атрибуты модели Icon являются взаимоисключающими | '
                     'https://dev.max.ru/docs-api/methods/PATCH/chats/-chatId-'
                 )

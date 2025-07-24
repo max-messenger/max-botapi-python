@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import os
 import mimetypes
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
 import aiofiles
@@ -18,7 +20,7 @@ from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
 from ..enums.upload_type import UploadType
 
-from ..loggers import logger_bot, logger_connection
+from ..loggers import logger_bot
 
 if TYPE_CHECKING:
     from ..bot import Bot
@@ -36,15 +38,15 @@ class BaseConnection:
 
     API_URL = 'https://botapi.max.ru'
 
-    def __init__(self):
-        self.bot: 'Bot' = None
-        self.session: ClientSession = None
+    def __init__(self) -> None:
+        self.bot: Optional[Bot] = None
+        self.session: Optional[ClientSession] = None
 
     async def request(
             self,
             method: HTTPMethod,
-            path: ApiPath,
-            model: BaseModel = None,
+            path: ApiPath | str,
+            model: BaseModel | Any = None,
             is_return_raw: bool = False,
             **kwargs
         ):
@@ -64,8 +66,14 @@ class BaseConnection:
             - dict (если is_return_raw=True)
         """
         
+        assert self.bot is not None
+        
         if not self.bot.session:
-            self.bot.session = ClientSession(self.bot.API_URL)
+            self.bot.session = ClientSession(
+                base_url=self.bot.API_URL, 
+                timeout=self.bot.default_connection.timeout, 
+                **self.bot.default_connection.kwargs
+            )
 
         try:
             r = await self.bot.session.request(
@@ -90,7 +98,7 @@ class BaseConnection:
 
         if is_return_raw: return raw
 
-        model = model(**raw)
+        model = model(**raw) # type: ignore
         
         if hasattr(model, 'message'):
             attr = getattr(model, 'message')

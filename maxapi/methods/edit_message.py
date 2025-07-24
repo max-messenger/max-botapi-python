@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING, Optional
+from typing import Any, Dict, List, TYPE_CHECKING, Optional
+
+from ..utils.message import process_input_media
 
 from .types.edited_message import EditedMessage
 from ..types.message import NewMessageLink
@@ -37,10 +39,10 @@ class EditMessage(BaseConnection):
             self,
             bot: Bot,
             message_id: str,
-            text: str = None,
-            attachments: List[Attachment | InputMedia | InputMediaBuffer] = None,
-            link: NewMessageLink = None,
-            notify: bool = True,
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
+            link: Optional[NewMessageLink] = None,
+            notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
             self.bot = bot
@@ -51,7 +53,7 @@ class EditMessage(BaseConnection):
             self.notify = notify
             self.parse_mode = parse_mode
 
-    async def request(self) -> EditedMessage:
+    async def fetch(self) -> EditedMessage:
         
         """
         Выполняет PUT-запрос для обновления сообщения.
@@ -62,15 +64,31 @@ class EditMessage(BaseConnection):
             EditedMessage: Обновлённое сообщение.
         """
         
+        assert self.bot is not None
         params = self.bot.params.copy()
 
-        json = {}
+        json: Dict[str, Any] = {}
 
         params['message_id'] = self.message_id
 
         if not self.text is None: json['text'] = self.text
-        if self.attachments: json['attachments'] = \
-          [att.model_dump() for att in self.attachments]
+        
+        if self.attachments:
+            
+            for att in self.attachments:
+
+                if isinstance(att, InputMedia) or isinstance(att, InputMediaBuffer):
+                    input_media = await process_input_media(
+                        base_connection=self,
+                        bot=self.bot,
+                        att=att
+                    )
+                    json['attachments'].append(
+                        input_media.model_dump()
+                    ) 
+                else:
+                    json['attachments'].append(att.model_dump()) 
+                    
         if not self.link is None: json['link'] = self.link.model_dump()
         if not self.notify is None: json['notify'] = self.notify
         if not self.parse_mode is None: json['format'] = self.parse_mode.value

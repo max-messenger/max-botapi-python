@@ -33,7 +33,7 @@ class GetUploadURL(BaseConnection):
         self.bot = bot
         self.type = type
 
-    async def request(self) -> GettedUploadUrl:
+    async def fetch(self) -> GettedUploadUrl:
         
         """
         Выполняет POST-запрос для получения URL загрузки файла.
@@ -43,7 +43,7 @@ class GetUploadURL(BaseConnection):
         Returns:
             GettedUploadUrl: Результат с URL для загрузки.
         """
-        
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         params['type'] = self.type.value

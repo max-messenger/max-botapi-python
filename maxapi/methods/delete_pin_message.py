@@ -19,18 +19,18 @@ class DeletePinMessage(BaseConnection):
 
     Args:
         bot (Bot): Экземпляр бота для выполнения запроса.
-        chat_id (str): Идентификатор чата, из которого нужно удалить закреплённое сообщение.
+        chat_id (int): Идентификатор чата, из которого нужно удалить закреплённое сообщение.
     """
     
     def __init__(
             self,
             bot: 'Bot',
-            chat_id: str,
+            chat_id: int,
         ):
             self.bot = bot
             self.chat_id = chat_id
 
-    async def request(self) -> DeletedPinMessage:
+    async def fetch(self) -> DeletedPinMessage:
         
         """
         Выполняет DELETE-запрос для удаления закреплённого сообщения.
@@ -38,7 +38,7 @@ class DeletePinMessage(BaseConnection):
         Returns:
             DeletedPinMessage: Результат операции удаления закреплённого сообщения.
         """
-        
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.DELETE, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.PIN,

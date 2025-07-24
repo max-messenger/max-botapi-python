@@ -1,7 +1,9 @@
-from typing import Literal, Optional
+from typing import Optional
 
 from pydantic import BaseModel
+
 from .attachment import Attachment
+from ...enums.attachment import AttachmentType
 
 
 class PhotoAttachmentRequestPayload(BaseModel):
@@ -29,4 +31,4 @@ class Image(Attachment):
         type (Literal['image']): Тип вложения, всегда 'image'.
     """
     
-    type: Literal['image'] = 'image'
+    type: AttachmentType = AttachmentType.IMAGE

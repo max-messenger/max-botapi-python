@@ -29,7 +29,7 @@ class DeleteMessage(BaseConnection):
             self.bot = bot
             self.message_id = message_id
 
-    async def request(self) -> DeletedMessage:
+    async def fetch(self) -> DeletedMessage:
         
         """
         Выполняет DELETE-запрос для удаления сообщения.
@@ -40,6 +40,7 @@ class DeleteMessage(BaseConnection):
             DeletedMessage: Результат операции удаления сообщения.
         """
         
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         params['message_id'] = self.message_id

@@ -30,7 +30,7 @@ class GetVideo(BaseConnection):
             self.bot = bot
             self.video_token = video_token
 
-    async def request(self) -> Video:
+    async def fetch(self) -> Video:
         
         """
         Выполняет GET-запрос для получения данных видео по токену.
@@ -38,7 +38,7 @@ class GetVideo(BaseConnection):
         Returns:
             Video: Объект с информацией о видео.
         """
-
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.VIDEOS.value + '/' + self.video_token,

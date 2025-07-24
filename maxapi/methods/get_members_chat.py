@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from ..methods.types.getted_members_chat import GettedMembersChat
 
@@ -27,7 +27,7 @@ class GetMembersChat(BaseConnection):
     Attributes:
         bot (Bot): Экземпляр бота.
         chat_id (int): Идентификатор чата.
-        user_ids (List[str] | None): Список ID пользователей для фильтра.
+        user_ids (List[int] | None): Список ID пользователей для фильтра.
         marker (int | None): Позиция для пагинации.
         count (int | None): Максимальное количество участников.
     """
@@ -36,9 +36,9 @@ class GetMembersChat(BaseConnection):
             self, 
             bot: 'Bot',
             chat_id: int,
-            user_ids: List[str] = None,
-            marker: int = None,
-            count: int = None,
+            user_ids: Optional[List[int]] = None,
+            marker: Optional[int] = None,
+            count: Optional[int] = None,
 
         ):
         self.bot = bot
@@ -47,7 +47,7 @@ class GetMembersChat(BaseConnection):
         self.marker = marker
         self.count = count
 
-    async def request(self) -> GettedMembersChat:
+    async def fetch(self) -> GettedMembersChat:
         
         """
         Выполняет GET-запрос для получения участников чата с опциональной фильтрацией.
@@ -57,12 +57,12 @@ class GetMembersChat(BaseConnection):
         Returns:
             GettedMembersChat: Объект с данными по участникам чата.
         """
-        
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         if self.user_ids: 
-            self.user_ids = [str(user_id) for user_id in self.user_ids]
-            params['user_ids'] = ','.join(self.user_ids)
+            params['user_ids'] = ','.join([str(user_id) for user_id in self.user_ids])
+            
         if self.marker: params['marker'] = self.marker
         if self.count: params['marker'] = self.count
 

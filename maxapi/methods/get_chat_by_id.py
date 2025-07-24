@@ -30,7 +30,7 @@ class GetChatById(BaseConnection):
         self.bot = bot
         self.id = id
 
-    async def request(self) -> Chat:
+    async def fetch(self) -> Chat:
         
         """
         Выполняет GET-запрос для получения данных чата.
@@ -39,6 +39,7 @@ class GetChatById(BaseConnection):
             Chat: Объект чата с полной информацией.
         """
         
+        assert self.bot is not None
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + str(self.id),

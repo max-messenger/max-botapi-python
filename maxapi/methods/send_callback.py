@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from ..methods.types.sended_callback import SendedCallback
 
@@ -36,15 +36,15 @@ class SendCallback(BaseConnection):
             self,
             bot: 'Bot',
             callback_id: str,
-            message: Message = None,
-            notification: str = None
+            message: Optional[Message] = None,
+            notification: Optional[str] = None
         ):
             self.bot = bot
             self.callback_id = callback_id
             self.message = message
             self.notification = notification
 
-    async def request(self) -> SendedCallback:
+    async def fetch(self) -> SendedCallback:
         
         """
         Выполняет POST-запрос для отправки callback-ответа.
@@ -55,11 +55,12 @@ class SendCallback(BaseConnection):
             SendedCallback: Объект с результатом отправки callback.
         """
         
+        assert self.bot is not None
         params = self.bot.params.copy()
 
         params['callback_id'] = self.callback_id
 
-        json = {}
+        json: Dict[str, Any] = {}
         
         if self.message: json['message'] = self.message.model_dump()
         if self.notification: json['notification'] = self.notification

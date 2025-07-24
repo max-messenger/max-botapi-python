@@ -70,11 +70,11 @@ class InputMediaBuffer:
     Класс для представления медиафайла из буфера.
 
     Attributes:
-        buffer (BytesIO): Буфер с содержимым файла.
+        buffer (bytes): Буфер с содержимым файла.
         type (UploadType): Тип файла, определенный по содержимому.
     """
 
-    def __init__(self, buffer: BytesIO):
+    def __init__(self, buffer: bytes):
         """
         Инициализирует объект медиафайла из буфера.
 
@@ -84,7 +84,7 @@ class InputMediaBuffer:
         self.buffer = buffer
         self.type = self.__detect_file_type(buffer)
 
-    def __detect_file_type(self, buffer: BytesIO) -> UploadType:
+    def __detect_file_type(self, buffer: bytes) -> UploadType:
         try:
             matches = puremagic.magic_string(buffer)
             if matches:

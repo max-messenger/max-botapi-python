@@ -1,9 +1,13 @@
 
 
 import asyncio
-from typing import List, TYPE_CHECKING, Optional
+from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
 from json import loads as json_loads
+
+from ..utils.message import process_input_media
+
+from ..exceptions.max import MaxUploadFileFailed
 
 from .types.sended_message import SendedMessage
 from ..types.attachments.upload import AttachmentPayload, AttachmentUpload
@@ -39,7 +43,7 @@ class SendMessage(BaseConnection):
         chat_id (int, optional): Идентификатор чата, куда отправлять сообщение.
         user_id (int, optional): Идентификатор пользователя, если нужно отправить личное сообщение.
         text (str, optional): Текст сообщения.
-        attachments (List[Attachment | InputMedia], optional): Список вложений к сообщению.
+        attachments (List[Attachment | InputMedia | InputMediaBuffer], optional): Список вложений к сообщению.
         link (NewMessageLink, optional): Связь с другим сообщением (например, ответ или пересылка).
         notify (bool, optional): Отправлять ли уведомление о сообщении. По умолчанию True.
         parse_mode (ParseMode, optional): Режим разбора текста (например, Markdown, HTML).
@@ -48,12 +52,12 @@ class SendMessage(BaseConnection):
     def __init__(
             self,
             bot: 'Bot',
-            chat_id: int = None, 
-            user_id: int = None, 
-            text: str = None,
-            attachments: List[Attachment | InputMedia] = None,
-            link: NewMessageLink = None,
-            notify: bool = True,
+            chat_id: Optional[int] = None, 
+            user_id: Optional[int] = None, 
+            text: Optional[str] = None,
+            attachments: Optional[List[Attachment | InputMedia | InputMediaBuffer]] = None,
+            link: Optional[NewMessageLink] = None,
+            notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
         ):
             self.bot = bot
@@ -65,59 +69,7 @@ class SendMessage(BaseConnection):
             self.notify = notify
             self.parse_mode = parse_mode
 
-    async def __process_input_media(
-            self,
-            att: InputMedia | InputMediaBuffer
-        ):
-        
-        # очень нестабильный метод независящий от модуля
-        # ждем обновлений MAX API
-        
-        """
-        Загружает файл вложения и формирует объект AttachmentUpload.
-
-        Args:
-            att (InputMedia): Объект вложения для загрузки.
-
-        Returns:
-            AttachmentUpload: Загруженное вложение с токеном.
-        """
-        
-        upload = await self.bot.get_upload_url(att.type)
-
-        if isinstance(att, InputMedia):
-            upload_file_response = await self.upload_file(
-                url=upload.url,
-                path=att.path,
-                type=att.type,
-            )
-        elif isinstance(att, InputMediaBuffer):
-            upload_file_response = await self.upload_file_buffer(
-                url=upload.url,
-                buffer=att.buffer,
-                type=att.type,
-            )
-
-        if att.type in (UploadType.VIDEO, UploadType.AUDIO):
-            token = upload.token
-
-        elif att.type == UploadType.FILE:
-            json_r = json_loads(upload_file_response)
-            token = json_r['token']
-            
-        elif att.type == UploadType.IMAGE:
-            json_r = json_loads(upload_file_response)
-            json_r_keys = list(json_r['photos'].keys())
-            token = json_r['photos'][json_r_keys[0]]['token']
-        
-        return AttachmentUpload(
-            type=att.type,
-            payload=AttachmentPayload(
-                token=token
-            )
-        )
-
-    async def request(self) -> SendedMessage:
+    async def fetch(self) -> Optional[SendedMessage | Error]:
         
         """
         Отправляет сообщение с вложениями (если есть), с обработкой задержки готовности вложений.
@@ -128,9 +80,10 @@ class SendMessage(BaseConnection):
             SendedMessage или Error
         """
         
+        assert self.bot is not None
         params = self.bot.params.copy()
 
-        json = {'attachments': []}
+        json: Dict[str, Any] = {'attachments': []}
 
         if self.chat_id: params['chat_id'] = self.chat_id
         elif self.user_id: params['user_id'] = self.user_id
@@ -142,7 +95,11 @@ class SendMessage(BaseConnection):
             for att in self.attachments:
 
                 if isinstance(att, InputMedia) or isinstance(att, InputMediaBuffer):
-                    input_media = await self.__process_input_media(att)
+                    input_media = await process_input_media(
+                        base_connection=self,
+                        bot=self.bot,
+                        att=att
+                    )
                     json['attachments'].append(
                         input_media.model_dump()
                     ) 
