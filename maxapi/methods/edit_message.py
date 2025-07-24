@@ -1,5 +1,7 @@
 from __future__ import annotations
+import asyncio
 
+from ..types.errors import Error
 from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
 from ..utils.message import process_input_media
@@ -7,17 +9,17 @@ from ..utils.message import process_input_media
 from .types.edited_message import EditedMessage
 from ..types.message import NewMessageLink
 from ..types.attachments.attachment import Attachment
-
+from ..types.input_media import InputMedia, InputMediaBuffer
 from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
 
 from ..connection.base import BaseConnection
+from ..loggers import logger_bot
 
 
 if TYPE_CHECKING:
     from ..bot import Bot
-    from ..types.input_media import InputMedia, InputMediaBuffer
 
 
 class EditMessage(BaseConnection):
@@ -53,7 +55,7 @@ class EditMessage(BaseConnection):
             self.notify = notify
             self.parse_mode = parse_mode
 
-    async def fetch(self) -> EditedMessage:
+    async def fetch(self) -> Optional[EditedMessage | Error]:
         
         """
         Выполняет PUT-запрос для обновления сообщения.
@@ -67,7 +69,7 @@ class EditMessage(BaseConnection):
         assert self.bot is not None
         params = self.bot.params.copy()
 
-        json: Dict[str, Any] = {}
+        json: Dict[str, Any] = {'attachments': []}
 
         params['message_id'] = self.message_id
 
@@ -93,10 +95,23 @@ class EditMessage(BaseConnection):
         if not self.notify is None: json['notify'] = self.notify
         if not self.parse_mode is None: json['format'] = self.parse_mode.value
 
-        return await super().request(
-            method=HTTPMethod.PUT, 
-            path=ApiPath.MESSAGES,
-            model=EditedMessage,
-            params=params,
-            json=json
-        )
+        await asyncio.sleep(self.bot.after_input_media_delay)
+        
+        response = None
+        for attempt in range(self.ATTEMPTS_COUNT):
+            response = await super().request(
+                method=HTTPMethod.PUT, 
+                path=ApiPath.MESSAGES,
+                model=EditedMessage,
+                params=params,
+                json=json
+            )
+
+            if isinstance(response, Error):
+                if response.raw.get('code') == 'attachment.not.ready':
+                    logger_bot.info(f'Ошибка при отправке загруженного медиа, попытка {attempt+1}, жду {self.RETRY_DELAY} секунды')
+                    await asyncio.sleep(self.RETRY_DELAY)
+                    continue
+            
+            return response
+        return response
