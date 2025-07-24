@@ -7,6 +7,7 @@ from ..types.input_media import InputMedia, InputMediaBuffer
 from ..enums.upload_type import UploadType
 from ..exceptions.max import MaxUploadFileFailed
 from ..types.attachments.upload import AttachmentPayload, AttachmentUpload
+from ..types.errors import Error
 
 if TYPE_CHECKING:
     from ..bot import Bot
@@ -33,6 +34,9 @@ async def process_input_media(
     """
     
     upload = await bot.get_upload_url(att.type)
+    
+    if isinstance(upload, Error):
+        raise MaxUploadFileFailed(f'Ошибка при загрузке файла: code={upload.code}, raw={upload.raw}')
 
     if isinstance(att, InputMedia):
         upload_file_response = await base_connection.upload_file(
