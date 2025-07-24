@@ -37,10 +37,14 @@ class BaseConnection:
     """
 
     API_URL = 'https://botapi.max.ru'
+    RETRY_DELAY = 2
+    ATTEMPTS_COUNT = 5
+    AFTER_MEDIA_INPUT_DELAY = 2.0
 
     def __init__(self) -> None:
         self.bot: Optional[Bot] = None
         self.session: Optional[ClientSession] = None
+        self.after_input_media_delay: float = self.AFTER_MEDIA_INPUT_DELAY
 
     async def request(
             self,
