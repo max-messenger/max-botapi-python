@@ -12,13 +12,15 @@ class UserRemoved(Update):
 
     Attributes:
         admin_id (Optional[int]): Идентификатор администратора, удалившего пользователя. Может быть None.
-        chat_id (Optional[int]): Идентификатор чата. Может быть None.
+        chat_id (int): Идентификатор чата. Может быть None.
         user (User): Объект пользователя, удаленного из чата.
+        is_channel (bool): Указывает, был ли пользователь удален из канала или нет
     """
     
     admin_id: Optional[int] = None
-    chat_id: Optional[int] = None
+    chat_id: int
     user: User
+    is_channel: bool
     
     def get_ids(self):
         

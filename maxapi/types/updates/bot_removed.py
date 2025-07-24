@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from .update import Update
 
@@ -14,12 +14,14 @@ class BotRemoved(Update):
     Обновление, сигнализирующее об удалении бота из чата.
 
     Attributes:
-        chat_id (Optional[int]): Идентификатор чата, из которого удалён бот.
+        chat_id (int): Идентификатор чата, из которого удалён бот.
         user (User): Объект пользователя-бота.
+        is_channel (bool): Указывает, был ли пользователь добавлен в канал или нет
     """
     
-    chat_id: Optional[int] = None
+    chat_id: int
     user: User
+    is_channel: bool
     
     if TYPE_CHECKING:
         bot: Optional[Bot]

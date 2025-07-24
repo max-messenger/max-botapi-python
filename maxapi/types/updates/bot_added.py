@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from .update import Update
 
@@ -14,12 +14,14 @@ class BotAdded(Update):
     Обновление, сигнализирующее о добавлении бота в чат.
 
     Attributes:
-        chat_id (Optional[int]): Идентификатор чата, куда добавлен бот.
+        chat_id (int): Идентификатор чата, куда добавлен бот.
         user (User): Объект пользователя-бота.
+        is_channel (bool): Указывает, был ли бот добавлен в канал или нет
     """
     
-    chat_id: Optional[int] = None
+    chat_id: int
     user: User
+    is_channel: bool
     
     if TYPE_CHECKING:
         bot: Optional[Bot]
