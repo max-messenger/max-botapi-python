@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from .update import Update
 
@@ -14,13 +14,13 @@ class BotStarted(Update):
     Обновление, сигнализирующее о первом старте бота.
 
     Attributes:
-        chat_id (Optional[int]): Идентификатор чата.
+        chat_id (int): Идентификатор чата.
         user (User): Пользователь (бот).
         user_locale (Optional[str]): Локаль пользователя.
         payload (Optional[str]): Дополнительные данные.
     """
     
-    chat_id: Optional[int] = None
+    chat_id: int
     user: User
     user_locale: Optional[str] = None
     payload: Optional[str] = None

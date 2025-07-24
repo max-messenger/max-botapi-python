@@ -68,8 +68,8 @@ class Recipient(BaseModel):
         chat_type (ChatType): Тип получателя (диалог или чат).
     """
     
-    user_id: Optional[int] = None
-    chat_id: Optional[int] = None
+    user_id: int
+    chat_id: int
     chat_type: ChatType
 
 
@@ -195,7 +195,9 @@ class Message(BaseModel):
             Any: Результат выполнения метода send_message бота.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await self.bot.send_message(
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
@@ -227,7 +229,9 @@ class Message(BaseModel):
             Any: Результат выполнения метода send_message бота.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await self.bot.send_message(
             chat_id=self.recipient.chat_id,
             user_id=self.recipient.user_id,
@@ -264,7 +268,9 @@ class Message(BaseModel):
             Any: Результат выполнения метода send_message бота.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await self.bot.send_message(
             chat_id=chat_id,
             user_id=user_id,
@@ -300,7 +306,9 @@ class Message(BaseModel):
             Any: Результат выполнения метода edit_message бота.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await self.bot.edit_message(
             message_id=self.body.mid,
             text=text,
@@ -335,7 +343,9 @@ class Message(BaseModel):
             Any: Результат выполнения метода pin_message бота.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await self.bot.pin_message(
             chat_id=self.recipient.chat_id,
             message_id=self.body.mid,

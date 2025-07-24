@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from .update import Update
 
@@ -16,12 +16,12 @@ class ChatTitleChanged(Update):
     Attributes:
         chat_id (Optional[int]): Идентификатор чата.
         user (User): Пользователь, совершивший изменение.
-        title (Optional[str]): Новое название чата.
+        title (str): Новое название чата.
     """
     
-    chat_id: Optional[int] = None
+    chat_id: int
     user: User
-    title: Optional[str] = None
+    title: str
     
     if TYPE_CHECKING:
         bot: Optional[Bot]

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from .update import Update
 
 
@@ -9,14 +7,14 @@ class MessageRemoved(Update):
     Класс для обработки события удаления сообщения в чате.
 
     Attributes:
-        message_id (Optional[str]): Идентификатор удаленного сообщения. Может быть None.
-        chat_id (Optional[int]): Идентификатор чата. Может быть None.
-        user_id (Optional[int]): Идентификатор пользователя. Может быть None.
+        message_id (str): Идентификатор удаленного сообщения. Может быть None.
+        chat_id (int): Идентификатор чата. Может быть None.
+        user_id (int): Идентификатор пользователя. Может быть None.
     """
     
-    message_id: Optional[str] = None
-    chat_id: Optional[int] = None
-    user_id: Optional[int] = None
+    message_id: str
+    chat_id: int
+    user_id: int
 
     def get_ids(self):
         
