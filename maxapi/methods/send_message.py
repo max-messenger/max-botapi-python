@@ -3,20 +3,14 @@
 import asyncio
 from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
-from json import loads as json_loads
-
 from ..utils.message import process_input_media
 
-from ..exceptions.max import MaxUploadFileFailed
-
 from .types.sended_message import SendedMessage
-from ..types.attachments.upload import AttachmentPayload, AttachmentUpload
 from ..types.errors import Error
 from ..types.message import NewMessageLink
 from ..types.input_media import InputMedia, InputMediaBuffer
 from ..types.attachments.attachment import Attachment
 
-from ..enums.upload_type import UploadType
 from ..enums.parse_mode import ParseMode
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
@@ -28,10 +22,6 @@ from ..loggers import logger_bot
 if TYPE_CHECKING:
     from ..bot import Bot
     
-
-RETRY_DELAY = 2
-ATTEMPTS_COUNT = 5
-
 
 class SendMessage(BaseConnection):
     
@@ -109,9 +99,11 @@ class SendMessage(BaseConnection):
         if not self.link is None: json['link'] = self.link.model_dump()
         json['notify'] = self.notify
         if not self.parse_mode is None: json['format'] = self.parse_mode.value
+        
+        await asyncio.sleep(self.bot.after_input_media_delay)
 
         response = None
-        for attempt in range(ATTEMPTS_COUNT):
+        for attempt in range(self.ATTEMPTS_COUNT):
             response = await super().request(
                 method=HTTPMethod.POST, 
                 path=ApiPath.MESSAGES,
@@ -122,8 +114,8 @@ class SendMessage(BaseConnection):
 
             if isinstance(response, Error):
                 if response.raw.get('code') == 'attachment.not.ready':
-                    logger_bot.info(f'Ошибка при отправке загруженного медиа, попытка {attempt+1}, жду {RETRY_DELAY} секунды')
-                    await asyncio.sleep(RETRY_DELAY)
+                    logger_bot.info(f'Ошибка при отправке загруженного медиа, попытка {attempt+1}, жду {self.RETRY_DELAY} секунды')
+                    await asyncio.sleep(self.RETRY_DELAY)
                     continue
             
             return response
