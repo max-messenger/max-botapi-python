@@ -49,7 +49,6 @@ if TYPE_CHECKING:
     from .types.chats import Chat, ChatMember, Chats
     from .types.command import BotCommand
     from .types.message import Message, Messages, NewMessageLink
-    from .types.updates import UpdateUnion
     from .types.users import ChatAdmin, User
 
     from .methods.types.added_admin_chat import AddedListAdminChat
