@@ -39,7 +39,9 @@ class GetChatById(BaseConnection):
             Chat: Объект чата с полной информацией.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + str(self.id),

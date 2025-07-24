@@ -40,7 +40,9 @@ class DeleteMessage(BaseConnection):
             DeletedMessage: Результат операции удаления сообщения.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         params['message_id'] = self.message_id

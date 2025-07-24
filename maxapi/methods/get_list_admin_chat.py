@@ -42,7 +42,10 @@ class GetListAdminChat(BaseConnection):
         Returns:
             GettedListAdminChat: Объект с информацией о администраторах чата.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ADMINS,

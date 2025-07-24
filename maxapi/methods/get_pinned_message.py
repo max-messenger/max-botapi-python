@@ -37,7 +37,10 @@ class GetPinnedMessage(BaseConnection):
         Returns:
             GettedPin: Объект с информацией о закреплённом сообщении.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.PIN,

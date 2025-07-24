@@ -1,11 +1,5 @@
 from typing import TYPE_CHECKING
 
-from ..methods.types.deleted_pin_message import DeletedPinMessage
-
-from ..enums.http_method import HTTPMethod
-from ..enums.api_path import ApiPath
-from ..enums.upload_type import UploadType
-
 from ..connection.base import BaseConnection
 
 

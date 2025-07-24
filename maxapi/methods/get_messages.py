@@ -59,10 +59,14 @@ class GetMessages(BaseConnection):
         Returns:
             Messages: Объект с полученными сообщениями.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
-        if self.chat_id: params['chat_id'] = self.chat_id
+        if self.chat_id: 
+            params['chat_id'] = self.chat_id
 
         if self.message_ids:
             params['message_ids'] = ','.join(self.message_ids)

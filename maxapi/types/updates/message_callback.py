@@ -1,4 +1,4 @@
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -19,12 +19,6 @@ from ..attachments.file import File
 from ..attachments.image import Image
 from ..attachments.video import Video
 from ..attachments.audio import Audio
-
-
-if TYPE_CHECKING:
-    from ...bot import Bot
-    from ...types.chats import Chat
-    from ...types.users import User
 
 
 class MessageForCallback(BaseModel):
@@ -110,6 +104,9 @@ class MessageCallback(Update):
             Результат вызова send_callback бота.
         """
         
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         message = MessageForCallback()
 
         message.text = new_text
@@ -117,8 +114,7 @@ class MessageCallback(Update):
         message.link = link
         message.notify = notify
         message.format = format
-
-        assert self.bot is not None
+        
         return await self.bot.send_callback(
             callback_id=self.callback.callback_id,
             message=message,

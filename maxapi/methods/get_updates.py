@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Dict
 
-from ..types.updates import UpdateUnion
-
 from ..enums.http_method import HTTPMethod
 from ..enums.api_path import ApiPath
 
@@ -45,7 +43,10 @@ class GetUpdates(BaseConnection):
         Returns:
             UpdateUnion: Объединённый тип данных обновлений.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         params['limit'] = self.limit

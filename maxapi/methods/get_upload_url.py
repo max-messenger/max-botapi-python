@@ -43,7 +43,10 @@ class GetUploadURL(BaseConnection):
         Returns:
             GettedUploadUrl: Результат с URL для загрузки.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         params['type'] = self.type.value

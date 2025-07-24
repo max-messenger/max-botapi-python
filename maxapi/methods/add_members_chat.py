@@ -45,7 +45,8 @@ class AddMembersChat(BaseConnection):
             AddedMembersChat: Результат операции с информацией об успешности добавления.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
         
         json: Dict[str, Any] = {}
 

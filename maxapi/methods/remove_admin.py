@@ -46,7 +46,10 @@ class RemoveAdmin(BaseConnection):
         Returns:
             RemovedAdmin: Объект с результатом отмены прав администратора.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.DELETE, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + \

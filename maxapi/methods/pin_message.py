@@ -52,7 +52,10 @@ class PinMessage(BaseConnection):
         Returns:
             PinnedMessage: Объект с информацией о закреплённом сообщении.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         json: Dict[str, Any] = {}
 
         json['message_id'] = self.message_id

@@ -32,7 +32,10 @@ class GetMe(BaseConnection):
         Returns:
             User: Объект пользователя с полной информацией.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.ME,

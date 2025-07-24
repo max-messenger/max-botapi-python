@@ -39,7 +39,8 @@ class DeleteMeFromMessage(BaseConnection):
             DeletedBotFromChat: Результат операции удаления.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
         return await super().request(
             method=HTTPMethod.DELETE, 
             path=ApiPath.CHATS + '/' + str(self.chat_id) + ApiPath.MEMBERS + ApiPath.ME,

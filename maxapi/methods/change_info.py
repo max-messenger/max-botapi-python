@@ -48,14 +48,19 @@ class ChangeInfo(BaseConnection):
             User: Объект с обновленными данными бота
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
         
         json: Dict[str, Any] = {}
 
-        if self.name: json['name'] = self.name
-        if self.description: json['description'] = self.description
-        if self.commands: json['commands'] = [command.model_dump() for command in self.commands]
-        if self.photo: json['photo'] = self.photo
+        if self.name: 
+            json['name'] = self.name
+        if self.description: 
+            json['description'] = self.description
+        if self.commands: 
+            json['commands'] = [command.model_dump() for command in self.commands]
+        if self.photo: 
+            json['photo'] = self.photo
 
         return await super().request(
             method=HTTPMethod.PATCH, 

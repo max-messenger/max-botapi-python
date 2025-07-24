@@ -48,7 +48,8 @@ class AddAdminChat(BaseConnection):
             AddedListAdminChat: Результат операции с информацией об успешности.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
         
         json: Dict[str, Any] = {}
 

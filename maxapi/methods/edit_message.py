@@ -66,14 +66,17 @@ class EditMessage(BaseConnection):
             EditedMessage: Обновлённое сообщение.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         json: Dict[str, Any] = {'attachments': []}
 
         params['message_id'] = self.message_id
 
-        if not self.text is None: json['text'] = self.text
+        if self.text is not None: 
+            json['text'] = self.text
         
         if self.attachments:
             
@@ -91,9 +94,12 @@ class EditMessage(BaseConnection):
                 else:
                     json['attachments'].append(att.model_dump()) 
                     
-        if not self.link is None: json['link'] = self.link.model_dump()
-        if not self.notify is None: json['notify'] = self.notify
-        if not self.parse_mode is None: json['format'] = self.parse_mode.value
+        if self.link is not None: 
+            json['link'] = self.link.model_dump()
+        if self.notify is not None: 
+            json['notify'] = self.notify
+        if self.parse_mode is not None: 
+            json['format'] = self.parse_mode.value
 
         await asyncio.sleep(self.bot.after_input_media_delay)
         

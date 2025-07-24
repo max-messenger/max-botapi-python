@@ -70,13 +70,17 @@ class SendMessage(BaseConnection):
             SendedMessage или Error
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         json: Dict[str, Any] = {'attachments': []}
 
-        if self.chat_id: params['chat_id'] = self.chat_id
-        elif self.user_id: params['user_id'] = self.user_id
+        if self.chat_id: 
+            params['chat_id'] = self.chat_id
+        elif self.user_id: 
+            params['user_id'] = self.user_id
 
         json['text'] = self.text
         
@@ -96,9 +100,13 @@ class SendMessage(BaseConnection):
                 else:
                     json['attachments'].append(att.model_dump()) 
         
-        if not self.link is None: json['link'] = self.link.model_dump()
+        if self.link is not None: 
+            json['link'] = self.link.model_dump()
+            
         json['notify'] = self.notify
-        if not self.parse_mode is None: json['format'] = self.parse_mode.value
+        
+        if self.parse_mode is not None: 
+            json['format'] = self.parse_mode.value
         
         await asyncio.sleep(self.bot.after_input_media_delay)
 

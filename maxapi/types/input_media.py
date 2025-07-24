@@ -1,14 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import puremagic
 
 from ..enums.upload_type import UploadType
-
-
-if TYPE_CHECKING:
-    from io import BytesIO
 
 
 class InputMedia:

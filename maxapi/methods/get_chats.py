@@ -46,7 +46,10 @@ class GetChats(BaseConnection):
         Returns:
             Chats: Объект с данными по списку чатов.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         params['count'] = self.count

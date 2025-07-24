@@ -70,7 +70,8 @@ class BaseConnection:
             - dict (если is_return_raw=True)
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
         
         if not self.bot.session:
             self.bot.session = ClientSession(
@@ -100,7 +101,8 @@ class BaseConnection:
         
         raw = await r.json()
 
-        if is_return_raw: return raw
+        if is_return_raw: 
+            return raw
 
         model = model(**raw) # type: ignore
         

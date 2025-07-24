@@ -38,7 +38,10 @@ class GetVideo(BaseConnection):
         Returns:
             Video: Объект с информацией о видео.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.VIDEOS.value + '/' + self.video_token,

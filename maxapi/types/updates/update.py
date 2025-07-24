@@ -28,9 +28,9 @@ class Update(BaseModel):
     chat: Optional[Any] = Field(default=None, exclude=True)
 
     if TYPE_CHECKING:
-        bot: Optional[Bot]
-        from_user: Optional[User]
-        chat: Optional[Chat]
+        bot: Optional[Bot] # type: ignore
+        from_user: Optional[User] # type: ignore
+        chat: Optional[Chat] # type: ignore
 
     class Config:
         arbitrary_types_allowed=True

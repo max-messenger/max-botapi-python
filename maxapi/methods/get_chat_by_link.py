@@ -49,7 +49,9 @@ class GetChatByLink(BaseConnection):
             Chat: Объект с информацией о чате.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         return await super().request(
             method=HTTPMethod.GET, 
             path=ApiPath.CHATS.value + '/' + self.link[-1],

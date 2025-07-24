@@ -64,14 +64,16 @@ class EditChat(BaseConnection):
             Chat: Обновлённый объект чата.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         json: Dict[str, Any] = {}
 
         if self.icon:
             dump = self.icon.model_dump()
             counter = Counter(dump.values())
 
-            if not None in counter or \
+            if None not in counter or \
                 not counter[None] == 2:
                     
                 raise MaxIconParamsException(
@@ -81,9 +83,12 @@ class EditChat(BaseConnection):
             
             json['icon'] = dump
 
-        if self.title: json['title'] = self.title
-        if self.pin: json['pin'] = self.pin
-        if self.notify: json['notify'] = self.notify
+        if self.title: 
+            json['title'] = self.title
+        if self.pin: 
+            json['pin'] = self.pin
+        if self.notify: 
+            json['notify'] = self.notify
 
         return await super().request(
             method=HTTPMethod.PATCH, 

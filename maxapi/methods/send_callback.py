@@ -55,15 +55,19 @@ class SendCallback(BaseConnection):
             SendedCallback: Объект с результатом отправки callback.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         params['callback_id'] = self.callback_id
 
         json: Dict[str, Any] = {}
         
-        if self.message: json['message'] = self.message.model_dump()
-        if self.notification: json['notification'] = self.notification
+        if self.message: 
+            json['message'] = self.message.model_dump()
+        if self.notification: 
+            json['notification'] = self.notification
 
         return await super().request(
             method=HTTPMethod.POST, 

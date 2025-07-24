@@ -1,5 +1,3 @@
-from typing import Optional
-
 from ....enums.button_type import ButtonType
 
 from .button import Button

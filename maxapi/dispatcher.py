@@ -220,7 +220,7 @@ class Dispatcher:
                         continue
                         
                     for key in kwargs.copy().keys():
-                        if not key in func_args:
+                        if key not in func_args:
                             del kwargs[key]
                         
                     await handler.func_event(event_object, **kwargs)
@@ -247,9 +247,12 @@ class Dispatcher:
         await self.__ready(bot)
 
         while True:
+            
+            if self.bot is None:
+                raise RuntimeError('Bot не инициализирован')
                 
             try:
-                events: Dict = await self.bot.get_updates() # type: ignore
+                events: Dict = await self.bot.get_updates()
             except AsyncioTimeoutError:
                 continue
         
@@ -260,11 +263,11 @@ class Dispatcher:
                     await asyncio.sleep(GET_UPDATES_RETRY_DELAY)
                     continue
 
-                self.bot.marker_updates = events.get('marker') # type: ignore
+                self.bot.marker_updates = events.get('marker')
  
                 processed_events = await process_update_request(
                     events=events,
-                    bot=self.bot # type: ignore
+                    bot=self.bot
                 )
                 
                 for event in processed_events:
@@ -276,7 +279,7 @@ class Dispatcher:
             except Exception as e:
                 logger_dp.error(f'Общая ошибка при обработке событий: {e.__class__} - {e}')
 
-    async def handle_webhook(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080):
+    async def handle_webhook(self, bot: Bot, host: str = '127.0.0.1', port: int = 8080):
         
         """
         Запускает FastAPI-приложение для приёма обновлений через вебхук.
@@ -288,12 +291,15 @@ class Dispatcher:
 
         @webhook_app.post('/')
         async def _(request: Request):
+            if self.bot is None:
+                raise RuntimeError('Bot не инициализирован')
+        
             try:
                 event_json = await request.json()
 
                 event_object = await process_update_webhook(
                     event_json=event_json,
-                    bot=self.bot # type: ignore
+                    bot=self.bot
                 )
 
                 await self.handle(event_object)
@@ -308,7 +314,7 @@ class Dispatcher:
             port=port
         )
         
-    async def init_serve(self, bot: Bot, host: str = '0.0.0.0', port: int = 8080, **kwargs):
+    async def init_serve(self, bot: Bot, host: str = '127.0.0.1', port: int = 8080, **kwargs):
     
         """
         Запускает сервер для обработки входящих вебхуков.

@@ -57,14 +57,19 @@ class GetMembersChat(BaseConnection):
         Returns:
             GettedMembersChat: Объект с данными по участникам чата.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         if self.user_ids: 
             params['user_ids'] = ','.join([str(user_id) for user_id in self.user_ids])
             
-        if self.marker: params['marker'] = self.marker
-        if self.count: params['marker'] = self.count
+        if self.marker: 
+            params['marker'] = self.marker
+        if self.count: 
+            params['marker'] = self.count
 
         return await super().request(
             method=HTTPMethod.GET, 

@@ -49,7 +49,9 @@ class SendAction(BaseConnection):
         Returns:
             SendedAction: Результат выполнения запроса.
         """
-        assert self.bot is not None
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
         
         json: Dict[str, Any] = {}
 

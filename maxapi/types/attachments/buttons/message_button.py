@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 from ....enums.button_type import ButtonType
 
 from .button import Button

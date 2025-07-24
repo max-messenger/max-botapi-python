@@ -54,7 +54,9 @@ class RemoveMemberChat(BaseConnection):
             RemovedMemberChat: Результат удаления участника.
         """
         
-        assert self.bot is not None
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
+        
         params = self.bot.params.copy()
 
         params['chat_id'] = self.chat_id

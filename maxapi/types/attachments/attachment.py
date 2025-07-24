@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 from pydantic import BaseModel, Field
 
-from ...exceptions.download_file import NotAvailableForDownload
-
 from ...types.attachments.upload import AttachmentUpload
 from ...types.attachments.buttons import InlineButtonUnion
 from ...types.users import User

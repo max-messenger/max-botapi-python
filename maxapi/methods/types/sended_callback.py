@@ -21,4 +21,4 @@ class SendedCallback(BaseModel):
     bot: Optional[Any] = Field(default=None, exclude=True)
     
     if TYPE_CHECKING:
-        bot: Optional[Bot]
+        bot: Optional[Bot] # type: ignore
