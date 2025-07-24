@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from magic_filter import F, MagicFilter
 
@@ -44,7 +44,7 @@ class Handler:
         self.func_event: Callable = func_event
         self.update_type: UpdateType = update_type
         self.filters = []
-        self.state: State = None
+        self.state: Optional[State] = None
         self.middlewares: List[BaseMiddleware] = []
 
         for arg in args:
