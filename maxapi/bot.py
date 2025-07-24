@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 
 from .client.default import DefaultConnectionProperties
+from .types.errors import Error
 
 from .types.input_media import InputMedia, InputMediaBuffer
 
@@ -84,7 +85,8 @@ class Bot(BaseConnection):
             parse_mode: Optional[ParseMode] = None,
             notify: Optional[bool] = None,
             auto_requests: bool = True,
-            default_connection: Optional[DefaultConnectionProperties] = None
+            default_connection: Optional[DefaultConnectionProperties] = None,
+            after_input_media_delay: Optional[float] = None
         ):
         
         """
@@ -95,6 +97,7 @@ class Bot(BaseConnection):
         :param notify: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется) (не работает на стороне MAX)
         :param auto_requests: Автоматическое заполнение полей chat и from_user в Update
         :param default_connection: Настройки aiohttp
+        :param after_input_media_delay: Задержка в секундах после загрузки файла на сервера MAX (без этого чаще всего MAX не успевает обработать вложение и выдает ошибку `errors.process.attachment.file.not.processed`)
         с помощью API запросов если они не заложены как полноценные объекты в Update (по умолчанию True, при False chat и from_user в некоторых событиях будут выдавать None)
         """
         
@@ -102,6 +105,7 @@ class Bot(BaseConnection):
 
         self.bot = self
         self.default_connection = default_connection or DefaultConnectionProperties()
+        self.after_input_media_delay = after_input_media_delay or 2.0 
 
         self.__token = token
         self.params: Dict[str, Any] = {'access_token': self.__token}
@@ -132,7 +136,7 @@ class Bot(BaseConnection):
             link: Optional[NewMessageLink] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
-        ) -> SendedMessage:
+        ) -> Optional[SendedMessage | Error]:
         
         """
         Отправляет сообщение в чат или пользователю.
@@ -188,7 +192,7 @@ class Bot(BaseConnection):
             link: Optional[NewMessageLink] = None,
             notify: Optional[bool] = None,
             parse_mode: Optional[ParseMode] = None
-        ) -> EditedMessage:
+        ) -> Optional[EditedMessage | Error]:
         
         """
         Редактирует существующее сообщение.
