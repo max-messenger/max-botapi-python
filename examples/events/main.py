@@ -13,7 +13,13 @@ from maxapi.types import (
     MessageEdited, 
     MessageRemoved, 
     UserAdded, 
-    UserRemoved
+    UserRemoved,
+    BotStopped,
+    DialogCleared,
+    DialogMuted,
+    DialogUnmuted,
+    ChatButton,
+    MessageChatCreated
 )
 from maxapi.utils.inline_keyboard import InlineKeyboardBuilder
 
@@ -38,9 +44,9 @@ async def hello(event: MessageCreated):
         )
     )
     builder.add(
-        CallbackButton(
-            text='Кнопка 3',
-            payload='btn_3',
+        ChatButton(
+            text='Создать чат',
+            chat_title='Тест чат'
         )
     )
 
@@ -80,7 +86,7 @@ async def bot_started(event: BotStarted):
 async def chat_title_changed(event: ChatTitleChanged):
     await event.bot.send_message(
         chat_id=event.chat_id,
-        text=f'Крутое новое название "{event.chat.title}!"'
+        text=f'Крутое новое название "{event.chat.title}"!'
     )
     
     
@@ -111,6 +117,34 @@ async def user_added(event: UserAdded):
     await event.bot.send_message(
         chat_id=event.chat_id,
         text=f'Чат "{event.chat.title}" приветствует вас, {event.user.first_name}!'
+    )
+    
+
+@dp.bot_stopped()
+async def bot_stopped(event: BotStopped):
+    print(event.from_user.full_name, 'остановил бота') # type: ignore
+    
+    
+@dp.dialog_cleared()
+async def dialog_cleared(event: DialogCleared):
+    print(event.from_user.full_name, 'очистил историю чата с ботом') # type: ignore
+    
+    
+@dp.dialog_muted()
+async def dialog_muted(event: DialogMuted):
+    print(event.from_user.full_name, 'отключил оповещения от чата бота до ', event.muted_until_datetime) # type: ignore
+    
+    
+@dp.dialog_unmuted()
+async def dialog_unmuted(event: DialogUnmuted):
+    print(event.from_user.full_name, 'включил оповещения от чата бота') # type: ignore
+    
+
+@dp.message_chat_created()
+async def message_chat_created(event: MessageChatCreated):
+    await event.bot.send_message(
+        chat_id=event.chat.chat_id,
+        text=f'Чат создан! Ссылка: {event.chat.link}'
     )
 
 
