@@ -84,11 +84,15 @@ class SendMessage(BaseConnection):
 
         json['text'] = self.text
         
+        HAS_INPUT_MEDIA = False
+        
         if self.attachments:
             
             for att in self.attachments:
-
-                if isinstance(att, InputMedia) or isinstance(att, InputMediaBuffer):
+                
+                if isinstance(att, (InputMedia, InputMediaBuffer)):
+                    HAS_INPUT_MEDIA = True
+                    
                     input_media = await process_input_media(
                         base_connection=self,
                         bot=self.bot,
@@ -108,7 +112,8 @@ class SendMessage(BaseConnection):
         if self.parse_mode is not None: 
             json['format'] = self.parse_mode.value
         
-        await asyncio.sleep(self.bot.after_input_media_delay)
+        if HAS_INPUT_MEDIA:
+            await asyncio.sleep(self.bot.after_input_media_delay)
 
         response = None
         for attempt in range(self.ATTEMPTS_COUNT):
