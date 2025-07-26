@@ -16,7 +16,7 @@ async def handle_message(event: MessageCreated):
 
 
 async def main():
-    await dp.handle_webhook(bot)
+    await dp.handle_webhook(bot, log_level='critical')
 
 
 if __name__ == '__main__':
