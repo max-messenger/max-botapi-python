@@ -1,6 +1,6 @@
 [project]
 name = "maxapi"
-version = "0.9.1"
+version = "0.9.2"
 description = "Библиотека для разработки чат-ботов с помощью API мессенджера MAX"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,13 +14,15 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp>=3.8.0",
-    "fastapi>=0.68.0",
     "magic_filter>=1.0.0",
     "pydantic>=1.8.0",
-    "uvicorn>=0.15.0",
     "aiofiles==24.1.0",
     "puremagic==1.30"
 ]
+
+optional-dependencies = { 
+    webhook = ["fastapi>=0.68.0", "uvicorn>=0.15.0"]
+}
 
 [project.urls]
 Homepage = "https://github.com/love-apples/maxapi"
