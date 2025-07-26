@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 from ..types.updates.bot_added import BotAdded
 from ..types.updates.bot_removed import BotRemoved
 from ..types.updates.bot_started import BotStarted
+from ..types.updates.bot_stopped import BotStopped
 from ..types.updates.chat_title_changed import ChatTitleChanged
 from ..types.updates.message_callback import MessageCallback
 from ..types.updates.message_created import MessageCreated
@@ -11,6 +12,11 @@ from ..types.updates.message_edited import MessageEdited
 from ..types.updates.message_removed import MessageRemoved
 from ..types.updates.user_added import UserAdded
 from ..types.updates.user_removed import UserRemoved
+from ..types.updates.dialog_cleared import DialogCleared
+from ..types.updates.dialog_muted import DialogMuted
+from ..types.updates.dialog_unmuted import DialogUnmuted
+
+from ..enums.chat_type import ChatType
 
 if TYPE_CHECKING:
     from ..bot import Bot
@@ -25,15 +31,23 @@ async def enrich_event(event_object: Any, bot: Bot) -> Any:
         event_object.chat = await bot.get_chat_by_id(event_object.chat_id)
 
     if isinstance(event_object, (MessageCreated, MessageEdited, MessageCallback)):
-        event_object.chat = await bot.get_chat_by_id(event_object.message.recipient.chat_id)
+        
+        if event_object.message.recipient.chat_id is not None:
+            event_object.chat = await bot.get_chat_by_id(event_object.message.recipient.chat_id)
+            
         event_object.from_user = getattr(event_object.message, 'sender', None)
 
     elif isinstance(event_object, MessageRemoved):
         event_object.chat = await bot.get_chat_by_id(event_object.chat_id)
-        event_object.from_user = await bot.get_chat_member(
-            chat_id=event_object.chat_id,
-            user_id=event_object.user_id
-        )
+        
+        if event_object.chat.type == ChatType.CHAT:
+            event_object.from_user = await bot.get_chat_member(
+                chat_id=event_object.chat_id,
+                user_id=event_object.user_id
+            )
+            
+        elif event_object.chat.type == ChatType.DIALOG:
+            event_object.from_user = event_object.chat
 
     elif isinstance(event_object, UserRemoved):
         event_object.chat = await bot.get_chat_by_id(event_object.chat_id)
@@ -47,7 +61,7 @@ async def enrich_event(event_object: Any, bot: Bot) -> Any:
         event_object.chat = await bot.get_chat_by_id(event_object.chat_id)
         event_object.from_user = event_object.user
 
-    elif isinstance(event_object, (BotAdded, BotRemoved, BotStarted, ChatTitleChanged)):
+    elif isinstance(event_object, (BotAdded, BotRemoved, BotStarted, ChatTitleChanged, BotStopped, DialogCleared, DialogMuted, DialogUnmuted)):
         event_object.chat = await bot.get_chat_by_id(event_object.chat_id)
         event_object.from_user = event_object.user
 
