@@ -44,7 +44,7 @@ async def echo(event: MessageCreated):
     
     
 @dp.message_created(Command('builder'))
-async def echo(event: MessageCreated):
+async def builder(event: MessageCreated):
     builder = InlineKeyboardBuilder()
     
     builder.row(
@@ -88,7 +88,7 @@ async def echo(event: MessageCreated):
     
     
 @dp.message_created(Command('payload'))
-async def echo(event: MessageCreated):
+async def payload(event: MessageCreated):
     buttons = [
         [
             # кнопку типа "chat" убрали из документации,
@@ -133,7 +133,7 @@ async def echo(event: MessageCreated):
     
     
 @dp.message_chat_created()
-async def callback(obj: MessageChatCreated):
+async def message_chat_created(obj: MessageChatCreated):
     await obj.bot.send_message(
         chat_id=obj.chat.chat_id,
         text=f'Чат создан! Ссылка: {obj.chat.link}'
@@ -141,7 +141,7 @@ async def callback(obj: MessageChatCreated):
     
 
 @dp.message_callback()
-async def callback(callback: MessageCallback):
+async def message_callback(callback: MessageCallback):
     await callback.message.answer('Вы нажали на Callback!')
 
 
