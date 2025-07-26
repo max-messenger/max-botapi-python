@@ -68,8 +68,8 @@ class Recipient(BaseModel):
         chat_type (ChatType): Тип получателя (диалог или чат).
     """
     
-    user_id: int
-    chat_id: int
+    user_id: Optional[int] = None
+    chat_id: Optional[int] = None
     chat_type: ChatType
 
 
