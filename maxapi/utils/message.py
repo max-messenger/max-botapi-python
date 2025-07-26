@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from json import loads
+from uuid import uuid4
 
 from ..types.input_media import InputMedia, InputMediaBuffer
 from ..enums.upload_type import UploadType
@@ -46,6 +47,7 @@ async def process_input_media(
         )
     elif isinstance(att, InputMediaBuffer): 
         upload_file_response = await base_connection.upload_file_buffer(
+            filename=att.filename or str(uuid4()),
             url=upload.url,
             buffer=att.buffer,
             type=att.type,

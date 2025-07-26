@@ -68,13 +68,15 @@ class InputMediaBuffer:
         type (UploadType): Тип файла, определенный по содержимому.
     """
 
-    def __init__(self, buffer: bytes):
+    def __init__(self, buffer: bytes, filename: str | None = None):
         """
         Инициализирует объект медиафайла из буфера.
 
         Args:
             buffer (IO): Буфер с содержимым файла.
+            filename (str): Название файла (по умолчанию присваивается uuid4).
         """
+        self.filename = filename
         self.buffer = buffer
         self.type = self.__detect_file_type(buffer)
 

@@ -4,7 +4,6 @@ import os
 import mimetypes
 
 from typing import TYPE_CHECKING, Any, Optional
-from uuid import uuid4
 
 import aiofiles
 import puremagic
@@ -156,6 +155,7 @@ class BaseConnection:
         
     async def upload_file_buffer(
         self,
+        filename: str,
         url: str,
         buffer: bytes,
         type: UploadType
@@ -182,7 +182,7 @@ class BaseConnection:
             mime_type = f"{type.value}/*"
             ext = ''
 
-        basename = f'{uuid4()}{ext}'
+        basename = f'{filename}{ext}'
 
         form = FormData()
         form.add_field(
