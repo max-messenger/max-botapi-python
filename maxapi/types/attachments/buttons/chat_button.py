@@ -17,7 +17,7 @@ class ChatButton(Button):
     """
     
     type: ButtonType = ButtonType.CHAT
-    chat_title: Optional[str] = None
+    chat_title: str
     chat_description: Optional[str] = None
     start_payload: Optional[str] = None
     uuid: Optional[int] = None 
