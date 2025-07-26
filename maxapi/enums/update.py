@@ -20,6 +20,10 @@ class UpdateType(str, Enum):
     MESSAGE_REMOVED = 'message_removed'
     USER_ADDED = 'user_added'
     USER_REMOVED = 'user_removed'
+    BOT_STOPPED = 'bot_stopped'
+    DIALOG_CLEARED = 'dialog_cleared'
+    DIALOG_MUTED = 'dialog_muted'
+    DIALOG_UNMUTED = 'dialog_unmuted'
 
     # Для начинки диспатчера
     ON_STARTED = 'on_started'
