@@ -35,6 +35,13 @@ class User(BaseModel):
     avatar_url: Optional[str] = None
     full_avatar_url: Optional[str] = None
     commands: Optional[List[BotCommand]] = None
+    
+    @property
+    def full_name(self):
+        if self.last_name is None:
+            return self.first_name
+        
+        return f'{self.first_name} {self.last_name}'
 
     class Config:
         json_encoders = {
