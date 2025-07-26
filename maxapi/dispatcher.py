@@ -5,9 +5,6 @@ import asyncio
 from typing import Any, Callable, Dict, List, TYPE_CHECKING, Optional
 from asyncio.exceptions import TimeoutError as AsyncioTimeoutError
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from uvicorn import Config, Server
 from aiohttp import ClientConnectorError
 
 from .filters.middleware import BaseMiddleware
@@ -17,7 +14,7 @@ from .context import MemoryContext
 from .types.updates import UpdateUnion
 from .types.errors import Error
 
-from .methods.types.getted_updates import process_update_webhook, process_update_request
+from .methods.types.getted_updates import process_update_request, process_update_webhook
 
 from .filters import filter_attrs
 
@@ -25,11 +22,24 @@ from .bot import Bot
 from .enums.update import UpdateType
 from .loggers import logger_dp
 
+
+try:
+    from fastapi import FastAPI, Request # type: ignore
+    from fastapi.responses import JSONResponse # type: ignore
+    FASTAPI_INSTALLED = True
+except ImportError:
+    FASTAPI_INSTALLED = False
+    
+    
+try:
+    from uvicorn import Config, Server # type: ignore
+    UVICORN_INSTALLED = True
+except ImportError:
+    UVICORN_INSTALLED = False
+    
+
 if TYPE_CHECKING:
     from magic_filter import MagicFilter
-
-
-webhook_app = FastAPI()
 
 CONNECTION_RETRY_DELAY = 30
 GET_UPDATES_RETRY_DELAY = 5
@@ -44,11 +54,13 @@ class Dispatcher:
     применение middleware, фильтров и вызов соответствующих обработчиков.
     """
     
-    def __init__(self) -> None:
+    def __init__(self, router_id: str | None = None) -> None:
         
         """
         Инициализация диспетчера.
         """
+        
+        self.router_id = router_id
         
         self.event_handlers: List[Handler] = []
         self.contexts: List[MemoryContext] = []
@@ -57,12 +69,17 @@ class Dispatcher:
         self.middlewares: List[BaseMiddleware] = []
         
         self.bot: Optional[Bot] = None
+        self.webhook_app: Optional[FastAPI] = None
         self.on_started_func: Optional[Callable] = None
 
         self.message_created = Event(update_type=UpdateType.MESSAGE_CREATED, router=self)
         self.bot_added = Event(update_type=UpdateType.BOT_ADDED, router=self)
         self.bot_removed = Event(update_type=UpdateType.BOT_REMOVED, router=self)
         self.bot_started = Event(update_type=UpdateType.BOT_STARTED, router=self)
+        self.bot_stopped = Event(update_type=UpdateType.BOT_STOPPED, router=self)
+        self.dialog_cleared = Event(update_type=UpdateType.DIALOG_CLEARED, router=self)
+        self.dialog_muted = Event(update_type=UpdateType.DIALOG_MUTED, router=self)
+        self.dialog_unmuted = Event(update_type=UpdateType.DIALOG_UNMUTED, router=self)
         self.chat_title_changed = Event(update_type=UpdateType.CHAT_TITLE_CHANGED, router=self)
         self.message_callback = Event(update_type=UpdateType.MESSAGE_CALLBACK, router=self)
         self.message_chat_created = Event(update_type=UpdateType.MESSAGE_CHAT_CREATED, router=self)
@@ -71,6 +88,23 @@ class Dispatcher:
         self.user_added = Event(update_type=UpdateType.USER_ADDED, router=self)
         self.user_removed = Event(update_type=UpdateType.USER_REMOVED, router=self)
         self.on_started = Event(update_type=UpdateType.ON_STARTED, router=self)
+        
+    def webhook_post(self, path: str):
+        def decorator(func):
+            if self.webhook_app is None:
+                try:
+                    from fastapi import FastAPI # type: ignore
+                except ImportError:
+                    raise ImportError(
+                        '\n\t Не установлен fastapi!'
+                        '\n\t Выполните команду для установки fastapi: '
+                        '\n\t pip install fastapi>=0.68.0'
+                        '\n\t Или сразу все зависимости для работы вебхука:'
+                        '\n\t pip install maxapi[webhook]'
+                    )
+                self.webhook_app = FastAPI()
+            return self.webhook_app.post(path)(func)
+        return decorator
         
     async def check_me(self):
         
@@ -178,13 +212,18 @@ class Dispatcher:
             memory_context = self.__get_memory_context(*ids)
             current_state = await memory_context.get_state()
             kwargs = {'context': memory_context}
+            router_id = None
+            
+            process_info = f'{event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}'
             
             is_handled = False
             
-            for router in self.routers:
+            for index, router in enumerate(self.routers):
                 
                 if is_handled:
                     break
+                
+                router_id = router.router_id or index
                 
                 if router.filters:
                     if not filter_attrs(event_object, *router.filters):
@@ -225,16 +264,16 @@ class Dispatcher:
                         
                     await handler.func_event(event_object, **kwargs)
 
-                    logger_dp.info(f'Обработано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+                    logger_dp.info(f'Обработано: {router_id} | {process_info}')
 
                     is_handled = True
                     break
 
             if not is_handled:
-                logger_dp.info(f'Проигнорировано: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]}')
+                logger_dp.info(f'Проигнорировано: {router_id} | {process_info}')
             
         except Exception as e:
-            logger_dp.error(f"Ошибка при обработке события: {event_object.update_type} | chat_id: {ids[0]}, user_id: {ids[1]} | {e} ")
+            logger_dp.error(f"Ошибка при обработке события: {router_id} | {process_info} | {e} ")
 
     async def start_polling(self, bot: Bot):
         
@@ -279,7 +318,7 @@ class Dispatcher:
             except Exception as e:
                 logger_dp.error(f'Общая ошибка при обработке событий: {e.__class__} - {e}')
 
-    async def handle_webhook(self, bot: Bot, host: str = '127.0.0.1', port: int = 8080):
+    async def handle_webhook(self, bot: Bot, host: str = 'localhost', port: int = 8080, **kwargs):
         
         """
         Запускает FastAPI-приложение для приёма обновлений через вебхук.
@@ -288,33 +327,58 @@ class Dispatcher:
         :param host: Хост, на котором запускается сервер.
         :param port: Порт сервера.
         """
-
-        @webhook_app.post('/')
-        async def _(request: Request):
-            if self.bot is None:
-                raise RuntimeError('Bot не инициализирован')
         
-            try:
-                event_json = await request.json()
-
-                event_object = await process_update_webhook(
-                    event_json=event_json,
-                    bot=self.bot
-                )
-
-                await self.handle(event_object)
-                
-                return JSONResponse(content={'ok': True}, status_code=200)
-            except Exception as e:
-                logger_dp.error(f"Ошибка при обработке события: {event_json['update_type']}: {e}")
-
+        if not FASTAPI_INSTALLED:
+            raise ImportError(
+                '\n\t Не установлен fastapi!'
+                '\n\t Выполните команду для установки fastapi: '
+                '\n\t pip install fastapi>=0.68.0'
+                '\n\t Или сразу все зависимости для работы вебхука:'
+                '\n\t pip install maxapi[webhook]'
+            )
+            
+        elif not UVICORN_INSTALLED:
+            raise ImportError(
+                '\n\t Не установлен uvicorn!'
+                '\n\t Выполните команду для установки uvicorn: '
+                '\n\t pip install uvicorn>=0.15.0'
+                '\n\t Или сразу все зависимости для работы вебхука:'
+                '\n\t pip install maxapi[webhook]'
+            )
+        
+        # try:
+        #     from fastapi import Request
+        #     from fastapi.responses import JSONResponse
+        # except ImportError:
+        #     raise ImportError(
+        #         '\n\t Не установлен fastapi!'
+        #         '\n\t Выполните команду для установки fastapi: '
+        #         '\n\t pip install fastapi>=0.68.0'
+        #         '\n\t Или сразу все зависимости для работы вебхука:'
+        #         '\n\t pip install maxapi[webhook]'
+        #     )
+            
+        
+        @self.webhook_post('/')
+        async def _(request: Request):
+            event_json = await request.json()
+            event_object = await process_update_webhook(
+                event_json=event_json,
+                bot=bot
+            )
+            
+            await self.handle(event_object)
+            return JSONResponse(content={'ok': True}, status_code=200)
+        
+        
         await self.init_serve(
             bot=bot,
             host=host,
-            port=port
+            port=port, 
+            **kwargs
         )
         
-    async def init_serve(self, bot: Bot, host: str = '127.0.0.1', port: int = 8080, **kwargs):
+    async def init_serve(self, bot: Bot, host: str = 'localhost', port: int = 8080, **kwargs):
     
         """
         Запускает сервер для обработки входящих вебхуков.
@@ -324,7 +388,30 @@ class Dispatcher:
         :param port: Порт сервера.
         """
         
-        config = Config(app=webhook_app, host=host, port=port, **kwargs)
+        # try:
+        #     from uvicorn import Config, Server
+        # except ImportError:
+        #     raise ImportError(
+        #         '\n\t Не установлен uvicorn!'
+        #         '\n\t Выполните команду для установки uvicorn: '
+        #         '\n\t pip install uvicorn>=0.15.0'
+        #         '\n\t Или сразу все зависимости для работы вебхука:'
+        #         '\n\t pip install maxapi[webhook]'
+        #     )
+        
+        if not UVICORN_INSTALLED:
+            raise ImportError(
+                '\n\t Не установлен uvicorn!'
+                '\n\t Выполните команду для установки uvicorn: '
+                '\n\t pip install uvicorn>=0.15.0'
+                '\n\t Или сразу все зависимости для работы вебхука:'
+                '\n\t pip install maxapi[webhook]'
+            )
+            
+        if self.webhook_app is None:
+            raise RuntimeError('webhook_app не инициализирован')
+            
+        config = Config(app=self.webhook_app, host=host, port=port, **kwargs)
         server = Server(config)
         
         await self.__ready(bot)
@@ -338,8 +425,8 @@ class Router(Dispatcher):
     Роутер для группировки обработчиков событий.
     """
     
-    def __init__(self):
-        super().__init__()
+    def __init__(self, router_id: str | None = None):
+        super().__init__(router_id)
 
 
 class Event:
