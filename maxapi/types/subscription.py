@@ -15,4 +15,4 @@ class Subscription(BaseModel):
     
     url: str
     time: int
-    update_types: Optional[List[str]] = None
+    update_types: Optional[List[str]] = None 
