@@ -75,6 +75,7 @@ class Dispatcher:
         self.bot: Optional[Bot] = None
         self.webhook_app: Optional[FastAPI] = None
         self.on_started_func: Optional[Callable] = None
+        self.polling = False
 
         self.message_created = Event(update_type=UpdateType.MESSAGE_CREATED, router=self)
         self.bot_added = Event(update_type=UpdateType.BOT_ADDED, router=self)
@@ -152,6 +153,13 @@ class Dispatcher:
         """
         
         self.bot = bot
+        
+        if self.polling and self.bot.auto_check_subscriptions:
+            response = await self.bot.get_subscriptions()
+            
+            if response.subscriptions:
+                logger_subscriptions_text = ', '.join([s.url for s in response.subscriptions])
+                logger_dp.warning('БОТ ИГНОРИРУЕТ POLLING! Обнаружены установленные подписки: %s', logger_subscriptions_text)
         
         await self.check_me()
         
@@ -271,12 +279,14 @@ class Dispatcher:
         :param bot: Экземпляр бота.
         """
         
+        self.polling = True
+        
         await self.__ready(bot)
+        
+        if self.bot is None:
+            raise RuntimeError('Bot не инициализирован')
 
-        while True:
-            
-            if self.bot is None:
-                raise RuntimeError('Bot не инициализирован')
+        while self.polling:
                 
             try:
                 events: Dict = await self.bot.get_updates()
