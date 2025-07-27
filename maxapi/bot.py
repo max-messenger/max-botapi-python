@@ -9,9 +9,12 @@ from .types.errors import Error
 from .types.input_media import InputMedia, InputMediaBuffer
 
 from .connection.base import BaseConnection
+from .loggers import logger_bot
+
 from .enums.parse_mode import ParseMode
 from .enums.sender_action import SenderAction
 from .enums.upload_type import UploadType
+from .enums.update import UpdateType
 
 from .methods.add_admin_chat import AddAdminChat
 from .methods.add_members_chat import AddMembersChat
@@ -20,7 +23,7 @@ from .methods.delete_bot_from_chat import DeleteMeFromMessage
 from .methods.delete_chat import DeleteChat
 from .methods.delete_message import DeleteMessage
 from .methods.delete_pin_message import DeletePinMessage
-from .methods.download_media import DownloadMedia
+# from .methods.download_media import DownloadMedia
 from .methods.edit_chat import EditChat
 from .methods.edit_message import EditMessage
 from .methods.get_chat_by_id import GetChatById
@@ -41,6 +44,12 @@ from .methods.remove_member_chat import RemoveMemberChat
 from .methods.send_action import SendAction
 from .methods.send_callback import SendCallback
 from .methods.send_message import SendMessage
+from .methods.get_subscriptions import GetSubscriptions
+from .methods.types.getted_subscriptions import GettedSubscriptions
+from .methods.subscribe_webhook import SubscribeWebhook
+from .methods.types.subscribed import Subscribed
+from .methods.types.unsubscribed import Unsubscribed
+from .methods.unsubscribe_webhook import UnsubscribeWebhook
 
 if TYPE_CHECKING:
     from .types.attachments.attachment import Attachment
@@ -85,7 +94,8 @@ class Bot(BaseConnection):
             notify: Optional[bool] = None,
             auto_requests: bool = True,
             default_connection: Optional[DefaultConnectionProperties] = None,
-            after_input_media_delay: Optional[float] = None
+            after_input_media_delay: Optional[float] = None,
+            auto_check_subscriptions: bool = True
         ):
         
         """
@@ -94,17 +104,18 @@ class Bot(BaseConnection):
         :param token: Токен доступа к API бота
         :param parse_mode: Форматирование по умолчанию
         :param notify: Отключение уведомлений при отправке сообщений (по умолчанию игнорируется) (не работает на стороне MAX)
-        :param auto_requests: Автоматическое заполнение полей chat и from_user в Update
+        :param auto_requests: Автоматическое заполнение полей chat и from_user в Update с помощью API запросов если они не заложены как полноценные объекты в Update (по умолчанию True, при False chat и from_user в некоторых событиях будут выдавать None)
         :param default_connection: Настройки aiohttp
         :param after_input_media_delay: Задержка в секундах после загрузки файла на сервера MAX (без этого чаще всего MAX не успевает обработать вложение и выдает ошибку `errors.process.attachment.file.not.processed`)
-        с помощью API запросов если они не заложены как полноценные объекты в Update (по умолчанию True, при False chat и from_user в некоторых событиях будут выдавать None)
+        :param auto_check_subscriptions: Проверка на установленные подписки для метода start_polling (бот не работает в поллинге при установленных подписках)
         """
         
         super().__init__()
 
         self.bot = self
         self.default_connection = default_connection or DefaultConnectionProperties()
-        self.after_input_media_delay = after_input_media_delay or 2.0 
+        self.after_input_media_delay = after_input_media_delay or 2.0
+        self.auto_check_subscriptions = auto_check_subscriptions
 
         self.__token = token
         self.params: Dict[str, Any] = {'access_token': self.__token}
@@ -765,26 +776,100 @@ class Bot(BaseConnection):
             commands=list(commands)
         ).fetch()
         
-    async def download_file(
-            self, 
-            path: str, 
-            url: str, 
-            token: str
-        ):
+    async def get_subscriptions(self) -> GettedSubscriptions:
         
         """
-        Скачивает медиа с указанной ссылки по токену, сохраняя по определенному пути
+        Получает список всех подписок.
 
-        :param path: Путь сохранения медиа
-        :param url: Ссылка на медиа
-        :param token: Токен медиа
-
-        :return: Числовой статус
+        :return: Объект со списком подписок
         """
         
-        return await DownloadMedia(
+        return await GetSubscriptions(bot=self).fetch()
+    
+    async def subscribe_webhook(
+            self,
+            url: str,
+            update_types: Optional[List[UpdateType]] = None,
+            secret: Optional[str] = None
+        ) -> Subscribed:
+        
+        """
+        Подписывает бота на получение обновлений через WebHook. 
+        После вызова этого метода бот будет получать уведомления о новых событиях в чатах на указанный URL. 
+        Ваш сервер должен прослушивать один из следующих портов: `80`, `8080`, `443`, `8443`, `16384`-`32383`.
+
+        :param url: URL HTTP(S)-эндпойнта вашего бота. Должен начинаться с http(s)://
+        :param update_types: Список типов обновлений, которые ваш бот хочет получать. 
+        Для полного списка типов см. объект
+        :param secret: От 5 до 256 символов. Cекрет, который должен быть отправлен в заголовке X-Max-Bot-Api-Secret 
+        в каждом запросе Webhook. Разрешены только символы A-Z, a-z, 0-9, и дефис. 
+        Заголовок рекомендован, чтобы запрос поступал из установленного веб-узла
+
+        :return: Обновленная информация о боте
+        """
+        
+        return await SubscribeWebhook(
             bot=self,
-            path=path, 
-            media_url=url, 
-            media_token=token
+            url=url,
+            update_types=update_types,
+            secret=secret
         ).fetch()
+        
+    async def unsubscribe_webhook(
+            self,
+            url: str,
+        ) -> Unsubscribed:
+        
+        """
+        Отписывает бота от получения обновлений через WebHook. 
+        После вызова этого метода бот перестает получать уведомления о новых событиях, 
+        и доступна доставка уведомлений через API с длительным опросом.
+
+        :param url: URL HTTP(S)-эндпойнта вашего бота. Должен начинаться с http(s)://
+
+        :return: Обновленная информация о боте
+        """
+        
+        return await UnsubscribeWebhook(
+            bot=self,
+            url=url,
+        ).fetch()
+        
+    async def delete_webhook(self):
+        
+        """
+        Удаление всех подписок на Webhook
+        """
+        
+        subs = await self.get_subscriptions()
+        if subs.subscriptions:
+            
+            for sub in subs.subscriptions:
+                
+                await self.unsubscribe_webhook(sub.url)
+                logger_bot.info('Удалена подписка на Webhook: %s', sub.url)
+        
+        
+    # async def download_file(
+    #         self, 
+    #         path: str, 
+    #         url: str, 
+    #         token: str
+    #     ):
+        
+    #     """
+    #     Скачивает медиа с указанной ссылки по токену, сохраняя по определенному пути
+
+    #     :param path: Путь сохранения медиа
+    #     :param url: Ссылка на медиа
+    #     :param token: Токен медиа
+
+    #     :return: Числовой статус
+    #     """
+        
+    #     return await DownloadMedia(
+    #         bot=self,
+    #         path=path, 
+    #         media_url=url, 
+    #         media_token=token
+    #     ).fetch()
