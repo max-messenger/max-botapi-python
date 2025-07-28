@@ -44,14 +44,14 @@ class Handler:
         self.func_event: Callable = func_event
         self.update_type: UpdateType = update_type
         self.filters = []
-        self.state: Optional[State] = None
+        self.states: Optional[List[State]] = []
         self.middlewares: List[BaseMiddleware] = []
 
         for arg in args:
             if isinstance(arg, MagicFilter):
                 self.filters.append(arg)
             elif isinstance(arg, State):
-                self.state = arg
+                self.states.append(arg)
             elif isinstance(arg, (Command, CommandStart)):
                 self.filters.insert(0, F.message.body.text.split()[0] == arg.command)
             elif isinstance(arg, BaseMiddleware):

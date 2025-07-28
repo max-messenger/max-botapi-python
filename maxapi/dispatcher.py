@@ -240,9 +240,10 @@ class Dispatcher:
                     if handler.filters:
                         if not filter_attrs(event_object, *handler.filters):
                             continue
-
-                    if not handler.state == current_state and handler.state:
-                        continue
+                    
+                    if handler.states:
+                        if current_state not in handler.states:
+                            continue
                     
                     func_args = handler.func_event.__annotations__.keys()
                     
