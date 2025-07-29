@@ -347,7 +347,7 @@ class Bot(BaseConnection):
             name: Optional[str] = None, 
             description: Optional[str] = None,
             commands: Optional[List[BotCommand]] = None,
-            photo: Optional[Dict[str, Any]] = None
+            photo: Optional[PhotoAttachmentRequestPayload] = None
         ) -> User:
         
         """
