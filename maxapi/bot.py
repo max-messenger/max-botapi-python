@@ -136,6 +136,10 @@ class Bot(BaseConnection):
 
     def _resolve_parse_mode(self, mode: Optional[ParseMode]) -> Optional[ParseMode]:
         return mode if mode is not None else self.parse_mode
+    
+    async def close_session(self) -> None:
+        if self.session is not None:
+            await self.session.close()
         
     async def send_message(
             self,
