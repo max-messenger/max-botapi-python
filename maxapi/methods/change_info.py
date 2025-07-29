@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, TYPE_CHECKING, Optional
 
+from ..types.attachments.image import PhotoAttachmentRequestPayload
+
 from ..types.users import User
 from ..types.command import BotCommand
 
@@ -23,7 +25,7 @@ class ChangeInfo(BaseConnection):
         name (str, optional): Новое имя бота
         description (str, optional): Новое описание
         commands (List[BotCommand], optional): Список команд
-        photo (Dict[str, Any], optional): Данные фото
+        photo (PhotoAttachmentRequestPayload, optional): Данные фото
     """
     
     def __init__(
@@ -32,7 +34,7 @@ class ChangeInfo(BaseConnection):
             name: Optional[str] = None, 
             description: Optional[str] = None,
             commands: Optional[List[BotCommand]] = None,
-            photo: Optional[Dict[str, Any]] = None
+            photo: Optional[PhotoAttachmentRequestPayload] = None
         ):
             self.bot = bot
             self.name = name
@@ -60,7 +62,7 @@ class ChangeInfo(BaseConnection):
         if self.commands: 
             json['commands'] = [command.model_dump() for command in self.commands]
         if self.photo: 
-            json['photo'] = self.photo
+            json['photo'] = self.photo.model_dump()
 
         return await super().request(
             method=HTTPMethod.PATCH, 
