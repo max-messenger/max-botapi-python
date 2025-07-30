@@ -1,13 +1,5 @@
 <p align="center">
-  <a href="https://github.com/love-apples/maxapi"><img src="https://s.iimg.su/s/29/DCvw4dx2HZgFdTcpqGAs6xdnJnvD44r9zLga2GGe.png" alt="MaxAPI"></a>
-</p>
-
-
-<p align="center">
-<a href='https://github.com/love-apples/maxapi/wiki'>Документация</a> •
-<a href='https://github.com/love-apples/maxapi/tree/main/examples'>Примеры</a> •
-<a href='https://max.ru/join/IPAok63C3vFqbWTFdutMUtjmrAkGqO56YeAN7iyDfc8'>MAX Чат</a> •
-<a href='https://t.me/maxapi_github'>TG Чат</a>
+<a href='[https://github.com/max-messenger/max-botapi-python/maxapi/tree/main/examples'>Примеры</a> •
 </p>
 
 <p align="center">
@@ -17,7 +9,7 @@
 <a href='https://pypi.org/project/maxapi/'>
   <img src='https://img.shields.io/pypi/pyversions/maxapi.svg' alt='Python Version'>
 </a>
-<a href='https://love-apples/maxapi/blob/main/LICENSE'>
+<a href='https://github.com/max-messenger/max-botapi-python/blob/main/LICENSE'>
   <img src='https://img.shields.io/github/license/love-apples/maxapi.svg' alt='License'>
 </a>
 </p>
@@ -35,7 +27,7 @@ pip install maxapi
 Свежая версия, возможны баги. Рекомендуется только для ознакомления с новыми коммитами.
 
 ```bash
-pip install git+https://github.com/love-apples/maxapi.git
+pip install git+https://github.com/max-messenger/max-botapi-python.git
 ```
 
 
@@ -46,7 +38,7 @@ pip install git+https://github.com/love-apples/maxapi.git
 
 ### Запуск Polling
 
-Если у бота установлены подписки на Webhook - события не будут приходить при методе `start_polling`. При таком случае удалите подписки на Webhook через [MasterBot](https://web.max.ru/masterbot) или через `await bot.delete_webhook()` перед `start_polling`.
+Если у бота установлены подписки на Webhook - события не будут приходить при методе `start_polling`. через `await bot.delete_webhook()` перед `start_polling`.
 
 ```python
 import asyncio
