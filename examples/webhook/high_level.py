@@ -16,7 +16,12 @@ async def handle_message(event: MessageCreated):
 
 
 async def main():
-    await dp.handle_webhook(bot, log_level='critical')
+    await dp.handle_webhook(
+        bot=bot, 
+        host='localhost',
+        port=8080,
+        log_level='critical' # Можно убрать для подробного логгирования
+    )
 
 
 if __name__ == '__main__':
