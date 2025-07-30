@@ -54,8 +54,8 @@ async def builder(event: MessageCreated):
                 chat_description='Test desc'
         ),
         LinkButton(
-            text="Канал разработчика", 
-            url="https://t.me/loveapples_dev"
+            text="Документация MAX", 
+            url="https://dev.max.ru/docs"
         ),
     )
     
@@ -99,8 +99,8 @@ async def payload(event: MessageCreated):
                 chat_description='Test desc'
             ),
             LinkButton(
-                text="Канал разработчика", 
-                url="https://t.me/loveapples_dev"
+                text="Документация MAX", 
+                url="https://dev.max.ru/docs"
             ),
         ],
         [
