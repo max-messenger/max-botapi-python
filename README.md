@@ -1,5 +1,5 @@
 <p align="center">
-<a href='[https://github.com/max-messenger/max-botapi-python/maxapi/tree/main/examples'>Примеры</a> •
+<a href='https://github.com/max-messenger/max-botapi-python/tree/main/examples'>Примеры</a> •
 </p>
 
 <p align="center">
@@ -17,9 +17,9 @@
 Неофициальная библиотека для работы с Botapi MAX.
 Форк проверен командой МАХ. 
 
-## 📦 Установка из PyPi
+## 📦 Установка из PyPi 
 
-Стабильная версия
+Версия будет установлена от разработчика, для использования версии, проверенной командой МАХ, используйте установку из Github
 
 ```bash
 pip install maxapi
@@ -27,7 +27,6 @@ pip install maxapi
 
 ## 🐱‍👤 Установка из GitHub
 
-Свежая версия, возможны баги. Рекомендуется только для ознакомления с новыми коммитами.
 
 ```bash
 pip install git+https://github.com/max-messenger/max-botapi-python.git
@@ -84,7 +83,7 @@ if __name__ == '__main__':
 pip install maxapi[webhook]
 ```
 
-Указан пример простого запуска, для более низкого уровня можете рассмотреть [этот пример](https://github.com/love-apples/maxapi/blob/main/examples/webhook/low_level.py).
+Указан пример простого запуска, для более низкого уровня можете рассмотреть [этот пример](https://github.com/max-messenger/max-botapi-python/blob/main/examples/webhook/low_level.py).
 ```python
 import asyncio
 import logging
