@@ -1,12 +1,11 @@
 import asyncio
 import logging
 
-from typing import Any, Dict
+from typing import Any, Awaitable, Callable, Dict
 
 from maxapi import Bot, Dispatcher
 from maxapi.filters.middleware import BaseMiddleware
 from maxapi.types import MessageCreated, Command, UpdateUnion
-from maxapi.types.command import Command
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,30 +15,34 @@ dp = Dispatcher()
 
 class CheckChatTitleMiddleware(BaseMiddleware):
     async def __call__(
-            self, 
-            event: UpdateUnion,
-        ):
+        self,
+        handler: Callable[[Any, Dict[str, Any]], Awaitable[Any]],
+        event_object: UpdateUnion,
+        data: Dict[str, Any],
+    ) -> Any:
         
-        return event.chat.title == 'MAXApi'
+        if event_object.chat.title == 'MAXApi':
+            return await handler(event_object, data)
+
+
+class CustomDataMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[Any, Dict[str, Any]], Awaitable[Any]],
+        event_object: UpdateUnion,
+        data: Dict[str, Any],
+    ) -> Any:
+        
+        data['custom_data'] = f'Это ID того кто вызвал команду: {event_object.from_user.user_id}'
+        
+        await handler(event_object, data)
 
 
 @dp.message_created(Command('start'), CheckChatTitleMiddleware())
 async def start(event: MessageCreated):
     await event.message.answer('Это сообщение было отправлено, так как ваш чат называется "MAXApi"!')
-    
-    
-class CustomDataMiddleware(BaseMiddleware):
-    async def __call__(
-            self, 
-            event: UpdateUnion,
-            data: Dict[str, Any]
-        ):
-        
-        data['custom_data'] = f'Это ID того кто вызвал команду: {event.from_user.user_id}'
-        
-        return data
-    
 
+    
 @dp.message_created(Command('custom_data'), CustomDataMiddleware())
 async def custom_data(event: MessageCreated, custom_data: str):
     await event.message.answer(custom_data)

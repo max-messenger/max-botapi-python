@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from typing import Any, Dict
+from typing import Any, Awaitable, Callable, Dict
 
 from maxapi import Bot, Dispatcher
 from maxapi.types import MessageCreated, Command, UpdateUnion
@@ -15,14 +15,15 @@ dp = Dispatcher()
 
 class CustomDataForRouterMiddleware(BaseMiddleware):
     async def __call__(
-            self, 
-            event: UpdateUnion,
-            data: Dict[str, Any]
-        ):
+        self,
+        handler: Callable[[Any, Dict[str, Any]], Awaitable[Any]],
+        event_object: UpdateUnion,
+        data: Dict[str, Any],
+    ) -> Any:
         
-        data['custom_data'] = f'Это ID того кто вызвал команду: {event.from_user.user_id}'
-        
-        return data
+        data['custom_data'] = f'Это ID того кто вызвал команду: {event_object.from_user.user_id}'
+        result = await handler(event_object, data)
+        return result
     
 
 @dp.message_created(Command('custom_data'))
