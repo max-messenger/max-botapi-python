@@ -13,7 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "aiohttp>=3.8.0",
+    "aiohttp>=3.12.14",
     "magic_filter>=1.0.0",
     "pydantic>=1.8.0",
     "aiofiles==24.1.0",
