@@ -1,4 +1,4 @@
-## ⭐️ Примеры
+/команды ## ⭐️ Примеры
 
 - [Эхо бот](https://github.com/love-apples/maxapi/blob/main/examples/echo/main.py)
  - [Обработчик доступных событий](https://github.com/love-apples/maxapi/blob/main/examples/events/main.py)
